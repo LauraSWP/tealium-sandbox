@@ -1,0 +1,246 @@
+<!-- Data Layer Section -->
+<section id="data-layer" class="section-content hidden">
+    <div class="space-y-6">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-green-600 to-teal-600 rounded-xl p-6 text-white">
+            <h3 class="text-xl font-bold mb-2 flex items-center">
+                <i class="fas fa-database mr-3"></i>
+                Data Layer Management
+            </h3>
+            <p class="text-green-100">Configure and manage your utag_data variables</p>
+        </div>
+
+        <!-- Data Layer Builder -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold text-gray-900">Data Layer Builder</h4>
+                <div class="flex space-x-2">
+                    <button onclick="loadPresetDataLayer('ecommerce')" 
+                            class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                        E-commerce Preset
+                    </button>
+                    <button onclick="loadPresetDataLayer('content')" 
+                            class="text-green-600 hover:text-green-700 text-sm font-medium">
+                        Content Preset
+                    </button>
+                    <button onclick="loadPresetDataLayer('user')" 
+                            class="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                        User Preset
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Variable Form Builder -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <h5 class="font-medium text-gray-900 mb-3">Add Variable</h5>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Variable Name</label>
+                        <select id="dataLayerVariable" onchange="updateVariableInput()" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                            <option value="">Select or type custom</option>
+                            <optgroup label="Page Variables">
+                                <option value="page_name">page_name</option>
+                                <option value="page_type">page_type</option>
+                                <option value="page_url">page_url</option>
+                                <option value="page_title">page_title</option>
+                                <option value="site_section">site_section</option>
+                            </optgroup>
+                            <optgroup label="User Variables">
+                                <option value="user_id">user_id</option>
+                                <option value="user_type">user_type</option>
+                                <option value="user_status">user_status</option>
+                                <option value="customer_id">customer_id</option>
+                            </optgroup>
+                            <optgroup label="E-commerce Variables">
+                                <option value="product_id">product_id</option>
+                                <option value="product_name">product_name</option>
+                                <option value="product_category">product_category</option>
+                                <option value="product_price">product_price</option>
+                                <option value="product_quantity">product_quantity</option>
+                                <option value="order_id">order_id</option>
+                                <option value="order_total">order_total</option>
+                                <option value="currency">currency</option>
+                            </optgroup>
+                            <optgroup label="Event Variables">
+                                <option value="event_type">event_type</option>
+                                <option value="event_category">event_category</option>
+                                <option value="event_action">event_action</option>
+                                <option value="event_label">event_label</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Custom Name</label>
+                        <input type="text" id="customVariableName" placeholder="custom_variable"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Value</label>
+                        <input type="text" id="variableValue" placeholder="Enter value"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    
+                    <div class="flex items-end">
+                        <button onclick="addDataLayerVariable()" 
+                                class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Layer Editor -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h5 class="font-medium text-gray-900">Current Data Layer</h5>
+                    <div class="flex space-x-2">
+                        <button onclick="validateDataLayer()" 
+                                class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                            <i class="fas fa-check-circle mr-1"></i>Validate
+                        </button>
+                        <button onclick="formatDataLayer()" 
+                                class="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                            <i class="fas fa-code mr-1"></i>Format
+                        </button>
+                        <button onclick="clearDataLayer()" 
+                                class="text-red-600 hover:text-red-700 text-sm font-medium">
+                            <i class="fas fa-trash mr-1"></i>Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <textarea id="dataLayerEditor" rows="12" 
+                          placeholder="Data layer variables will appear here..."
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 font-mono text-sm">
+{
+  "page_name": "Tealium Sandbox Home",
+  "page_type": "sandbox",
+  "page_url": "sandbox.html",
+  "site_section": "sandbox",
+  "environment": "dev"
+}
+                </textarea>
+                
+                <div class="flex space-x-4">
+                    <button onclick="updateDataLayer()" 
+                            class="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        <i class="fas fa-sync-alt mr-2"></i>Update Data Layer
+                    </button>
+                    
+                    <button onclick="exportDataLayer()" 
+                            class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        <i class="fas fa-download mr-2"></i>Export JSON
+                    </button>
+                    
+                    <button onclick="importDataLayer()" 
+                            class="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-700 transition-colors font-medium">
+                        <i class="fas fa-upload mr-2"></i>Import JSON
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Layer Presets -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- E-commerce Preset -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-shopping-cart text-blue-600 mr-2"></i>
+                    E-commerce
+                </h4>
+                <p class="text-gray-600 text-sm mb-4">Product pages, cart, checkout variables</p>
+                <div class="space-y-2 text-sm text-gray-700">
+                    <div>• product_id, product_name</div>
+                    <div>• product_category, product_price</div>
+                    <div>• order_id, order_total</div>
+                    <div>• currency, product_quantity</div>
+                </div>
+                <button onclick="loadPresetDataLayer('ecommerce')" 
+                        class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                    Load Preset
+                </button>
+            </div>
+
+            <!-- Content Preset -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-file-alt text-green-600 mr-2"></i>
+                    Content
+                </h4>
+                <p class="text-gray-600 text-sm mb-4">Article, blog, content page variables</p>
+                <div class="space-y-2 text-sm text-gray-700">
+                    <div>• content_type, content_category</div>
+                    <div>• author, publish_date</div>
+                    <div>• article_id, word_count</div>
+                    <div>• tags, content_length</div>
+                </div>
+                <button onclick="loadPresetDataLayer('content')" 
+                        class="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
+                    Load Preset
+                </button>
+            </div>
+
+            <!-- User Preset -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-user text-purple-600 mr-2"></i>
+                    User
+                </h4>
+                <p class="text-gray-600 text-sm mb-4">User authentication, profile variables</p>
+                <div class="space-y-2 text-sm text-gray-700">
+                    <div>• user_id, user_type</div>
+                    <div>• user_status, customer_id</div>
+                    <div>• login_status, membership_level</div>
+                    <div>• registration_date, last_login</div>
+                </div>
+                <button onclick="loadPresetDataLayer('user')" 
+                        class="mt-4 w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors">
+                    Load Preset
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Data Layer Validation -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-check-double text-orange-600 mr-2"></i>
+                Data Layer Validation
+            </h4>
+            
+            <div id="validationResults" class="space-y-3">
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-clipboard-check text-gray-300 text-3xl mb-3"></i>
+                    <p>Click "Validate" to check your data layer</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Data Layer Monitor -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-eye text-teal-600 mr-2"></i>
+                    Real-time Monitor
+                </h4>
+                <button onclick="toggleDataLayerMonitor()" id="dataLayerMonitorBtn"
+                        class="bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition-colors">
+                    <i class="fas fa-play mr-2"></i>Start Monitor
+                </button>
+            </div>
+            
+            <div id="dataLayerMonitorOutput" class="bg-gray-50 rounded-lg p-4 h-40 overflow-y-auto font-mono text-sm">
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-play-circle text-gray-300 text-2xl mb-2"></i>
+                    <p>Start monitoring to see real-time data layer changes</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
