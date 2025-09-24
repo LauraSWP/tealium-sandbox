@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Listing - Tealium Sandbox</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- 
+    TEALIUM DATA LAYER - Product Listing Page
+    This page simulates an e-commerce product category/listing page
+    -->
+    <script type="text/javascript">
+        var utag_data = {
+            // Page Information
+            "page_name": "Product Listing",
+            "page_type": "category",
+            "page_url": window.location.href,
+            "page_title": document.title,
+            
+            // Site Information
+            "site_name": "Tealium Sandbox Store",
+            "site_section": "products",
+            "site_category": "electronics",
+            
+            // Category Information
+            "category_name": "Electronics",
+            "category_id": "CAT-001",
+            "category_hierarchy": "Home > Electronics",
+            "products_displayed": 12,
+            "products_total": 156,
+            "page_number": 1,
+            "products_per_page": 12,
+            
+            // Filter Information
+            "applied_filters": ["brand:apple", "price:100-500"],
+            "sort_method": "popularity",
+            
+            // Product Arrays (for products visible on page)
+            "product_id": ["PROD-001", "PROD-002", "PROD-003", "PROD-004", "PROD-005", "PROD-006"],
+            "product_name": ["iPhone 15 Pro", "MacBook Air M2", "iPad Pro", "AirPods Pro", "Apple Watch Series 9", "iMac 24-inch"],
+            "product_category": ["Smartphones", "Laptops", "Tablets", "Audio", "Wearables", "Computers"],
+            "product_subcategory": ["Premium Phones", "Ultrabooks", "Professional Tablets", "Wireless Earbuds", "Smart Watches", "All-in-One"],
+            "product_brand": ["Apple", "Apple", "Apple", "Apple", "Apple", "Apple"],
+            "product_price": [999.99, 1199.99, 1099.99, 249.99, 399.99, 1299.99],
+            "product_currency": ["USD", "USD", "USD", "USD", "USD", "USD"],
+            "product_availability": ["in_stock", "in_stock", "low_stock", "in_stock", "in_stock", "in_stock"],
+            "product_rating": [4.8, 4.7, 4.9, 4.6, 4.5, 4.8],
+            "product_review_count": [1250, 890, 567, 2340, 1890, 234],
+            
+            // User Information
+            "customer_id": "test_user_123",
+            "customer_type": "returning",
+            "customer_status": "logged_in",
+            
+            // Environment
+            "environment": "sandbox"
+        };
+        
+        console.log('Product Listing Page - Initial utag_data:', utag_data);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <div class="nav-container">
+                <h1>🛍️ Tealium Sandbox Store</h1>
+                <ul class="nav-links">
+                    <li><a href="index.html">🔧 Sandbox Tools</a></li>
+                    <li><a href="products.html" class="active">📦 Products</a></li>
+                    <li><a href="search.html">🔍 Search</a></li>
+                    <li><a href="cart.html">🛒 Cart <span id="cart-count">(0)</span></a></li>
+                    <li><a href="login.html">👤 Login</a></li>
+                    <li><a href="spa.html">⚡ SPA Demo</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1>📱 Electronics Category</h1>
+            <p class="breadcrumb">Home > Electronics</p>
+            <div class="category-info">
+                <span>156 products found</span> | 
+                <span>Showing 1-12</span> | 
+                <span>Sort by: Popularity</span>
+            </div>
+        </header>
+
+        <!-- Filters Section -->
+        <section class="filters-section">
+            <h3>🔍 Filters & Sorting</h3>
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label>Brand:</label>
+                    <select id="brandFilter" onchange="applyFilter('brand', this.value)">
+                        <option value="">All Brands</option>
+                        <option value="apple" selected>Apple</option>
+                        <option value="samsung">Samsung</option>
+                        <option value="google">Google</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Price Range:</label>
+                    <select id="priceFilter" onchange="applyFilter('price', this.value)">
+                        <option value="">Any Price</option>
+                        <option value="0-100">$0 - $100</option>
+                        <option value="100-500" selected>$100 - $500</option>
+                        <option value="500-1000">$500 - $1000</option>
+                        <option value="1000+">$1000+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Sort By:</label>
+                    <select id="sortFilter" onchange="applySorting(this.value)">
+                        <option value="popularity" selected>Popularity</option>
+                        <option value="price_low">Price: Low to High</option>
+                        <option value="price_high">Price: High to Low</option>
+                        <option value="rating">Customer Rating</option>
+                        <option value="newest">Newest First</option>
+                    </select>
+                </div>
+                <button onclick="clearAllFilters()" class="btn-secondary">Clear Filters</button>
+            </div>
+        </section>
+
+        <!-- Product Grid -->
+        <section class="products-section">
+            <div class="products-grid">
+                <!-- Product 1 -->
+                <div class="product-card" data-product-id="PROD-001">
+                    <div class="product-image">
+                        <div class="placeholder-image">📱</div>
+                        <div class="product-badge">Best Seller</div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">iPhone 15 Pro</h3>
+                        <p class="product-category">Smartphones > Premium Phones</p>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.8 (1,250 reviews)</span>
+                        </div>
+                        <div class="product-price">$999.99</div>
+                        <div class="product-availability in-stock">✅ In Stock</div>
+                        <div class="product-actions">
+                            <button onclick="viewProduct('PROD-001')" class="btn-primary">View Details</button>
+                            <button onclick="addToCart('PROD-001')" class="btn-secondary">🛒 Add to Cart</button>
+                            <button onclick="addToWishlist('PROD-001')" class="btn-wishlist">❤️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card" data-product-id="PROD-002">
+                    <div class="product-image">
+                        <div class="placeholder-image">💻</div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">MacBook Air M2</h3>
+                        <p class="product-category">Laptops > Ultrabooks</p>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.7 (890 reviews)</span>
+                        </div>
+                        <div class="product-price">$1,199.99</div>
+                        <div class="product-availability in-stock">✅ In Stock</div>
+                        <div class="product-actions">
+                            <button onclick="viewProduct('PROD-002')" class="btn-primary">View Details</button>
+                            <button onclick="addToCart('PROD-002')" class="btn-secondary">🛒 Add to Cart</button>
+                            <button onclick="addToWishlist('PROD-002')" class="btn-wishlist">❤️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card" data-product-id="PROD-003">
+                    <div class="product-image">
+                        <div class="placeholder-image">📋</div>
+                        <div class="product-badge low-stock">Low Stock</div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">iPad Pro</h3>
+                        <p class="product-category">Tablets > Professional Tablets</p>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.9 (567 reviews)</span>
+                        </div>
+                        <div class="product-price">$1,099.99</div>
+                        <div class="product-availability low-stock">⚠️ Only 3 left</div>
+                        <div class="product-actions">
+                            <button onclick="viewProduct('PROD-003')" class="btn-primary">View Details</button>
+                            <button onclick="addToCart('PROD-003')" class="btn-secondary">🛒 Add to Cart</button>
+                            <button onclick="addToWishlist('PROD-003')" class="btn-wishlist">❤️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="product-card" data-product-id="PROD-004">
+                    <div class="product-image">
+                        <div class="placeholder-image">🎧</div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">AirPods Pro</h3>
+                        <p class="product-category">Audio > Wireless Earbuds</p>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.6 (2,340 reviews)</span>
+                        </div>
+                        <div class="product-price">$249.99</div>
+                        <div class="product-availability in-stock">✅ In Stock</div>
+                        <div class="product-actions">
+                            <button onclick="viewProduct('PROD-004')" class="btn-primary">View Details</button>
+                            <button onclick="addToCart('PROD-004')" class="btn-secondary">🛒 Add to Cart</button>
+                            <button onclick="addToWishlist('PROD-004')" class="btn-wishlist">❤️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 5 -->
+                <div class="product-card" data-product-id="PROD-005">
+                    <div class="product-image">
+                        <div class="placeholder-image">⌚</div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">Apple Watch Series 9</h3>
+                        <p class="product-category">Wearables > Smart Watches</p>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.5 (1,890 reviews)</span>
+                        </div>
+                        <div class="product-price">$399.99</div>
+                        <div class="product-availability in-stock">✅ In Stock</div>
+                        <div class="product-actions">
+                            <button onclick="viewProduct('PROD-005')" class="btn-primary">View Details</button>
+                            <button onclick="addToCart('PROD-005')" class="btn-secondary">🛒 Add to Cart</button>
+                            <button onclick="addToWishlist('PROD-005')" class="btn-wishlist">❤️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 6 -->
+                <div class="product-card" data-product-id="PROD-006">
+                    <div class="product-image">
+                        <div class="placeholder-image">🖥️</div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">iMac 24-inch</h3>
+                        <p class="product-category">Computers > All-in-One</p>
+                        <div class="product-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.8 (234 reviews)</span>
+                        </div>
+                        <div class="product-price">$1,299.99</div>
+                        <div class="product-availability in-stock">✅ In Stock</div>
+                        <div class="product-actions">
+                            <button onclick="viewProduct('PROD-006')" class="btn-primary">View Details</button>
+                            <button onclick="addToCart('PROD-006')" class="btn-secondary">🛒 Add to Cart</button>
+                            <button onclick="addToWishlist('PROD-006')" class="btn-wishlist">❤️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button onclick="changePage(0)" disabled>← Previous</button>
+                <span class="page-info">Page 1 of 13</span>
+                <button onclick="changePage(2)">Next →</button>
+            </div>
+        </section>
+
+        <!-- Tealium Configuration Panel -->
+        <section class="tealium-config">
+            <h3>🔧 Tealium Configuration</h3>
+            <div class="config-row">
+                <input type="text" id="account" placeholder="Account ID" value="success-laura-solanes">
+                <input type="text" id="profile" placeholder="Profile" value="dog-food">
+                <select id="environment">
+                    <option value="dev">Dev</option>
+                    <option value="qa" selected>QA</option>
+                    <option value="prod">Prod</option>
+                </select>
+                <button id="loadTealium" onclick="loadTealium()">Load Tealium</button>
+            </div>
+            <div id="tealium-status" class="status-indicator">
+                <span class="status-text">Tealium Status: Not Loaded</span>
+            </div>
+        </section>
+
+        <!-- Debug Panel -->
+        <section class="debug-panel">
+            <h3>🔍 Debug Information</h3>
+            <div class="debug-info">
+                <div><strong>Page Type:</strong> <span id="debug-page-type">category</span></div>
+                <div><strong>Products Displayed:</strong> <span id="debug-products">6</span></div>
+                <div><strong>Category:</strong> <span id="debug-category">Electronics</span></div>
+                <div><strong>Applied Filters:</strong> <span id="debug-filters">brand:apple, price:100-500</span></div>
+            </div>
+            <div class="debug-actions">
+                <button onclick="triggerPageView()" class="btn-primary">🔄 Trigger Page View</button>
+                <button onclick="showDataLayer()" class="btn-secondary">📊 Show Data Layer</button>
+                <button onclick="testAllEvents()" class="btn-secondary">🧪 Test All Events</button>
+            </div>
+        </section>
+
+        <!-- Event Log -->
+        <section class="event-log-section">
+            <h3>📝 Event Log</h3>
+            <div id="eventLog" class="event-log"></div>
+            <button onclick="clearEventLog()" class="btn-secondary">Clear Log</button>
+        </section>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="sandbox.js"></script>
+    <script src="products.js"></script>
+</body>
+</html>

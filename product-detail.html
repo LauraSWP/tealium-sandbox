@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone 15 Pro - Product Detail - Tealium Sandbox</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- 
+    TEALIUM DATA LAYER - Product Detail Page
+    This page simulates a detailed product view with comprehensive product information
+    -->
+    <script type="text/javascript">
+        // Get product ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id') || 'PROD-001';
+        
+        var utag_data = {
+            // Page Information
+            "page_name": "Product Detail - iPhone 15 Pro",
+            "page_type": "product",
+            "page_url": window.location.href,
+            "page_title": document.title,
+            
+            // Site Information
+            "site_name": "Tealium Sandbox Store",
+            "site_section": "products",
+            "site_category": "electronics",
+            
+            // Product Information (single product)
+            "product_id": [productId],
+            "product_name": ["iPhone 15 Pro"],
+            "product_category": ["Smartphones"],
+            "product_subcategory": ["Premium Phones"],
+            "product_brand": ["Apple"],
+            "product_price": [999.99],
+            "product_currency": ["USD"],
+            "product_availability": ["in_stock"],
+            "product_quantity": [1],
+            "product_sku": ["APL-IP15P-128-BLK"],
+            "product_variant": ["128GB Black"],
+            "product_rating": [4.8],
+            "product_review_count": [1250],
+            "product_image_url": ["/images/iphone-15-pro.jpg"],
+            "product_discount": [0],
+            "product_original_price": [999.99],
+            
+            // Product Details
+            "product_description": "The most advanced iPhone ever with titanium design, A17 Pro chip, and pro camera system.",
+            "product_features": ["A17 Pro chip", "Pro camera system", "Titanium design", "120Hz display"],
+            "product_specifications": {
+                "screen_size": "6.1 inches",
+                "storage": "128GB",
+                "color": "Black Titanium",
+                "weight": "187g",
+                "battery": "Up to 23 hours video playback"
+            },
+            
+            // Navigation Context
+            "referrer_page": document.referrer,
+            "product_list_name": "Electronics Category",
+            "product_list_position": 1,
+            
+            // User Information
+            "customer_id": "test_user_123",
+            "customer_type": "returning",
+            "customer_status": "logged_in",
+            
+            // Recommendations
+            "recommended_products": ["PROD-004", "PROD-005", "PROD-007"],
+            
+            // Environment
+            "environment": "sandbox"
+        };
+        
+        console.log('Product Detail Page - Initial utag_data:', utag_data);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <div class="nav-container">
+                <h1>🛍️ Tealium Sandbox Store</h1>
+                <ul class="nav-links">
+                    <li><a href="index.html">🔧 Sandbox Tools</a></li>
+                    <li><a href="products.html">📦 Products</a></li>
+                    <li><a href="search.html">🔍 Search</a></li>
+                    <li><a href="cart.html">🛒 Cart <span id="cart-count">(0)</span></a></li>
+                    <li><a href="login.html">👤 Login</a></li>
+                    <li><a href="spa.html">⚡ SPA Demo</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="index.html">Home</a> > 
+            <a href="products.html">Electronics</a> > 
+            <span>iPhone 15 Pro</span>
+        </div>
+
+        <!-- Product Detail -->
+        <section class="product-detail">
+            <div class="product-detail-grid">
+                <!-- Product Images -->
+                <div class="product-images">
+                    <div class="main-image">
+                        <div class="placeholder-image large">📱</div>
+                        <div class="image-nav">
+                            <button onclick="changeImage(0)" class="active">1</button>
+                            <button onclick="changeImage(1)">2</button>
+                            <button onclick="changeImage(2)">3</button>
+                            <button onclick="changeImage(3)">4</button>
+                        </div>
+                    </div>
+                    <div class="image-thumbnails">
+                        <div class="thumbnail active" onclick="changeImage(0)">📱</div>
+                        <div class="thumbnail" onclick="changeImage(1)">📱</div>
+                        <div class="thumbnail" onclick="changeImage(2)">📱</div>
+                        <div class="thumbnail" onclick="changeImage(3)">📱</div>
+                    </div>
+                </div>
+
+                <!-- Product Information -->
+                <div class="product-info">
+                    <h1 class="product-title">iPhone 15 Pro</h1>
+                    <div class="product-rating">
+                        <span class="stars">⭐⭐⭐⭐⭐</span>
+                        <span class="rating-text">4.8 (1,250 reviews)</span>
+                        <a href="#reviews" onclick="scrollToReviews()">See all reviews</a>
+                    </div>
+                    
+                    <div class="product-price">
+                        <span class="current-price">$999.99</span>
+                        <span class="currency">USD</span>
+                    </div>
+                    
+                    <div class="product-availability in-stock">
+                        ✅ In Stock - Ships within 1-2 business days
+                    </div>
+                    
+                    <div class="product-description">
+                        <p>The most advanced iPhone ever with titanium design, A17 Pro chip, and professional camera system. Experience incredible performance and battery life.</p>
+                    </div>
+                    
+                    <!-- Product Options -->
+                    <div class="product-options">
+                        <div class="option-group">
+                            <label>Storage:</label>
+                            <div class="option-buttons">
+                                <button class="option-btn active" onclick="selectOption('storage', '128GB', 999.99)">128GB</button>
+                                <button class="option-btn" onclick="selectOption('storage', '256GB', 1099.99)">256GB</button>
+                                <button class="option-btn" onclick="selectOption('storage', '512GB', 1299.99)">512GB</button>
+                                <button class="option-btn" onclick="selectOption('storage', '1TB', 1499.99)">1TB</button>
+                            </div>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label>Color:</label>
+                            <div class="option-buttons">
+                                <button class="option-btn active" onclick="selectOption('color', 'Black Titanium')">Black Titanium</button>
+                                <button class="option-btn" onclick="selectOption('color', 'White Titanium')">White Titanium</button>
+                                <button class="option-btn" onclick="selectOption('color', 'Blue Titanium')">Blue Titanium</button>
+                                <button class="option-btn" onclick="selectOption('color', 'Natural Titanium')">Natural Titanium</button>
+                            </div>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label>Quantity:</label>
+                            <div class="quantity-selector">
+                                <button onclick="changeQuantity(-1)">-</button>
+                                <input type="number" id="quantity" value="1" min="1" max="10" onchange="updateQuantity()">
+                                <button onclick="changeQuantity(1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="product-actions">
+                        <button onclick="addToCart()" class="btn-primary large">🛒 Add to Cart - $999.99</button>
+                        <button onclick="buyNow()" class="btn-secondary large">⚡ Buy Now</button>
+                        <button onclick="addToWishlist()" class="btn-wishlist">❤️ Add to Wishlist</button>
+                        <button onclick="shareProduct()" class="btn-share">📤 Share</button>
+                    </div>
+                    
+                    <!-- Additional Actions -->
+                    <div class="additional-actions">
+                        <button onclick="compareProduct()" class="text-link">📊 Compare</button>
+                        <button onclick="findInStore()" class="text-link">🏪 Find in Store</button>
+                        <button onclick="askQuestion()" class="text-link">❓ Ask a Question</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Product Details Tabs -->
+        <section class="product-details-tabs">
+            <div class="tab-headers">
+                <button class="tab-header active" onclick="showTab('specifications')">📋 Specifications</button>
+                <button class="tab-header" onclick="showTab('features')">⭐ Features</button>
+                <button class="tab-header" onclick="showTab('reviews')">💬 Reviews (1,250)</button>
+                <button class="tab-header" onclick="showTab('shipping')">🚚 Shipping & Returns</button>
+            </div>
+            
+            <div class="tab-content">
+                <div id="tab-specifications" class="tab-panel active">
+                    <h3>Technical Specifications</h3>
+                    <table class="specs-table">
+                        <tr><td>Display</td><td>6.1-inch Super Retina XDR display with 120Hz ProMotion</td></tr>
+                        <tr><td>Chip</td><td>A17 Pro chip with 6-core CPU and 6-core GPU</td></tr>
+                        <tr><td>Storage</td><td>128GB, 256GB, 512GB, or 1TB</td></tr>
+                        <tr><td>Camera</td><td>Pro camera system with 48MP main camera</td></tr>
+                        <tr><td>Battery</td><td>Up to 23 hours video playback</td></tr>
+                        <tr><td>Material</td><td>Titanium design with Ceramic Shield front</td></tr>
+                        <tr><td>Water Resistance</td><td>IP68 rating</td></tr>
+                        <tr><td>Connectivity</td><td>5G, Wi-Fi 6E, Bluetooth 5.3</td></tr>
+                    </table>
+                </div>
+                
+                <div id="tab-features" class="tab-panel">
+                    <h3>Key Features</h3>
+                    <ul class="features-list">
+                        <li>✨ A17 Pro chip - The most powerful iPhone chip ever</li>
+                        <li>📸 Pro camera system with 5x telephoto zoom</li>
+                        <li>🏗️ Titanium design - Lighter and stronger</li>
+                        <li>📱 120Hz ProMotion display</li>
+                        <li>🎬 4K video recording with cinematic mode</li>
+                        <li>🔋 All-day battery life</li>
+                        <li>💧 IP68 water resistance</li>
+                        <li>🚀 5G connectivity</li>
+                    </ul>
+                </div>
+                
+                <div id="tab-reviews" class="tab-panel">
+                    <h3>Customer Reviews</h3>
+                    <div class="review-summary">
+                        <div class="rating-breakdown">
+                            <div class="rating-bar">5★ <div class="bar"><div class="fill" style="width: 70%"></div></div> 875</div>
+                            <div class="rating-bar">4★ <div class="bar"><div class="fill" style="width: 20%"></div></div> 250</div>
+                            <div class="rating-bar">3★ <div class="bar"><div class="fill" style="width: 7%"></div></div> 88</div>
+                            <div class="rating-bar">2★ <div class="bar"><div class="fill" style="width: 2%"></div></div> 25</div>
+                            <div class="rating-bar">1★ <div class="bar"><div class="fill" style="width: 1%"></div></div> 12</div>
+                        </div>
+                    </div>
+                    <button onclick="writeReview()" class="btn-primary">✍️ Write a Review</button>
+                </div>
+                
+                <div id="tab-shipping" class="tab-panel">
+                    <h3>Shipping & Returns</h3>
+                    <div class="shipping-info">
+                        <h4>🚚 Shipping Options</h4>
+                        <ul>
+                            <li>Free standard shipping (3-5 business days)</li>
+                            <li>Express shipping $9.99 (1-2 business days)</li>
+                            <li>Overnight shipping $19.99 (next business day)</li>
+                        </ul>
+                        
+                        <h4>↩️ Returns</h4>
+                        <ul>
+                            <li>30-day return policy</li>
+                            <li>Free returns on all orders</li>
+                            <li>Original packaging required</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommendations -->
+        <section class="recommendations">
+            <h3>🔍 You Might Also Like</h3>
+            <div class="recommendation-grid">
+                <div class="rec-product" onclick="viewRecommendation('PROD-004')">
+                    <div class="rec-image">🎧</div>
+                    <div class="rec-info">
+                        <h4>AirPods Pro</h4>
+                        <p>$249.99</p>
+                    </div>
+                </div>
+                <div class="rec-product" onclick="viewRecommendation('PROD-005')">
+                    <div class="rec-image">⌚</div>
+                    <div class="rec-info">
+                        <h4>Apple Watch Series 9</h4>
+                        <p>$399.99</p>
+                    </div>
+                </div>
+                <div class="rec-product" onclick="viewRecommendation('PROD-007')">
+                    <div class="rec-image">📱</div>
+                    <div class="rec-info">
+                        <h4>iPhone 15 Plus</h4>
+                        <p>$899.99</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tealium Configuration -->
+        <section class="tealium-config compact">
+            <h3>🔧 Tealium Configuration</h3>
+            <div class="config-row">
+                <input type="text" id="account" placeholder="Account" value="success-laura-solanes">
+                <input type="text" id="profile" placeholder="Profile" value="dog-food">
+                <select id="environment">
+                    <option value="dev">Dev</option>
+                    <option value="qa" selected>QA</option>
+                    <option value="prod">Prod</option>
+                </select>
+                <button onclick="loadTealium()">Load Tealium</button>
+            </div>
+            <div id="tealium-status" class="status-indicator">
+                <span class="status-text">Tealium Status: Not Loaded</span>
+            </div>
+        </section>
+
+        <!-- Event Testing -->
+        <section class="event-testing compact">
+            <h3>🧪 Event Testing</h3>
+            <div class="test-buttons">
+                <button onclick="triggerPageView()" class="btn-primary">🔄 Page View</button>
+                <button onclick="testAddToCart()" class="btn-secondary">🛒 Test Add to Cart</button>
+                <button onclick="testImageClick()" class="btn-secondary">📸 Image Click</button>
+                <button onclick="testOptionChange()" class="btn-secondary">⚙️ Option Change</button>
+                <button onclick="showDataLayer()" class="btn-secondary">📊 Show Data</button>
+            </div>
+        </section>
+
+        <!-- Debug Console -->
+        <section class="debug-console compact">
+            <h3>🔍 Debug Console</h3>
+            <div id="eventLog" class="event-log"></div>
+            <button onclick="clearEventLog()" class="btn-secondary">Clear Log</button>
+        </section>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="sandbox.js"></script>
+    <script src="product-detail.js"></script>
+</body>
+</html>
