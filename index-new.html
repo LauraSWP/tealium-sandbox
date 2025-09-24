@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tealium Sandbox - Testing & Troubleshooting Toolkit</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tealium: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Initialize utag_data BEFORE any scripts -->
+    <script type="text/javascript">
+        var utag_data = {
+            "page_name": "Tealium Sandbox Home",
+            "page_type": "sandbox",
+            "page_url": window.location.href,
+            "site_section": "sandbox",
+            "environment": "dev"
+        };
+    </script>
+</head>
+<body class="h-full overflow-hidden bg-gray-50">
+    
+    <!-- Floating Settings Button -->
+    <div id="settingsFloat" class="fixed top-4 right-4 z-50">
+        <button onclick="toggleSettings()" 
+                class="bg-tealium-600 hover:bg-tealium-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110">
+            <i class="fas fa-cog text-lg"></i>
+        </button>
+    </div>
+    
+    <!-- Settings Panel (Hidden by default) -->
+    <div id="settingsPanel" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-40 border-l border-gray-200">
+        <div class="p-6 h-full overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Quick Settings</h3>
+                <button onclick="toggleSettings()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Account ID</label>
+                    <input type="text" id="quickAccount" placeholder="my-company" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Profile</label>
+                    <input type="text" id="quickProfile" placeholder="main" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Environment</label>
+                    <select id="quickEnvironment" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500">
+                        <option value="dev">dev</option>
+                        <option value="qa">qa</option>
+                        <option value="prod">prod</option>
+                        <option value="custom">Custom...</option>
+                    </select>
+                </div>
+                
+                <div id="customEnvDiv" class="hidden">
+                    <input type="text" id="quickCustomEnv" placeholder="Custom environment" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500">
+                </div>
+                
+                <button onclick="quickLoadTealium()" 
+                        class="w-full bg-tealium-600 text-white py-2 px-4 rounded-md hover:bg-tealium-700 transition-colors duration-200">
+                    <i class="fas fa-rocket mr-2"></i>Load Tealium
+                </button>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <h4 class="font-medium text-gray-900 mb-4">Debug Options</h4>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="quickDebugMode" class="rounded border-gray-300 text-tealium-600 focus:ring-tealium-500">
+                        <span class="ml-2 text-sm text-gray-700">Debug Mode</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="quickVerboseLogging" class="rounded border-gray-300 text-tealium-600 focus:ring-tealium-500">
+                        <span class="ml-2 text-sm text-gray-700">Verbose Logging</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="quickNetworkLogging" class="rounded border-gray-300 text-tealium-600 focus:ring-tealium-500">
+                        <span class="ml-2 text-sm text-gray-700">Network Logging</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Overlay -->
+    <div id="settingsOverlay" class="fixed inset-0 bg-black bg-opacity-25 hidden z-30" onclick="toggleSettings()"></div>
+    
+    <!-- Main Layout -->
+    <div class="flex h-full">
+        
+        <!-- Sidebar -->
+        <div id="sidebar" class="bg-white w-64 shadow-lg border-r border-gray-200 flex-shrink-0 overflow-y-auto">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-tealium-600 p-2 rounded-lg">
+                        <i class="fas fa-flask text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">Tealium</h1>
+                        <p class="text-sm text-gray-500">Sandbox</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tealium Status -->
+            <div class="p-4 border-b border-gray-200">
+                <div id="tealiumStatus" class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span class="text-sm text-gray-600">Not Loaded</span>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="p-4">
+                <div class="space-y-2">
+                    <button onclick="showSection('config')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-cog text-gray-400"></i>
+                        <span class="text-gray-700">Configuration</span>
+                    </button>
+                    
+                    <button onclick="showSection('profile-inspector')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-search text-gray-400"></i>
+                        <span class="text-gray-700">Profile Inspector</span>
+                    </button>
+                    
+                    <button onclick="showSection('data')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-database text-gray-400"></i>
+                        <span class="text-gray-700">Data Layer</span>
+                    </button>
+                    
+                    <button onclick="showSection('events')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-bolt text-gray-400"></i>
+                        <span class="text-gray-700">Events</span>
+                    </button>
+                    
+                    <button onclick="showSection('loadrules')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-filter text-gray-400"></i>
+                        <span class="text-gray-700">Load Rules</span>
+                    </button>
+                    
+                    <button onclick="showSection('custom-functions')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-code text-gray-400"></i>
+                        <span class="text-gray-700">Custom Functions</span>
+                    </button>
+                    
+                    <button onclick="showSection('consent')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-shield-alt text-gray-400"></i>
+                        <span class="text-gray-700">Consent</span>
+                    </button>
+                    
+                    <button onclick="showSection('debug')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-bug text-gray-400"></i>
+                        <span class="text-gray-700">Debug Console</span>
+                    </button>
+                    
+                    <button onclick="showSection('tags')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-tags text-gray-400"></i>
+                        <span class="text-gray-700">Tags</span>
+                    </button>
+                    
+                    <button onclick="showSection('extensions')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-puzzle-piece text-gray-400"></i>
+                        <span class="text-gray-700">Extensions</span>
+                    </button>
+                    
+                    <button onclick="showSection('help')" class="nav-item w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-question-circle text-gray-400"></i>
+                        <span class="text-gray-700">Help</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="sectionTitle" class="text-2xl font-bold text-gray-900">Configuration</h2>
+                        <p id="sectionDescription" class="text-gray-600">Configure your Tealium account settings</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button onclick="clearAllData()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-trash mr-2"></i>Clear All
+                        </button>
+                        
+                        <button onclick="exportConfig()" class="bg-tealium-600 hover:bg-tealium-700 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-download mr-2"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Sections -->
+            <main class="flex-1 overflow-y-auto p-6">
+                
+                <!-- Configuration Section -->
+                <section id="config" class="section-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Tealium Configuration -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-rocket text-tealium-600 mr-2"></i>
+                                Tealium Configuration
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Account ID</label>
+                                    <input type="text" id="account" placeholder="your-account-id" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Profile</label>
+                                    <input type="text" id="profile" placeholder="main" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Environment</label>
+                                    <select id="environment" onchange="toggleCustomEnvironment()" 
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500">
+                                        <option value="dev">dev</option>
+                                        <option value="qa">qa</option>
+                                        <option value="prod">prod</option>
+                                        <option value="custom">Custom Environment</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="customEnvironmentDiv" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Custom Environment</label>
+                                    <input type="text" id="customEnvironment" placeholder="Prod (case-sensitive)" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500">
+                                </div>
+                                
+                                <button onclick="loadTealium()" 
+                                        class="w-full bg-tealium-600 text-white py-3 px-4 rounded-md hover:bg-tealium-700 transition-colors duration-200 font-medium">
+                                    <i class="fas fa-rocket mr-2"></i>Load Tealium
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Status & Info -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                Status & Information
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-sm font-medium text-gray-700">Tealium Status</span>
+                                    <div id="tealiumStatusBadge" class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                                        Not Loaded
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-sm font-medium text-gray-700">Current Profile</span>
+                                    <span id="currentProfile" class="text-sm text-gray-600">None</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-sm font-medium text-gray-700">Environment</span>
+                                    <span id="currentEnv" class="text-sm text-gray-600">None</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-sm font-medium text-gray-700">Loaded URL</span>
+                                    <span id="loadedUrl" class="text-xs text-gray-500 truncate max-w-32">None</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 pt-4 border-t border-gray-200">
+                                <h4 class="text-sm font-medium text-gray-900 mb-3">Quick Actions</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="testUtag()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm py-2 px-3 rounded-md transition-colors">
+                                        Test utag
+                                    </button>
+                                    <button onclick="clearTealium()" class="bg-red-50 hover:bg-red-100 text-red-700 text-sm py-2 px-3 rounded-md transition-colors">
+                                        Unload
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Profile Inspector Section -->
+                <section id="profile-inspector" class="section-content hidden">
+                    <div class="space-y-6">
+                        
+                        <!-- Inspector Header -->
+                        <div class="bg-gradient-to-r from-tealium-600 to-blue-600 rounded-xl p-6 text-white">
+                            <h3 class="text-xl font-bold mb-2">🔍 Profile Inspector</h3>
+                            <p class="text-tealium-100">Analyze existing Tealium profiles to understand their configuration and replicate setups</p>
+                        </div>
+                        
+                        <!-- CORS Warning -->
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-exclamation-triangle text-amber-500 mt-1 mr-3"></i>
+                                <div>
+                                    <h4 class="text-amber-800 font-medium">CORS Limitation</h4>
+                                    <p class="text-amber-700 text-sm mt-1">
+                                        Due to browser security, direct inspection may be blocked. Use these workarounds:
+                                    </p>
+                                    <ul class="text-amber-700 text-sm mt-2 ml-4 list-disc">
+                                        <li>Copy the utag.js content manually and paste it for analysis</li>
+                                        <li>Use browser developer tools to inspect the loaded script</li>
+                                        <li>Use a CORS proxy for automated inspection (advanced users)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                            
+                            <!-- Inspector Input -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">Inspect Profile</h4>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Profile URL or Path</label>
+                                        <input type="text" id="profileInspectorInput" 
+                                               placeholder="account/profile/env OR full URL" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500">
+                                    </div>
+                                    
+                                    <div class="flex space-x-3">
+                                        <button onclick="inspectProfile()" 
+                                                class="flex-1 bg-tealium-600 text-white py-2 px-4 rounded-md hover:bg-tealium-700 transition-colors">
+                                            <i class="fas fa-search mr-2"></i>Inspect
+                                        </button>
+                                        <button onclick="inspectCurrentProfile()" 
+                                                class="flex-1 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors">
+                                            <i class="fas fa-eye mr-2"></i>Current
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Manual Analysis -->
+                                <div class="mt-6 pt-4 border-t border-gray-200">
+                                    <h5 class="font-medium text-gray-900 mb-3">Manual Analysis</h5>
+                                    <p class="text-sm text-gray-600 mb-3">Paste utag.js content for offline analysis:</p>
+                                    <textarea id="manualUtagContent" rows="4" 
+                                              placeholder="Paste utag.js content here..." 
+                                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-tealium-500 focus:border-tealium-500 text-xs font-mono"></textarea>
+                                    <button onclick="analyzeManualContent()" 
+                                            class="mt-2 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                                        <i class="fas fa-microscope mr-2"></i>Analyze Content
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Analysis Results -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">Analysis Results</h4>
+                                
+                                <div id="profileInspectorResults" class="text-gray-600">
+                                    <div class="text-center py-8">
+                                        <i class="fas fa-search text-gray-300 text-3xl mb-3"></i>
+                                        <p>Enter a profile to analyze its configuration</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Detected Configuration -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4">Detected Configuration</h4>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <h5 class="font-medium text-gray-900 mb-3 flex items-center">
+                                        <i class="fas fa-database text-blue-500 mr-2"></i>Variables
+                                    </h5>
+                                    <div id="detectedVariables" class="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 min-h-16">
+                                        None detected
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h5 class="font-medium text-gray-900 mb-3 flex items-center">
+                                        <i class="fas fa-tags text-green-500 mr-2"></i>Tags
+                                    </h5>
+                                    <div id="detectedTags" class="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 min-h-16">
+                                        None detected
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h5 class="font-medium text-gray-900 mb-3 flex items-center">
+                                        <i class="fas fa-filter text-purple-500 mr-2"></i>Load Rules
+                                    </h5>
+                                    <div id="detectedLoadRules" class="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 min-h-16">
+                                        None detected
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 pt-4 border-t border-gray-200">
+                                <button onclick="importProfileConfig()" 
+                                        class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-download mr-2"></i>Import Configuration
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Other sections will be added here -->
+                <section id="data" class="section-content hidden">
+                    <div class="text-center py-20">
+                        <i class="fas fa-database text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-xl text-gray-600">Data Layer section coming soon...</h3>
+                    </div>
+                </section>
+                
+                <section id="events" class="section-content hidden">
+                    <div class="text-center py-20">
+                        <i class="fas fa-bolt text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-xl text-gray-600">Events section coming soon...</h3>
+                    </div>
+                </section>
+                
+                <section id="loadrules" class="section-content hidden">
+                    <div class="text-center py-20">
+                        <i class="fas fa-filter text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-xl text-gray-600">Load Rules section coming soon...</h3>
+                    </div>
+                </section>
+                
+                <section id="custom-functions" class="section-content hidden">
+                    <div class="space-y-6">
+                        
+                        <!-- Custom Functions Header -->
+                        <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white">
+                            <h3 class="text-xl font-bold mb-2">⚡ Custom Functions Library</h3>
+                            <p class="text-purple-100">Pre-built and custom functions to speed up testing and troubleshooting</p>
+                        </div>
+                        
+                        <!-- Function Categories Grid -->
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                            
+                            <!-- Quick Setup Functions -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-rocket text-green-600 mr-2"></i>
+                                    Quick Setup Functions
+                                </h4>
+                                <div id="quickFunctions" class="space-y-2">
+                                    <!-- Quick functions will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <!-- Testing Functions -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-flask text-blue-600 mr-2"></i>
+                                    Testing Functions
+                                </h4>
+                                <div id="testingFunctions" class="space-y-2">
+                                    <!-- Testing functions will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <!-- Debugging Functions -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-bug text-red-600 mr-2"></i>
+                                    Debugging Functions
+                                </h4>
+                                <div id="debuggingFunctions" class="space-y-2">
+                                    <!-- Debugging functions will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <!-- Advanced Functions -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-cog text-purple-600 mr-2"></i>
+                                    Advanced Functions
+                                </h4>
+                                <div id="advancedFunctions" class="space-y-2">
+                                    <!-- Advanced functions will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Function Output and Console -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            
+                            <!-- Function Results -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-terminal text-gray-600 mr-2"></i>
+                                    Function Output
+                                </h4>
+                                <div id="customFunctionResults" class="bg-gray-50 rounded-lg p-4 min-h-32 text-gray-600">
+                                    <div class="text-center py-8">
+                                        <i class="fas fa-play-circle text-gray-300 text-3xl mb-3"></i>
+                                        <p>Run a function to see output here</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Console Commands -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-code text-gray-600 mr-2"></i>
+                                    Console Commands
+                                </h4>
+                                
+                                <div class="space-y-3">
+                                    <p class="text-sm text-gray-600">Run functions directly in browser console (F12):</p>
+                                    
+                                    <div class="space-y-2">
+                                        <div class="bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-sm">
+                                            <div class="text-gray-500">// Quick e-commerce test</div>
+                                            <div>agent_ecommerceJourney()</div>
+                                        </div>
+                                        
+                                        <div class="bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-sm">
+                                            <div class="text-gray-500">// Debug all variables</div>
+                                            <div>debug_showAllVariables()</div>
+                                        </div>
+                                        
+                                        <div class="bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-sm">
+                                            <div class="text-gray-500">// Set B2B data</div>
+                                            <div>agent_setB2BData()</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pt-3 border-t border-gray-200">
+                                        <p class="text-xs text-gray-500">
+                                            💡 <strong>Tip:</strong> All functions are available globally. Type any function name followed by () in the console.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Custom Functions Guide -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-plus-circle text-tealium-600 mr-2"></i>
+                                Adding Your Own Functions
+                            </h4>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <h5 class="font-medium text-gray-900 mb-3">Quick Steps:</h5>
+                                    <ol class="space-y-2 text-sm text-gray-600">
+                                        <li class="flex items-start space-x-2">
+                                            <span class="bg-tealium-100 text-tealium-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
+                                            <div>Open <code class="bg-gray-100 px-1 rounded">custom-functions.js</code> in your editor</div>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <span class="bg-tealium-100 text-tealium-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">2</span>
+                                            <div>Add your function using the template provided</div>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <span class="bg-tealium-100 text-tealium-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">3</span>
+                                            <div>Register it in <code class="bg-gray-100 px-1 rounded">window.customFunctionRegistry</code></div>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <span class="bg-tealium-100 text-tealium-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">4</span>
+                                            <div>Refresh the page to see your function in the UI</div>
+                                        </li>
+                                    </ol>
+                                </div>
+                                
+                                <div>
+                                    <h5 class="font-medium text-gray-900 mb-3">Function Template:</h5>
+                                    <div class="bg-gray-900 text-gray-300 p-4 rounded-lg text-xs font-mono overflow-x-auto">
+<pre>function agent_yourFunctionName() {
+    // Your code here
+    // Access to: utag_data, utag, logEvent, showToast
+    
+    utag_data.your_field = 'your_value';
+    
+    if (typeof utag !== 'undefined' && utag.view) {
+        utag.view(utag_data);
+    }
+    
+    showToast('Function executed', 'success');
+}
+
+// Register in customFunctionRegistry:
+'Your Function Name': {
+    func: agent_yourFunctionName,
+    description: 'What your function does',
+    category: 'Your Category'
+}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="consent" class="section-content hidden">
+                    <div class="text-center py-20">
+                        <i class="fas fa-shield-alt text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-xl text-gray-600">Consent section coming soon...</h3>
+                    </div>
+                </section>
+                
+                <section id="debug" class="section-content hidden">
+                    <div class="text-center py-20">
+                        <i class="fas fa-bug text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-xl text-gray-600">Debug Console section coming soon...</h3>
+                    </div>
+                </section>
+                
+                <section id="tags" class="section-content hidden">
+                    <div class="text-center py-20">
+                        <i class="fas fa-tags text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-xl text-gray-600">Tags section coming soon...</h3>
+                    </div>
+                </section>
+                
+                <section id="extensions" class="section-content hidden">
+                    <div class="text-center py-20">
+                        <i class="fas fa-puzzle-piece text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-xl text-gray-600">Extensions section coming soon...</h3>
+                    </div>
+                </section>
+                
+                <section id="help" class="section-content hidden">
+                    <div class="text-center py-20">
+                        <i class="fas fa-question-circle text-gray-300 text-6xl mb-4"></i>
+                        <h3 class="text-xl text-gray-600">Help section coming soon...</h3>
+                    </div>
+                </section>
+                
+            </main>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+    
+    <!-- Scripts -->
+    <script src="sandbox-new.js"></script>
+    <script src="custom-functions.js"></script>
+    
+</body>
+</html>

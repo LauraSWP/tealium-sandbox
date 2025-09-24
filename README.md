@@ -94,7 +94,9 @@ A comprehensive testing and troubleshooting toolkit for Tealium implementations,
 - `sandbox.js` - Core functionality and Tealium integration
 - `custom-functions.js` - Extensible testing functions library
 - `SETUP_GUIDE.md` - Detailed setup and usage instructions
-- `MODERN_DASHBOARD_GUIDE.md` - Dashboard feature documentation
+- `TEALIUM_EXAMPLES.md` - Tealium implementation examples and best practices
+- `TROUBLESHOOTING.md` - Common issues and solutions
+- `QUICK_START.md` - Quick start guide for new users
 
 ### Best Practices:
 - Use **Data Layer Variables** in TiQ for simple data mapping
