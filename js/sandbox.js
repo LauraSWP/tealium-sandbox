@@ -3,16 +3,22 @@
  * Enhanced with Tailwind CSS styling and improved functionality
  */
 
+console.log('🚀 sandbox.js loading...');
+
 // Global state
-let currentSection = 'config';
 let settingsOpen = false;
 
-// Initialize when DOM is loaded
+// Initialize when DOM is loaded - but don't automatically show section (handled by index.html)
 document.addEventListener('DOMContentLoaded', function() {
+    // Only initialize sandbox functionality, not navigation
+    setTimeout(() => {
     initializeSandbox();
-    showSection('config');
+        // Only update Tealium status if the element exists
+        if (document.getElementById('tealiumStatus')) {
     updateTealiumStatus();
+        }
     loadSavedSettings();
+    }, 500); // Delay to let index.html load first
 });
 
 /**
@@ -21,18 +27,23 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeSandbox() {
     console.log('🚀 Tealium Sandbox Initialized');
     
-    // Set up environment selector change handler
+    // Set up environment selector change handler for quick settings
     const envSelect = document.getElementById('quickEnvironment');
     if (envSelect) {
         envSelect.addEventListener('change', function() {
-            const customDiv = document.getElementById('customEnvDiv');
-            if (this.value === 'custom') {
-                customDiv.classList.remove('hidden');
-            } else {
-                customDiv.classList.add('hidden');
+            const customDiv = document.getElementById('quickCustomEnvDiv');
+            // Only manipulate customDiv if it exists
+            if (customDiv) {
+                if (this.value === 'custom') {
+                    customDiv.classList.remove('hidden');
+                } else {
+                    customDiv.classList.add('hidden');
+                }
             }
             // Sync to main form when changed
-            syncToMainForm();
+            if (typeof syncToMainForm === 'function') {
+                syncToMainForm();
+            }
         });
     }
     
@@ -81,119 +92,21 @@ function initializeSandbox() {
         // Ctrl+` (backtick) to toggle settings panel
         if (e.ctrlKey && e.key === '`') {
             e.preventDefault();
-            toggleSettings();
+            if (typeof toggleSettingsPanel === 'function') {
+                toggleSettingsPanel();
+            }
         }
     });
 }
 
-/**
- * Toggle floating settings panel
- */
-function toggleSettings() {
-    const panel = document.getElementById('settingsPanel');
-    const overlay = document.getElementById('settingsOverlay');
-    
-    if (settingsOpen) {
-        panel.classList.add('translate-x-full');
-        overlay.classList.add('hidden');
-        settingsOpen = false;
-    } else {
-        panel.classList.remove('translate-x-full');
-        overlay.classList.remove('hidden');
-        settingsOpen = true;
-    }
-}
+// Note: toggleSettings renamed to avoid conflict with index.html
+// Settings panel toggle is now handled by toggleSettingsPanel() in index.html
 
-/**
- * Show specific section
- */
-function showSection(sectionId) {
-    // Hide all sections
-    document.querySelectorAll('.section-content').forEach(section => {
-        section.classList.add('hidden');
-    });
-    
-    // Remove active state from all nav items
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('bg-tealium-100', 'text-tealium-700');
-        item.classList.add('text-gray-700');
-    });
-    
-    // Show selected section
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.remove('hidden');
-    }
-    
-    // Update nav active state
-    const activeNav = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
-    if (activeNav) {
-        activeNav.classList.add('bg-tealium-100', 'text-tealium-700');
-        activeNav.classList.remove('text-gray-700');
-    }
-    
-    // Update header
-    updateSectionHeader(sectionId);
-    
-    currentSection = sectionId;
-}
+// Note: showSection function is now handled by index.html
+// This file focuses on sandbox functionality only
 
-/**
- * Update section header based on current section
- */
-function updateSectionHeader(sectionId) {
-    const titles = {
-        'config': {
-            title: 'Configuration',
-            description: 'Configure your Tealium account settings'
-        },
-        'profile-inspector': {
-            title: 'Profile Inspector',
-            description: 'Analyze and inspect existing Tealium profiles'
-        },
-        'data': {
-            title: 'Data Layer',
-            description: 'Manage and test data layer variables'
-        },
-        'events': {
-            title: 'Events Testing',
-            description: 'Test and trigger various Tealium events'
-        },
-        'loadrules': {
-            title: 'Load Rules',
-            description: 'Build and test load rule conditions'
-        },
-        'custom-functions': {
-            title: 'Custom Functions',
-            description: 'Execute custom testing and debugging functions'
-        },
-        'consent': {
-            title: 'Consent Management',
-            description: 'Test consent scenarios and privacy settings'
-        },
-        'debug': {
-            title: 'Debug Console',
-            description: 'Monitor events and debug Tealium implementation'
-        },
-        'tags': {
-            title: 'Tag Testing',
-            description: 'Test individual tags and their configurations'
-        },
-        'extensions': {
-            title: 'Extensions',
-            description: 'Manage and test JavaScript extensions'
-        },
-        'help': {
-            title: 'Help & Documentation',
-            description: 'Guides, best practices, and troubleshooting'
-        }
-    };
-    
-    const sectionInfo = titles[sectionId] || titles['config'];
-    
-    document.getElementById('sectionTitle').textContent = sectionInfo.title;
-    document.getElementById('sectionDescription').textContent = sectionInfo.description;
-}
+// Note: updateSectionHeader function is now handled by index.html
+// Section navigation is managed by the main layout
 
 /**
  * Load Tealium with modern error handling
@@ -215,6 +128,53 @@ function loadTealium() {
         return;
     }
     
+    // Check if we're changing profile/environment and warn about session changes
+    console.log('🔍 Checking for session changes...');
+    if (typeof window.sessionManager !== 'undefined' && window.sessionManager.isSessionActive) {
+        console.log('🔍 Session manager available and active');
+        const currentProfile = window.sessionManager.getCurrentProfile();
+        console.log('🔍 Current profile:', currentProfile);
+        console.log('🔍 New profile:', { account, profile, env });
+        
+        const isProfileChange = currentProfile && (
+            currentProfile.account !== account || 
+            currentProfile.profile !== profile ||
+            (currentProfile.environment === 'custom' ? currentProfile.customEnvironment : currentProfile.environment) !== env
+        );
+        
+        console.log('🔍 Is profile change:', isProfileChange);
+        
+        if (isProfileChange) {
+            const hasChanges = window.sessionManager.hasSessionChanges();
+            console.log('🔍 Has session changes:', hasChanges);
+            
+            if (hasChanges) {
+                const confirmMessage = `⚠️ PROFILE/ENVIRONMENT CHANGE DETECTED\n\n` +
+                    `You're about to change from:\n` +
+                    `${currentProfile.account}/${currentProfile.profile}/${currentProfile.environment === 'custom' ? currentProfile.customEnvironment : currentProfile.environment}\n\n` +
+                    `To:\n${account}/${profile}/${env}\n\n` +
+                    `This will CLEAR all your current session changes including:\n` +
+                    `• Data layer modifications\n` +
+                    `• Profile analysis data\n` +
+                    `• Any debugging state\n\n` +
+                    `Do you want to continue and load fresh with the new profile?`;
+                
+                console.log('🔍 Showing confirmation dialog');
+                if (!confirm(confirmMessage)) {
+                    console.log('🔍 User cancelled profile change');
+                    return; // User cancelled
+                }
+                
+                // Clear session before loading new profile
+                console.log('🔍 User confirmed, clearing session changes');
+                showToast('Clearing session changes...', 'info');
+                window.sessionManager.clearSessionChanges();
+            }
+        }
+    } else {
+        console.log('🔍 Session manager not available or not active');
+    }
+    
     // Sync forms before loading
     syncToQuickSettings();
     
@@ -231,6 +191,12 @@ function loadTealium() {
     const tealiumUrl = `https://tags.tiqcdn.com/utag/${account}/${profile}/${env}/utag.js`;
     
     showToast('Loading Tealium...', 'info');
+    
+    // ✨ Start session immediately when user clicks Load Tealium
+    if (typeof window.sessionManager !== 'undefined' && !window.sessionManager.isSessionActive) {
+        window.sessionManager.startNewSession();
+        console.log('🚀 Started session on Load Tealium click');
+    }
     
     // Fix protocol issue when opening HTML file directly (file:// protocol)
     // Configure Tealium to always use HTTPS
@@ -320,6 +286,36 @@ function loadTealium() {
         updateTealiumStatus(true, account, profile, env, tealiumUrl);
         saveCurrentSettings(); // Use enhanced save function
         logEvent('TEALIUM_LOADED', 'Tealium script loaded', { account, profile, env });
+        
+        // ✨ Trigger custom event for session manager
+        window.dispatchEvent(new Event('tealiumLoaded'));
+        
+        // ✨ Session Management Integration
+        if (typeof window.sessionManager !== 'undefined') {
+            if (!window.sessionManager.isSessionActive) {
+                window.sessionManager.startNewSession();
+                console.log('🚀 Started new session after Tealium loaded');
+                
+                // Force immediate UI update
+                setTimeout(() => {
+                    if (typeof window.updateSessionStatusDisplay === 'function') {
+                        window.updateSessionStatusDisplay();
+                        console.log('🔄 Updated session UI after Tealium load');
+                    }
+                }, 200);
+            } else {
+                // Save current state since Tealium just loaded
+                setTimeout(() => {
+                    window.sessionManager.saveSession();
+                    console.log('💾 Saved session state after Tealium reload');
+                    
+                    // Update UI for existing session
+                    if (typeof window.updateSessionStatusDisplay === 'function') {
+                        window.updateSessionStatusDisplay();
+                    }
+                }, 1000);
+            }
+        }
     };
     
     script.onerror = function() {
@@ -334,13 +330,117 @@ function loadTealium() {
 }
 
 /**
+ * Load Tealium with specific parameters (bypasses form reading)
+ */
+function loadTealiumWithParams(account, profile, env) {
+    if (!account || !profile || !env) {
+        showToast('Invalid parameters for Tealium loading', 'error');
+        return;
+    }
+    
+    // Sync forms before loading
+    syncToQuickSettings();
+    
+    // Remove existing utag script if present
+    const existingScript = document.querySelector('script[src*="tags.tiqcdn.com"]');
+    if (existingScript) {
+        existingScript.remove();
+        // Clear utag object
+        if (window.utag) {
+            window.utag = undefined;
+        }
+    }
+    
+    const tealiumUrl = `https://tags.tiqcdn.com/utag/${account}/${profile}/${env}/utag.js`;
+    
+    showToast(`Loading Tealium: ${account}/${profile}/${env}`, 'info');
+    
+    // Start session immediately
+    if (typeof window.sessionManager !== 'undefined' && !window.sessionManager.isSessionActive) {
+        window.sessionManager.startNewSession();
+    }
+    
+    // Configure Tealium settings
+    if (typeof window.utag_cfg === 'undefined') {
+        window.utag_cfg = {};
+    }
+    
+    window.utag_cfg.domain_override = 'https://tags.tiqcdn.com';
+    window.utag_cfg.noload = false;
+    
+    // Enable Tealium debugging (utagdb) for detailed tag firing info
+    document.cookie = "utagdb=true; path=/";
+    window.utag_cfg.debug = true;
+    
+    // Create and load script
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.async = true;
+    script.src = tealiumUrl;
+    
+    script.onload = function() {
+        // Apply same fixes as main loadTealium function
+        if (window.utag && window.utag.loader && window.location.protocol === 'file:') {
+            // Fix Tealium's internal URL building functions
+            const originalAS = window.utag.loader.AS;
+            if (originalAS) {
+                window.utag.loader.AS = function(a, b, c, d) {
+                    const result = originalAS.call(this, a, b, c, d);
+                    if (typeof result === 'string' && result.includes('file://tags.tiqcdn.com')) {
+                        return result.replace('file://tags.tiqcdn.com', 'https://tags.tiqcdn.com');
+                    }
+                    return result;
+                };
+            }
+        }
+        
+        showToast('Tealium loaded successfully!', 'success');
+        updateTealiumStatus(true, account, profile, env, tealiumUrl);
+        
+        // Trigger session save and UI update
+        window.dispatchEvent(new Event('tealiumLoaded'));
+        
+        if (typeof window.sessionManager !== 'undefined') {
+            if (!window.sessionManager.isSessionActive) {
+                window.sessionManager.startNewSession();
+            } else {
+                setTimeout(() => {
+                    window.sessionManager.saveSession();
+                    if (typeof window.updateSessionStatusDisplay === 'function') {
+                        window.updateSessionStatusDisplay();
+                    }
+                }, 1000);
+            }
+        }
+    };
+    
+    script.onerror = function() {
+        showToast('Failed to load Tealium', 'error');
+    };
+    
+    document.head.appendChild(script);
+    
+    logEvent('TEALIUM_LOAD_ATTEMPT', 'Attempting to load Tealium with params', { account, profile, env, url: tealiumUrl });
+}
+
+/**
  * Quick load from settings panel
  */
 function quickLoadTealium() {
-    const account = document.getElementById('quickAccount').value.trim();
-    const profile = document.getElementById('quickProfile').value.trim();
-    const environment = document.getElementById('quickEnvironment').value;
-    const customEnv = document.getElementById('quickCustomEnv').value.trim();
+    const accountEl = document.getElementById('quickAccount');
+    const profileEl = document.getElementById('quickProfile');
+    const environmentEl = document.getElementById('quickEnvironment');
+    const customEnvEl = document.getElementById('quickCustomEnv');
+    
+    if (!accountEl || !profileEl || !environmentEl) {
+        showToast('Quick settings form not available', 'error');
+        return;
+    }
+    
+    const account = accountEl.value.trim();
+    const profile = profileEl.value.trim();
+    const environment = environmentEl.value;
+    const customEnv = customEnvEl ? customEnvEl.value.trim() : '';
     
     if (!account || !profile) {
         showToast('Please enter account and profile in settings', 'error');
@@ -353,14 +453,83 @@ function quickLoadTealium() {
         return;
     }
     
-    // Sync with main form
-    syncToMainForm();
+    // Check if we're changing profile/environment and warn about session changes
+    console.log('🔍 QuickLoad: Checking for session changes...');
+    if (typeof window.sessionManager !== 'undefined' && window.sessionManager.isSessionActive) {
+        console.log('🔍 QuickLoad: Session manager available and active');
+        const currentProfile = window.sessionManager.getCurrentProfile();
+        console.log('🔍 QuickLoad: Current profile:', currentProfile);
+        console.log('🔍 QuickLoad: New profile:', { account, profile, env });
+        
+        const isProfileChange = currentProfile && (
+            currentProfile.account !== account || 
+            currentProfile.profile !== profile ||
+            (currentProfile.environment === 'custom' ? currentProfile.customEnvironment : currentProfile.environment) !== env
+        );
+        
+        console.log('🔍 QuickLoad: Is profile change:', isProfileChange);
+        
+        if (isProfileChange) {
+            const hasChanges = window.sessionManager.hasSessionChanges();
+            console.log('🔍 QuickLoad: Has session changes:', hasChanges);
+            
+            if (hasChanges) {
+                const confirmMessage = `⚠️ PROFILE/ENVIRONMENT CHANGE DETECTED\n\n` +
+                    `You're about to change from:\n` +
+                    `${currentProfile.account}/${currentProfile.profile}/${currentProfile.environment === 'custom' ? currentProfile.customEnvironment : currentProfile.environment}\n\n` +
+                    `To:\n${account}/${profile}/${env}\n\n` +
+                    `This will CLEAR all your current session changes including:\n` +
+                    `• Data layer modifications\n` +
+                    `• Profile analysis data\n` +
+                    `• Any debugging state\n\n` +
+                    `Do you want to continue and load fresh with the new profile?`;
+                
+                console.log('🔍 QuickLoad: Showing confirmation dialog');
+                if (!confirm(confirmMessage)) {
+                    console.log('🔍 QuickLoad: User cancelled profile change');
+                    return; // User cancelled
+                }
+                
+                // Clear session before loading new profile
+                console.log('🔍 QuickLoad: User confirmed, clearing session changes');
+                showToast('Clearing session changes...', 'info');
+                window.sessionManager.clearSessionChanges();
+            }
+        }
+    } else {
+        console.log('🔍 QuickLoad: Session manager not available or not active');
+    }
     
-    // Close settings panel
-    toggleSettings();
+    // Sync with main form first
+    if (typeof syncToMainForm === 'function') {
+        syncToMainForm();
+    }
     
-    // Load Tealium
-    loadTealium();
+    // Load Tealium directly with the values from quick settings
+    loadTealiumWithParams(account, profile, env);
+    
+    // Close settings panel  
+    if (typeof toggleSettingsPanel === 'function') {
+        toggleSettingsPanel();
+    } else if (typeof toggleSettings === 'function') {
+        toggleSettings();
+    }
+}
+
+/**
+ * Toggle quick custom environment input (for settings panel)
+ */
+function toggleQuickCustomEnvironment() {
+    const select = document.getElementById('quickEnvironment');
+    const customDiv = document.getElementById('quickCustomEnvDiv');
+    
+    if (select && customDiv) {
+        if (select.value === 'custom') {
+            customDiv.classList.remove('hidden');
+        } else {
+            customDiv.classList.add('hidden');
+        }
+    }
 }
 
 /**
@@ -369,6 +538,12 @@ function quickLoadTealium() {
 function toggleCustomEnvironment() {
     const environmentSelect = document.getElementById('environment');
     const customDiv = document.getElementById('customEnvironmentDiv');
+    
+    // Only proceed if both elements exist
+    if (!environmentSelect || !customDiv) {
+        console.log('Environment elements not found, skipping toggle');
+        return;
+    }
     
     if (environmentSelect.value === 'custom') {
         customDiv.classList.remove('hidden');
@@ -381,46 +556,210 @@ function toggleCustomEnvironment() {
  * Update Tealium status display
  */
 function updateTealiumStatus(loaded = false, account = '', profile = '', env = '', url = '') {
+    // Update sidebar status if element exists (new layout)
     const statusElement = document.getElementById('tealiumStatus');
-    const statusBadge = document.getElementById('tealiumStatusBadge');
-    const currentProfile = document.getElementById('currentProfile');
-    const currentEnv = document.getElementById('currentEnv');
-    const loadedUrl = document.getElementById('loadedUrl');
-    
+    if (statusElement) {
     if (loaded) {
-        // Sidebar status
         statusElement.innerHTML = `
             <div class="w-2 h-2 bg-green-500 rounded-full"></div>
             <span class="text-sm text-gray-600">Loaded & Ready</span>
         `;
-        
-        // Main status badge
-        statusBadge.className = 'px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full';
-        statusBadge.textContent = 'Loaded & Ready';
-        
-        // Profile info
-        currentProfile.textContent = `${account}/${profile}`;
-        currentEnv.textContent = env;
-        loadedUrl.textContent = url;
-        loadedUrl.title = url;
     } else {
-        // Sidebar status
         statusElement.innerHTML = `
             <div class="w-2 h-2 bg-red-500 rounded-full"></div>
             <span class="text-sm text-gray-600">Not Loaded</span>
         `;
-        
-        // Main status badge
+        }
+    }
+    
+    // Update status badge if element exists
+    const statusBadge = document.getElementById('tealiumStatusBadge');
+    if (statusBadge) {
+        if (loaded) {
+            statusBadge.className = 'px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full';
+            statusBadge.textContent = 'Loaded & Ready';
+        } else {
         statusBadge.className = 'px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full';
         statusBadge.textContent = 'Not Loaded';
-        
-        // Profile info
-        currentProfile.textContent = 'None';
-        currentEnv.textContent = 'None';
-        loadedUrl.textContent = 'None';
-        loadedUrl.title = '';
+        }
+    }
+    
+    // Update profile info if elements exist
+    const currentProfile = document.getElementById('currentProfile');
+    const currentEnv = document.getElementById('currentEnv');
+    const loadedUrl = document.getElementById('loadedUrl');
+    
+    if (currentProfile) {
+        currentProfile.textContent = loaded ? `${account}/${profile}` : 'None';
+    }
+    if (currentEnv) {
+        currentEnv.textContent = loaded ? env : 'None';
+    }
+    if (loadedUrl) {
+        loadedUrl.textContent = loaded ? url : 'None';
+        loadedUrl.title = loaded ? url : '';
+    }
+    
+    console.log(`Tealium Status Updated: ${loaded ? 'Loaded' : 'Not Loaded'}`);
+}
+
+/**
+ * Reset form to default values
+ */
+function resetToDefaults() {
+    // Reset main form elements if they exist
+    const accountEl = document.getElementById('account');
+    const profileEl = document.getElementById('profile');
+    const environmentEl = document.getElementById('environment');
+    const customEnvEl = document.getElementById('customEnvironment');
+    const debugModeEl = document.getElementById('quickDebugMode');
+    const verboseEl = document.getElementById('quickVerboseLogging');
+    const networkEl = document.getElementById('quickNetworkLogging');
+    
+    if (accountEl) accountEl.value = 'success-laura-solanes';
+    if (profileEl) profileEl.value = 'main';
+    if (environmentEl) environmentEl.value = 'prod';
+    if (customEnvEl) customEnvEl.value = '';
+    if (debugModeEl) debugModeEl.checked = false;
+    if (verboseEl) verboseEl.checked = false;
+    if (networkEl) networkEl.checked = false;
+    
+    // Hide custom environment if shown
+    if (typeof toggleCustomEnvironment === 'function') {
+        toggleCustomEnvironment();
+    }
+    
+    // Sync to quick settings
+    if (typeof syncToQuickSettings === 'function') {
+        syncToQuickSettings();
+    }
+    
+    showToast('Form reset to default values', 'info');
+}
+
+/**
+ * Unload Tealium
+ */
+function unloadTealium() {
+    // Remove utag scripts
+    const scripts = document.querySelectorAll('script[src*="tiqcdn.com"]');
+    scripts.forEach(script => script.remove());
+    
+    // Clear utag global objects
+    if (window.utag) {
+        delete window.utag;
+    }
+    if (window.utag_data) {
+        window.utag_data = {
+            "page_name": "Tealium Sandbox Home",
+            "page_type": "sandbox",
+            "page_url": window.location.href,
+            "site_section": "sandbox",
+            "environment": "dev"
+        };
+    }
+    
+    updateTealiumStatus(false);
+    showToast('Tealium unloaded successfully', 'success');
+}
+
+/**
+ * Add load rule
+ */
+function addLoadRule() {
+    const variable = document.getElementById('ruleVariable')?.value;
+    const condition = document.getElementById('ruleCondition')?.value;
+    const value = document.getElementById('ruleValue')?.value;
+    
+    if (!variable || !condition || !value) {
+        showToast('Please fill in all rule fields', 'warning');
+        return;
+    }
+    
+    const rulesContainer = document.getElementById('activeLoadRules');
+    if (!rulesContainer) {
+        showToast('Load rules container not found', 'error');
+        return;
+    }
+    
+    const ruleElement = document.createElement('div');
+    ruleElement.className = 'bg-gray-50 rounded p-3 flex items-center justify-between';
+    ruleElement.innerHTML = `
+        <span class="text-sm">
+            <span class="font-medium">${variable}</span> 
+            <span class="text-gray-500">${condition}</span> 
+            <span class="font-medium">${value}</span>
+        </span>
+        <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    rulesContainer.appendChild(ruleElement);
+    
+    // Clear form
+    document.getElementById('ruleVariable').value = '';
+    document.getElementById('ruleCondition').value = 'equals';
+    document.getElementById('ruleValue').value = '';
+    
+    showToast('Load rule added', 'success');
+}
+
+/**
+ * Test load rules
+ */
+function testLoadRules() {
+    const rulesContainer = document.getElementById('activeLoadRules');
+    if (!rulesContainer || rulesContainer.children.length === 0) {
+        showToast('No load rules to test', 'warning');
+        return;
+    }
+    
+    showToast('Testing load rules against current data layer...', 'info');
+    
+    // This would typically test rules against utag_data
+    console.log('Testing load rules:', rulesContainer.children.length, 'rules');
+    console.log('Current utag_data:', window.utag_data);
+    
+    setTimeout(() => {
+        showToast('Load rules test completed - check console for details', 'success');
+    }, 1000);
+}
+
+/**
+ * Generate TiQ syntax from current rules
+ */
+function generateTiQSyntax() {
+    const rulesContainer = document.getElementById('activeLoadRules');
+    if (!rulesContainer || rulesContainer.children.length === 0) {
+        showToast('No load rules to generate syntax for', 'warning');
+        return;
+    }
+    
+    let syntax = '// Tealium iQ Load Rule Syntax\n';
+    syntax += '// Copy this into your Tealium iQ Load Rule conditions\n\n';
+    
+    Array.from(rulesContainer.children).forEach((rule, index) => {
+        const text = rule.querySelector('span').textContent.trim();
+        syntax += `// Rule ${index + 1}: ${text}\n`;
+    });
+    
+    // Copy to clipboard if possible
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(syntax).then(() => {
+            showToast('TiQ syntax copied to clipboard', 'success');
+        }).catch(() => {
+            console.log('Generated TiQ Syntax:');
+            console.log(syntax);
+            showToast('TiQ syntax generated - check console', 'info');
+        });
+    } else {
+        console.log('Generated TiQ Syntax:');
+        console.log(syntax);
+        showToast('TiQ syntax generated - check console', 'info');
     }
 }
+
 
 /**
  * Test utag availability
@@ -494,6 +833,8 @@ async function inspectProfile() {
         const utagContent = await response.text();
         const analysis = analyzeUtagContent(utagContent);
         
+        // Store analysis for potential use by profile inspector
+        window.currentProfileAnalysis = analysis;
         displayProfileAnalysis(analysis, utagUrl);
         updateDetectedConfig(analysis);
         
@@ -558,46 +899,7 @@ async function inspectProfile() {
     }
 }
 
-/**
- * Inspect currently loaded profile
- */
-function inspectCurrentProfile() {
-    if (typeof utag === 'undefined') {
-        showToast('No Tealium profile currently loaded', 'warning');
-        return;
-    }
-    
-    // Analyze current utag object
-    const analysis = {
-        variables: [],
-        tags: [],
-        extensions: [],
-        settings: {}
-    };
-    
-    // Extract information from loaded utag
-    if (utag.data) {
-        analysis.variables = Object.keys(utag.data);
-    }
-    
-    if (utag.sender) {
-        analysis.tags = Object.keys(utag.sender).map(id => `Tag ${id}`);
-    }
-    
-    if (utag.cfg) {
-        analysis.settings = {
-            version: utag.cfg.v || 'Unknown',
-            asyncLoad: true,
-            bundled: !!utag.cfg.bundle_tags
-        };
-    }
-    
-    displayProfileAnalysis(analysis, 'Currently Loaded Profile');
-    updateDetectedConfig(analysis);
-    
-    showToast('Current profile analyzed', 'success');
-    logEvent('CURRENT_PROFILE_ANALYSIS', 'Analyzed currently loaded profile', analysis);
-}
+// inspectCurrentProfile function removed - now handled by dedicated profile-inspector.js
 
 /**
  * Analyze manual utag content
@@ -611,6 +913,8 @@ function analyzeManualContent() {
     
     try {
         const analysis = analyzeUtagContent(content);
+        // Store analysis for potential use by profile inspector
+        window.currentProfileAnalysis = analysis;
         displayProfileAnalysis(analysis, 'Manual Analysis');
         updateDetectedConfig(analysis);
         
@@ -694,7 +998,23 @@ function analyzeUtagContent(content) {
  * Display profile analysis results
  */
 function displayProfileAnalysis(analysis, source) {
-    const resultsDiv = document.getElementById('profileInspectorResults');
+    // Check if we're in the profile inspector section and use the dedicated function
+    if (typeof window.inspectCurrentProfile === 'function') {
+        // Use the dedicated profile inspector functionality
+        console.log('Profile analysis completed:', source, analysis);
+        window.inspectCurrentProfile();
+        return;
+    }
+    
+    // Fallback: try to find a suitable container or just log the results
+    const resultsDiv = document.getElementById('profileInspectorResults') || 
+                      document.getElementById('debugOutput') ||
+                      document.querySelector('.debug-output');
+    
+    if (!resultsDiv) {
+        console.log('Profile analysis results:', { source, analysis });
+        return;
+    }
     
     resultsDiv.innerHTML = `
         <div class="space-y-4">
@@ -871,14 +1191,27 @@ function loadSavedProfiles() {
  * Save current settings including debug options
  */
 function saveCurrentSettings() {
-    const account = document.getElementById('account').value.trim();
-    const profile = document.getElementById('profile').value.trim();
-    const environment = document.getElementById('environment').value;
-    const customEnv = document.getElementById('customEnvironment').value.trim();
+    const accountEl = document.getElementById('account');
+    const profileEl = document.getElementById('profile');
+    const environmentEl = document.getElementById('environment');
+    const customEnvEl = document.getElementById('customEnvironment');
+    
+    if (!accountEl || !profileEl || !environmentEl) {
+        showToast('Configuration form not available', 'error');
+        return;
+    }
+    
+    const account = accountEl.value.trim();
+    const profile = profileEl.value.trim();
+    const environment = environmentEl.value;
+    const customEnv = customEnvEl?.value.trim() || '';
     
     const env = environment === 'custom' ? customEnv : environment;
     
-    if (!account || !profile || !env) return;
+    if (!account || !profile || !env) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
     
     const settings = {
         account,
@@ -915,20 +1248,40 @@ function saveCurrentSettings() {
  * Sync main form to quick settings panel
  */
 function syncToQuickSettings() {
-    const account = document.getElementById('account').value;
-    const profile = document.getElementById('profile').value;
-    const environment = document.getElementById('environment').value;
-    const customEnv = document.getElementById('customEnvironment').value;
+    // Get main form elements
+    const accountEl = document.getElementById('account');
+    const profileEl = document.getElementById('profile');
+    const environmentEl = document.getElementById('environment');
+    const customEnvEl = document.getElementById('customEnvironment');
     
-    document.getElementById('quickAccount').value = account;
-    document.getElementById('quickProfile').value = profile;
-    document.getElementById('quickEnvironment').value = environment;
+    // Get quick settings elements
+    const quickAccountEl = document.getElementById('quickAccount');
+    const quickProfileEl = document.getElementById('quickProfile');
+    const quickEnvironmentEl = document.getElementById('quickEnvironment');
+    const quickCustomEnvEl = document.getElementById('quickCustomEnv');
+    const customEnvDivEl = document.getElementById('customEnvDiv');
+    
+    // Only sync if main form elements exist
+    if (!accountEl || !profileEl || !environmentEl) {
+        console.log('Main form elements not found, skipping sync to quick settings');
+        return;
+    }
+    
+    const account = accountEl.value;
+    const profile = profileEl.value;
+    const environment = environmentEl.value;
+    const customEnv = customEnvEl?.value || '';
+    
+    // Update quick settings if they exist
+    if (quickAccountEl) quickAccountEl.value = account;
+    if (quickProfileEl) quickProfileEl.value = profile;
+    if (quickEnvironmentEl) quickEnvironmentEl.value = environment;
     
     if (environment === 'custom') {
-        document.getElementById('quickCustomEnv').value = customEnv;
-        document.getElementById('customEnvDiv').classList.remove('hidden');
+        if (quickCustomEnvEl) quickCustomEnvEl.value = customEnv;
+        if (customEnvDivEl) customEnvDivEl.classList.remove('hidden');
     } else {
-        document.getElementById('customEnvDiv').classList.add('hidden');
+        if (customEnvDivEl) customEnvDivEl.classList.add('hidden');
     }
 }
 
@@ -936,18 +1289,36 @@ function syncToQuickSettings() {
  * Sync quick settings to main form
  */
 function syncToMainForm() {
-    const account = document.getElementById('quickAccount').value;
-    const profile = document.getElementById('quickProfile').value;
-    const environment = document.getElementById('quickEnvironment').value;
-    const customEnv = document.getElementById('quickCustomEnv').value;
+    const quickAccount = document.getElementById('quickAccount');
+    const quickProfile = document.getElementById('quickProfile');
+    const quickEnvironment = document.getElementById('quickEnvironment');
+    const quickCustomEnv = document.getElementById('quickCustomEnv');
     
-    document.getElementById('account').value = account;
-    document.getElementById('profile').value = profile;
-    document.getElementById('environment').value = environment;
+    // Check if quick settings elements exist
+    if (!quickAccount || !quickProfile || !quickEnvironment) {
+        return;
+    }
     
-    if (environment === 'custom') {
-        document.getElementById('customEnvironment').value = customEnv;
-        toggleCustomEnvironment();
+    const account = quickAccount.value;
+    const profile = quickProfile.value;
+    const environment = quickEnvironment.value;
+    const customEnv = quickCustomEnv ? quickCustomEnv.value : '';
+    
+    // Check if main form elements exist before setting values
+    const mainAccount = document.getElementById('account');
+    const mainProfile = document.getElementById('profile');
+    const mainEnvironment = document.getElementById('environment');
+    const mainCustomEnv = document.getElementById('customEnvironment');
+    
+    if (mainAccount) mainAccount.value = account;
+    if (mainProfile) mainProfile.value = profile;
+    if (mainEnvironment) mainEnvironment.value = environment;
+    
+    if (environment === 'custom' && mainCustomEnv) {
+        mainCustomEnv.value = customEnv;
+        if (typeof toggleCustomEnvironment === 'function') {
+            toggleCustomEnvironment();
+        }
     }
 }
 
@@ -1010,7 +1381,20 @@ function exportConfig() {
  * Show toast notification
  */
 function showToast(message, type = 'info') {
+    // Use the new notification system from index.html if available
+    if (typeof showNotification === 'function') {
+        showNotification(message, type);
+        return;
+    }
+    
+    // Fallback to console if no notification system
+    console.log(`${type.toUpperCase()}: ${message}`);
+    
+    // Try to find toast container, but don't error if missing
     const container = document.getElementById('toastContainer');
+    if (!container) {
+        return;
+    }
     
     const toast = document.createElement('div');
     const bgColors = {
@@ -1162,27 +1546,45 @@ function loadSavedProfileByIndex(index) {
  * Load saved profile
  */
 function loadSavedProfile(profile) {
-    document.getElementById('account').value = profile.account;
-    document.getElementById('profile').value = profile.profile;
+    // Load into main form if elements exist
+    const accountEl = document.getElementById('account');
+    const profileEl = document.getElementById('profile');
+    const environmentEl = document.getElementById('environment');
+    const customEnvEl = document.getElementById('customEnvironment');
     
+    if (accountEl) accountEl.value = profile.account;
+    if (profileEl) profileEl.value = profile.profile;
+    
+    if (environmentEl) {
     if (['dev', 'qa', 'prod'].includes(profile.env)) {
-        document.getElementById('environment').value = profile.env;
+            environmentEl.value = profile.env;
+            if (typeof toggleCustomEnvironment === 'function') {
         toggleCustomEnvironment();
+            }
     } else {
-        document.getElementById('environment').value = 'custom';
-        document.getElementById('customEnvironment').value = profile.env;
+            environmentEl.value = 'custom';
+            if (customEnvEl) customEnvEl.value = profile.env;
+            if (typeof toggleCustomEnvironment === 'function') {
         toggleCustomEnvironment();
+            }
+        }
     }
     
-    // Load debug options
+    // Load debug options if elements exist
     if (profile.debug) {
-        document.getElementById('quickDebugMode').checked = profile.debug.debugMode || false;
-        document.getElementById('quickVerboseLogging').checked = profile.debug.verboseLogging || false;
-        document.getElementById('quickNetworkLogging').checked = profile.debug.networkLogging || false;
+        const debugModeEl = document.getElementById('quickDebugMode');
+        const verboseEl = document.getElementById('quickVerboseLogging');
+        const networkEl = document.getElementById('quickNetworkLogging');
+        
+        if (debugModeEl) debugModeEl.checked = profile.debug.debugMode || false;
+        if (verboseEl) verboseEl.checked = profile.debug.verboseLogging || false;
+        if (networkEl) networkEl.checked = profile.debug.networkLogging || false;
     }
     
-    // Sync to quick settings
+    // Sync to quick settings if function exists
+    if (typeof syncToQuickSettings === 'function') {
     syncToQuickSettings();
+    }
     
     showToast(`Loaded profile: ${profile.account}/${profile.profile}/${profile.env}`, 'success');
 }
@@ -1336,17 +1738,17 @@ function importSavedProfiles(event) {
 
 // Make functions available globally for inline event handlers
 window.toggleCustomEnvironment = toggleCustomEnvironment;
+window.toggleQuickCustomEnvironment = toggleQuickCustomEnvironment;
 window.saveCurrentSettings = saveCurrentSettings;
 window.loadTealium = loadTealium;
 window.quickLoadTealium = quickLoadTealium;
 window.loadSavedProfile = loadSavedProfile;
 window.loadSavedProfileByIndex = loadSavedProfileByIndex;
-window.showSection = showSection;
-window.toggleSettings = toggleSettings;
+// toggleSettings is now toggleSettingsPanel and defined in index.html
 window.testUtag = testUtag;
 window.clearTealium = clearTealium;
 window.inspectProfile = inspectProfile;
-window.inspectCurrentProfile = inspectCurrentProfile;
+// window.inspectCurrentProfile now handled by profile-inspector.js
 window.analyzeManualContent = analyzeManualContent;
 window.importProfileConfig = importProfileConfig;
 window.clearAllData = clearAllData;
@@ -1358,15 +1760,13 @@ window.importSavedProfiles = importSavedProfiles;
 
 // Also available as tealiumSandbox object
 window.tealiumSandbox = {
-    showSection,
-    toggleSettings,
     loadTealium,
     quickLoadTealium,
     toggleCustomEnvironment,
     testUtag,
     clearTealium,
     inspectProfile,
-    inspectCurrentProfile,
+    // inspectCurrentProfile now in profile-inspector.js
     analyzeManualContent,
     importProfileConfig,
     clearAllData,
@@ -1378,3 +1778,50 @@ window.tealiumSandbox = {
     syncToQuickSettings,
     syncToMainForm
 };
+
+// ========================================
+// GLOBAL FUNCTION EXPOSURE
+// ========================================
+// Expose all functions globally when sandbox.js loads
+if (typeof window !== 'undefined') {
+    // Core Tealium functions
+    window.loadTealium = loadTealium;
+    window.loadTealiumWithParams = loadTealiumWithParams;
+    window.quickLoadTealium = quickLoadTealium;
+    window.unloadTealium = unloadTealium;
+    window.testUtag = testUtag;
+    
+    // Settings and profile management
+    window.saveCurrentSettings = saveCurrentSettings;
+    window.resetToDefaults = resetToDefaults;
+    window.loadSavedProfile = loadSavedProfile;
+    window.loadSavedProfileByIndex = loadSavedProfileByIndex;
+    window.updateSavedProfilesList = updateSavedProfilesList;
+    
+    // Profile import/export
+    window.exportSavedProfiles = exportSavedProfiles;
+    window.importSavedProfiles = importSavedProfiles;
+    window.clearSavedProfiles = clearSavedProfiles;
+    
+    // Form synchronization
+    window.syncToQuickSettings = syncToQuickSettings;
+    window.syncToMainForm = syncToMainForm;
+    window.toggleCustomEnvironment = toggleCustomEnvironment;
+    
+    // Load rules
+    window.addLoadRule = addLoadRule;
+    window.testLoadRules = testLoadRules;
+    window.generateTiQSyntax = generateTiQSyntax;
+    
+    // UI utilities
+    window.updateTealiumStatus = updateTealiumStatus;
+    window.showToast = showToast;
+    
+}
+
+// Expose critical functions immediately so they're available
+window.initializeSandbox = initializeSandbox;
+window.quickLoadTealium = quickLoadTealium;
+window.loadTealium = loadTealium;
+window.loadTealiumWithParams = loadTealiumWithParams;
+window.syncToMainForm = syncToMainForm;

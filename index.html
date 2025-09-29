@@ -7,6 +7,12 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- JS Beautify for code formatting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
     
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -72,60 +78,14 @@
             <!-- Navigation Menu -->
             <nav class="flex-1 p-2">
                 <div class="space-y-1">
+                    <!-- Configuration is always present -->
                     <a href="#" onclick="showSection('configuration')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 bg-gray-100 text-gray-900">
                         <i class="fas fa-cog w-4 h-4 mr-3 text-gray-500"></i>
                         Configuration
                     </a>
                     
-                    <a href="#" onclick="showSection('profile-inspector')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-search w-4 h-4 mr-3 text-gray-500"></i>
-                        Profile Inspector
-                    </a>
-                    
-                    <a href="#" onclick="showSection('data-layer')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-layer-group w-4 h-4 mr-3 text-gray-500"></i>
-                        Data Layer
-                    </a>
-                    
-                    <a href="#" onclick="showSection('events')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-bolt w-4 h-4 mr-3 text-gray-500"></i>
-                        Events
-                    </a>
-                    
-                    <a href="#" onclick="showSection('load-rules')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-filter w-4 h-4 mr-3 text-gray-500"></i>
-                        Load Rules
-                    </a>
-                    
-                    <a href="#" onclick="showSection('custom-functions')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-code w-4 h-4 mr-3 text-gray-500"></i>
-                        Custom Functions
-                    </a>
-                    
-                    <a href="#" onclick="showSection('consent')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-shield-alt w-4 h-4 mr-3 text-gray-500"></i>
-                        Consent
-                    </a>
-                    
-                    <a href="#" onclick="showSection('debugging')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-bug w-4 h-4 mr-3 text-gray-500"></i>
-                        Debug Console
-                    </a>
-                    
-                    <a href="#" onclick="showSection('tags')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-tags w-4 h-4 mr-3 text-gray-500"></i>
-                        Tags
-                    </a>
-                    
-                    <a href="#" onclick="showSection('extensions')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-puzzle-piece w-4 h-4 mr-3 text-gray-500"></i>
-                        Extensions
-                    </a>
-                    
-                    <a href="#" onclick="showSection('help')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-                        <i class="fas fa-question-circle w-4 h-4 mr-3 text-gray-500"></i>
-                        Help
-                    </a>
+                    <!-- Dynamic navigation menu will be populated here by sections-config.js -->
+                    <div id="sidebarNav"></div>
                 </div>
             </nav>
         </div>
@@ -142,6 +102,26 @@
                     </div>
                     
                     <div class="flex items-center space-x-4">
+                        <!-- Session Status -->
+                        <div id="sessionStatus" class="hidden sm:flex items-center text-xs text-gray-600 bg-gray-100 px-3 py-1 rounded-md" 
+                             title="Sessions auto-save your profile, data layer changes, and analysis results. Click restart to clear all data and start fresh.">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span id="sessionInfo">No session</span>
+                        </div>
+                        
+                        <!-- Session Tip (shown when no session) -->
+                        <div id="sessionTip" class="hidden sm:flex items-center text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-md">
+                            <i class="fas fa-lightbulb mr-1"></i>
+                            <span>Load a Tealium profile to start auto-saving</span>
+                        </div>
+                        
+                        <!-- Session Restart -->
+                        <button onclick="restartSession()" 
+                                title="Restart Session"
+                                class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-md transition-colors">
+                            <i class="fas fa-redo text-sm"></i>
+                        </button>
+                        
                         <button onclick="toggleSettingsPanel()" class="text-gray-400 hover:text-gray-600">
                             <i class="fas fa-cog text-lg"></i>
                         </button>
@@ -182,11 +162,17 @@
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Environment</label>
-                    <select id="quickEnvironment" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <select id="quickEnvironment" onchange="toggleQuickCustomEnvironment()" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
                         <option value="dev">Development</option>
                         <option value="qa">QA</option>
                         <option value="prod" selected>Production</option>
+                        <option value="custom">Custom Environment</option>
                     </select>
+                </div>
+                
+                <div id="quickCustomEnvDiv" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Custom Environment</label>
+                    <input type="text" id="quickCustomEnv" placeholder="Enter custom environment" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
                 </div>
                 
                 <button onclick="quickLoadTealium()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 text-sm font-medium">
@@ -206,7 +192,13 @@
         </div>
         
         <div id="sectionContainer">
-            <!-- Sections will be loaded here dynamically -->
+            <!-- Loading indicator -->
+            <div id="sectionLoading" class="hidden text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-4 text-gray-600">Loading section...</p>
+            </div>
+            
+            <!-- Section content will be loaded here -->
         </div>
             </main>
             
@@ -217,10 +209,105 @@
     <!-- Notification Container -->
     <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
+    <!-- Extension Code Viewer Modal -->
+    <div id="extensionCodeModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden">
+                <div class="bg-gray-100 px-6 py-4 border-b flex items-center justify-between">
+                    <h3 id="extensionCodeTitle" class="text-lg font-semibold text-gray-900">Extension Code</h3>
+                    <button onclick="closeExtensionCodeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="mb-4">
+                        <input type="text" id="extensionCodeSearch" placeholder="Search in code..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="bg-gray-900 text-gray-100 rounded-md p-4 max-h-[60vh] overflow-y-auto overflow-x-auto">
+                        <pre id="extensionCodeContent" class="text-sm whitespace-pre-wrap break-words"><code>Loading...</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Rule Details Modal -->
+    <div id="loadRuleModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                <div class="bg-gray-100 px-6 py-4 border-b flex items-center justify-between">
+                    <h3 id="loadRuleTitle" class="text-lg font-semibold text-gray-900">Load Rule Details</h3>
+                    <button onclick="closeLoadRuleModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div id="loadRuleDetails" class="space-y-4">
+                        <div class="text-gray-500">Loading rule details...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- JavaScript Files -->
+    <script src="js/session-manager.js"></script>
+    <script src="js/sections-config.js"></script>
     <script src="js/sandbox.js"></script>
+    <script src="js/events.js"></script>
     <script src="js/custom-functions.js"></script>
     <script src="js/profile-inspector.js"></script>
+    <script src="js/data-layer.js"></script>
+</script>
+    
+    <!-- Ensure functions are available -->
+    <script>
+        // Update session status display
+        function updateSessionStatusDisplay() {
+            const sessionStatus = document.getElementById('sessionStatus');
+            const sessionInfo = document.getElementById('sessionInfo');
+            const sessionTip = document.getElementById('sessionTip');
+            
+            if (sessionStatus && sessionInfo && sessionTip) {
+                const info = window.getSessionInfo ? window.getSessionInfo() : null;
+                
+                if (info && info.isActive) {
+                    // Show session status, hide tip
+                    sessionStatus.classList.remove('hidden');
+                    sessionTip.classList.add('hidden');
+                    sessionInfo.textContent = `Active ${info.duration}min`;
+                    
+                    // Reset classes first
+                    sessionStatus.classList.remove('bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700', 'bg-gray-100', 'text-gray-600');
+                    
+                    if (info.hasProfile) {
+                        sessionStatus.classList.add('bg-green-100', 'text-green-700');
+                    } else {
+                        sessionStatus.classList.add('bg-yellow-100', 'text-yellow-700');
+                    }
+                } else {
+                    // Hide session status, show tip
+                    sessionStatus.classList.add('hidden');
+                    sessionTip.classList.remove('hidden');
+                }
+            }
+        }
+        
+        // Update session status more frequently initially, then less frequently
+        setInterval(updateSessionStatusDisplay, 5000); // Every 5 seconds
+        
+        // Also update when page gains focus
+        window.addEventListener('focus', updateSessionStatusDisplay);
+        
+        // Wait for sandbox.js to load and expose functions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize session status display
+            setTimeout(updateSessionStatusDisplay, 500);
+            setTimeout(updateSessionStatusDisplay, 2000);
+            setTimeout(updateSessionStatusDisplay, 5000);
+        });
+    </script>
     
     <script>
         let currentSection = 'configuration';
@@ -237,40 +324,280 @@
         
         async function loadSection(sectionName) {
             const container = document.getElementById('sectionContainer');
-            const loadingState = document.getElementById('loadingState');
+            const loadingIndicator = document.getElementById('sectionLoading');
             
-            // Always load sections dynamically for consistency
-            loadingState.classList.remove('hidden');
-            container.classList.add('hidden');
-            
-            try {
-                const response = await fetch(`sections/${sectionName}.html`);
-                if (response.ok) {
-                    const content = await response.text();
-                    container.innerHTML = content;
-                    updateNavigation(sectionName);
-                    initializeSectionFunctionality(sectionName);
-                    currentSection = sectionName;
-                } else {
-                    throw new Error(`Failed to load section: ${sectionName}`);
-                }
-            } catch (error) {
-                console.error('Section loading error:', error);
-                container.innerHTML = `
-                    <div class="text-center py-12">
-                        <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Section Load Error</h3>
-                        <p class="text-gray-600 mb-4">Could not load the ${sectionName} section</p>
-                        <button onclick="showSection('configuration')" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
-                            Return to Configuration
-                        </button>
-                    </div>
-                `;
-                showNotification(`Failed to load ${sectionName} section`, 'error');
+            // Show loading indicator
+            if (loadingIndicator) {
+                loadingIndicator.classList.remove('hidden');
             }
             
-            loadingState.classList.add('hidden');
-            container.classList.remove('hidden');
+            try {
+                // Try to load from external HTML file first
+                let content = await loadSectionHTML(sectionName);
+                
+                // If external loading fails, fallback to inline content
+                if (!content) {
+                    content = getSectionContent(sectionName);
+                }
+                
+                if (content) {
+                    container.innerHTML = content;
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Section Not Found</h3>
+                            <p class="text-gray-600">Could not load ${sectionName} section</p>
+                        </div>
+                    `;
+                }
+                
+                updateNavigation(sectionName);
+                
+                // Use new section initialization system if available
+                if (typeof window.initializeSectionFunctionality === 'function') {
+                    window.initializeSectionFunctionality(sectionName);
+                } else {
+                    // Fallback to old system
+                    initializeSectionFunctionality(sectionName);
+                }
+                
+                currentSection = sectionName;
+                
+            } catch (error) {
+                console.error(`Error loading section ${sectionName}:`, error);
+                // Fallback to inline content
+                const content = getSectionContent(sectionName);
+                if (content) {
+                    container.innerHTML = content;
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Section Error</h3>
+                            <p class="text-gray-600">Error loading ${sectionName}: ${error.message}</p>
+                        </div>
+                    `;
+                }
+                updateNavigation(sectionName);
+                
+                // Use new section initialization system if available
+                if (typeof window.initializeSectionFunctionality === 'function') {
+                    window.initializeSectionFunctionality(sectionName);
+                } else {
+                    // Fallback to old system
+                    initializeSectionFunctionality(sectionName);
+                }
+                
+                currentSection = sectionName;
+            }
+            
+            // Hide loading indicator
+            if (loadingIndicator) {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+        
+        async function loadSectionHTML(sectionName) {
+            // Use the new sections config system
+            if (typeof loadSectionContent === 'function') {
+                return await loadSectionContent(sectionName);
+            }
+            
+            // Fallback to old system if sections config not loaded yet
+            try {
+                const sectionFiles = {
+                    'profile-inspector': 'sections/profile-inspector.html',
+                    'data-layer': 'sections/data-layer.html',
+                    'events': 'sections/events.html',
+                    'load-rules': 'sections/load-rules.html',
+                    'debugging': 'sections/debugging.html',
+                    'help': 'sections/help.html',
+                    'analytics': 'sections/analytics.html'
+                };
+                
+                const fileName = sectionFiles[sectionName];
+                if (!fileName) {
+                    return null;
+                }
+                
+                const response = await fetch(fileName);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const htmlContent = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, 'text/html');
+                const sectionElement = doc.querySelector('.section-content, section');
+                
+                if (sectionElement) {
+                    return sectionElement.innerHTML;
+                } else {
+                    return doc.body.innerHTML;
+                }
+                
+            } catch (error) {
+                console.warn(`Failed to load ${sectionName} from HTML file:`, error);
+                return null;
+            }
+        }
+        
+        function getSectionContent(sectionName) {
+            const sections = {
+                'configuration': `
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Tealium Configuration -->
+                            <div class="bg-white rounded-lg shadow p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                                        <i class="fas fa-cog text-white"></i>
+                                    </div>
+                                    <h3 class="ml-3 text-lg font-semibold text-gray-900">Tealium Configuration</h3>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Account ID</label>
+                                        <input type="text" id="account" placeholder="success-laura-solanes" value="success-laura-solanes" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Profile</label>
+                                        <input type="text" id="profile" placeholder="main" value="main" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Environment</label>
+                                        <select id="environment" onchange="toggleCustomEnvironment()" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                            <option value="dev">Development</option>
+                                            <option value="qa">QA</option>
+                                            <option value="prod" selected>Production</option>
+                                            <option value="custom">Custom Environment</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Custom Environment Input -->
+                                    <div id="customEnvironmentDiv" class="hidden">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Custom Environment</label>
+                                        <input type="text" id="customEnvironment" placeholder="Prod, UAT, staging, etc..." class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <p class="text-sm text-gray-500 mt-1">Case-sensitive environment name</p>
+                                    </div>
+                                    
+                                    <!-- Debug Options -->
+                                    <div class="pt-4 border-t border-gray-200">
+                                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Debug Options</h4>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" id="quickDebugMode" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                                <span class="ml-2 text-sm text-gray-700">Enable Console Debugging</span>
+                                            </label>
+                                            
+                                            <label class="flex items-center">
+                                                <input type="checkbox" id="quickVerboseLogging" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                                <span class="ml-2 text-sm text-gray-700">Enable Verbose Logging</span>
+                                            </label>
+                                            
+                                            <label class="flex items-center">
+                                                <input type="checkbox" id="quickNetworkLogging" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                                <span class="ml-2 text-sm text-gray-700">Enable Network Logging</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Action Buttons -->
+                                    <div class="flex space-x-3 pt-2">
+                                        <button onclick="loadTealium()" class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 font-medium">
+                                            <i class="fas fa-rocket mr-2"></i>Load Tealium
+                                        </button>
+                                        
+                                        <button onclick="saveCurrentSettings()" class="bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 font-medium">
+                                            <i class="fas fa-save mr-2"></i>Save
+                                        </button>
+                                        
+                                        <button onclick="resetToDefaults()" class="bg-gray-600 text-white py-3 px-4 rounded-md hover:bg-gray-700 font-medium">
+                                            <i class="fas fa-undo mr-2"></i>Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status & Information -->
+                            <div class="bg-white rounded-lg shadow p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
+                                        <i class="fas fa-info-circle text-white"></i>
+                                    </div>
+                                    <h3 class="ml-3 text-lg font-semibold text-gray-900">Status & Information</h3>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm font-medium text-gray-600">Tealium Status</span>
+                                        <span id="tealiumStatusBadge" class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Loaded & Ready</span>
+                                    </div>
+                                    
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600">Current Profile</span>
+                                            <span id="currentProfile" class="text-sm font-medium text-gray-900">success-laura-solanes/main</span>
+                                        </div>
+                                        
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600">Environment</span>
+                                            <span id="currentEnv" class="text-sm font-medium text-gray-900">prod</span>
+                                        </div>
+                                        
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600">Loaded URL</span>
+                                            <span id="loadedUrl" class="text-sm font-medium text-gray-900 truncate max-w-48" title="https://tags.tiqcdn.com...">https://tags.tiqcdn.co...</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pt-4 border-t">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 class="text-sm font-medium text-gray-900">Saved Profiles</h4>
+                                            <div class="flex space-x-2">
+                                                <button onclick="exportSavedProfiles()" class="text-blue-600 hover:text-blue-700 text-xs font-medium" title="Export Profiles">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                                <button onclick="importSavedProfiles()" class="text-green-600 hover:text-green-700 text-xs font-medium" title="Import Profiles">
+                                                    <i class="fas fa-upload"></i>
+                                                </button>
+                                                <button onclick="clearSavedProfiles()" class="text-red-600 hover:text-red-700 text-xs font-medium" title="Clear Profiles">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="mainSavedProfilesList" class="space-y-2 max-h-40 overflow-y-auto">
+                                            <div class="text-center py-4 text-gray-500">
+                                                <i class="fas fa-bookmark text-gray-300 text-lg mb-2"></i>
+                                                <p class="text-xs">No saved profiles yet</p>
+                                                <p class="text-xs mt-1">Use the Save button to save current settings</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                `,
+                // All other sections are loaded from external files
+                'fallback': `
+                    <div class="text-center py-12">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Section Not Found</h3>
+                        <p class="text-gray-600">This section could not be loaded from external file</p>
+                        <p class="text-sm text-gray-500 mt-2">Please check that the section file exists in the sections/ folder</p>
+                    </div>
+                `
+            };
+            
+            return sections[sectionName] || sections['fallback'];
         }
         
         function showSection(sectionName) {
@@ -296,15 +623,21 @@
             const titles = {
                 'configuration': { title: 'Configuration', subtitle: 'Configure your Tealium account settings' },
                 'profile-inspector': { title: 'Profile Inspector', subtitle: 'Analyze and debug Tealium profiles' },
-                'data-layer': { title: 'Data Layer', subtitle: 'Manage and test data layer variables' },
+                'data-layer': { title: 'Data Layer', subtitle: 'Debug and manage utag_data variables' },
                 'events': { title: 'Events', subtitle: 'Test page views, links, and custom events' },
-                'debugging': { title: 'Debug Console', subtitle: 'Monitor Tealium execution and errors' },
                 'help': { title: 'Help', subtitle: 'Documentation and troubleshooting guide' }
             };
             
             const sectionInfo = titles[activeSectionName] || { title: activeSectionName, subtitle: '' };
-            document.getElementById('sectionTitle').textContent = sectionInfo.title;
-            document.getElementById('sectionSubtitle').textContent = sectionInfo.subtitle;
+            const titleElement = document.getElementById('sectionTitle');
+            const subtitleElement = document.getElementById('sectionSubtitle');
+            
+            if (titleElement) {
+                titleElement.textContent = sectionInfo.title;
+            }
+            if (subtitleElement) {
+                subtitleElement.textContent = sectionInfo.subtitle;
+            }
         }
         
         function clearAll() {
@@ -338,12 +671,63 @@
         }
         
         function initializeSectionFunctionality(sectionName) {
-            console.log(`🔧 Initializing functionality for: ${sectionName}`);
             setTimeout(() => {
                 switch (sectionName) {
+                    case 'configuration':
+                        // Initialize saved profiles list when configuration section loads
+                        if (typeof window.updateSavedProfilesList === 'function') {
+                            window.updateSavedProfilesList();
+                        }
+                        
+                        // Load saved settings if available
+                        const savedSettings = localStorage.getItem('tealium-sandbox-settings');
+                        if (savedSettings) {
+                            try {
+                                const settings = JSON.parse(savedSettings);
+                                const accountEl = document.getElementById('account');
+                                const profileEl = document.getElementById('profile');
+                                const envEl = document.getElementById('environment');
+                                const customEnvEl = document.getElementById('customEnvironment');
+                                
+                                if (accountEl && settings.account) accountEl.value = settings.account;
+                                if (profileEl && settings.profile) profileEl.value = settings.profile;
+                                if (envEl && settings.env) {
+                                    if (['dev', 'qa', 'prod'].includes(settings.env)) {
+                                        envEl.value = settings.env;
+                                    } else {
+                                        envEl.value = 'custom';
+                                        if (customEnvEl) customEnvEl.value = settings.env;
+                                        window.toggleCustomEnvironment && window.toggleCustomEnvironment();
+                                    }
+                                }
+                                
+                                // Load debug settings
+                                if (settings.debug) {
+                                    const debugEl = document.getElementById('enableDebug');
+                                    const traceEl = document.getElementById('enableTrace');
+                                    const networkEl = document.getElementById('enableNetworkLogging');
+                                    
+                                    if (debugEl) debugEl.checked = settings.debug.debugMode || false;
+                                    if (traceEl) traceEl.checked = settings.debug.verboseLogging || false;
+                                    if (networkEl) networkEl.checked = settings.debug.networkLogging || false;
+                                }
+                                
+                                console.log('✅ Restored saved settings to form');
+                            } catch (e) {
+                                console.warn('Could not load saved settings:', e);
+                            }
+                        }
+                        break;
+                        
                     case 'profile-inspector':
                         if (typeof initializeProfileInspector === 'function') {
                             initializeProfileInspector();
+                        }
+                        break;
+                        
+                    case 'data-layer':
+                        if (typeof initializeDataLayer === 'function') {
+                            initializeDataLayer();
                         }
                         break;
                 }
@@ -363,19 +747,114 @@
             }
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Initializing Tealium Sandbox Dashboard v2.0');
-            
-            // Load default section (configuration)
-            loadSection('configuration');
-            
-            if (typeof initializeSandbox === 'function') {
-                setTimeout(() => initializeSandbox(), 200);
+        // Initialize immediately when script loads
+        console.log('🚀 Initializing Tealium Sandbox Dashboard v2.0');
+        
+        // Expose functions globally first
+        window.showSection = showSection;
+        window.loadSection = loadSection;
+        window.toggleSettingsPanel = toggleSettingsPanel;
+        window.showNotification = showNotification;
+        window.clearAll = clearAll;
+        window.getSectionContent = getSectionContent;
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize the sections system first
+            if (typeof initializeSections === 'function') {
+                try {
+                    console.log('🔧 Initializing sections system...');
+                    await initializeSections();
+                    console.log('✅ Sections system initialized');
+                } catch (error) {
+                    console.error('❌ Failed to initialize sections system:', error);
+                }
+            } else {
+                console.error('❌ initializeSections function not available');
             }
             
-            if (typeof loadSavedSettings === 'function') {
-                setTimeout(() => loadSavedSettings(), 300);
-            }
+            // Load default section (configuration) after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                // Check navigation menu was built properly
+                const sidebarNav = document.getElementById('sidebarNav');
+                console.log('🔍 Checking sidebar navigation container:', sidebarNav);
+                if (sidebarNav) {
+                    console.log('📋 Current navigation HTML:', sidebarNav.innerHTML);
+                }
+                
+                // Manually check if profile inspector link exists
+                const profileInspectorLink = document.querySelector('[onclick*="profile-inspector"]');
+                console.log('🔍 Profile Inspector link found:', profileInspectorLink);
+                
+                // If Profile Inspector link doesn't exist, create it manually
+                if (!profileInspectorLink && sidebarNav) {
+                    console.log('🔧 Creating Profile Inspector navigation manually...');
+                    const profileInspectorHTML = `
+                        <a href="#" onclick="showSection('profile-inspector')" class="sidebar-link group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+                            <i class="fas fa-search w-4 h-4 mr-3 text-gray-500"></i>
+                            Profile Inspector
+                        </a>
+                    `;
+                    sidebarNav.innerHTML += profileInspectorHTML;
+                    console.log('✅ Profile Inspector navigation added manually');
+                }
+                
+                loadSection('configuration');
+                
+                // Load saved settings if available
+                const savedSettings = localStorage.getItem('tealium-sandbox-settings');
+                if (savedSettings) {
+                    try {
+                        const settings = JSON.parse(savedSettings);
+                        const accountEl = document.getElementById('account');
+                        const profileEl = document.getElementById('profile');
+                        const envEl = document.getElementById('environment');
+                        const customEnvEl = document.getElementById('customEnvironment');
+                        
+                        if (accountEl && settings.account) accountEl.value = settings.account;
+                        if (profileEl && settings.profile) profileEl.value = settings.profile;
+                        if (envEl && settings.env) {
+                            if (['dev', 'qa', 'prod'].includes(settings.env)) {
+                                envEl.value = settings.env;
+                            } else {
+                                envEl.value = 'custom';
+                                if (customEnvEl) customEnvEl.value = settings.env;
+                                window.toggleCustomEnvironment();
+                            }
+                        }
+                        
+                        // Load debug settings
+                        if (settings.debug) {
+                            const debugEl = document.getElementById('enableDebug');
+                            const traceEl = document.getElementById('enableTrace');
+                            const networkEl = document.getElementById('enableNetworkLogging');
+                            
+                            if (debugEl) debugEl.checked = settings.debug.debugMode || false;
+                            if (traceEl) traceEl.checked = settings.debug.verboseLogging || false;
+                            if (networkEl) networkEl.checked = settings.debug.networkLogging || false;
+                        }
+                        
+                        console.log('✅ Loaded saved settings');
+                    } catch (e) {
+                        console.warn('Could not load saved settings:', e);
+                    }
+                }
+                
+                // Load saved profiles list
+                window.updateSavedProfilesList();
+            }, 200);
+            
+            // Initialize other components
+            setTimeout(() => {
+                if (typeof initializeSandbox === 'function') {
+                    initializeSandbox();
+                }
+            }, 300);
+            
+            setTimeout(() => {
+                if (typeof loadSavedSettings === 'function') {
+                    loadSavedSettings();
+                }
+            }, 400);
             
             console.log('✅ Dashboard initialization complete');
         });
@@ -388,12 +867,549 @@
             }
         });
         
-        // Expose functions globally
+        // Expose functions globally for HTML onclick handlers
         window.showSection = showSection;
         window.loadSection = loadSection;
         window.toggleSettingsPanel = toggleSettingsPanel;
         window.showNotification = showNotification;
         window.clearAll = clearAll;
+        window.getSectionContent = getSectionContent;
+        
+        // Enhanced loadTealium function with session warnings and status updates
+        window.loadTealium = function() {
+            const account = document.getElementById('account')?.value?.trim();
+            const profile = document.getElementById('profile')?.value?.trim();
+            const environment = document.getElementById('environment')?.value;
+            const customEnv = document.getElementById('customEnvironment')?.value?.trim();
+            
+            if (!account || !profile) {
+                showNotification('Please enter account and profile', 'error');
+                return;
+            }
+            
+            const env = environment === 'custom' ? customEnv : environment;
+            if (!env) {
+                showNotification('Please select or enter an environment', 'error');
+                return;
+            }
+            
+            // Check if we're changing profile/environment and clear session data
+            if (typeof window.sessionManager !== 'undefined' && window.sessionManager.isSessionActive) {
+                const currentProfile = window.sessionManager.getCurrentProfile();
+                
+                // Get the actual environment value from current profile 
+                // (it could be stored as 'environment' or 'env')
+                const currentEnv = currentProfile.environment === 'custom' ? 
+                    currentProfile.customEnvironment : 
+                    (currentProfile.environment || currentProfile.env);
+                
+                const isProfileChange = currentProfile && (
+                    currentProfile.account !== account || 
+                    currentProfile.profile !== profile ||
+                    currentEnv !== env
+                );
+                
+                if (isProfileChange) {
+                    const hasChanges = window.sessionManager.hasSessionChanges();
+                    
+                    if (hasChanges) {
+                        const confirmMessage = `⚠️ PROFILE/ENVIRONMENT CHANGE DETECTED\n\n` +
+                            `You're about to change from:\n` +
+                            `${currentProfile.account}/${currentProfile.profile}/${currentEnv}\n\n` +
+                            `To:\n${account}/${profile}/${env}\n\n` +
+                            `This will CLEAR all your current session changes including:\n` +
+                            `• Data layer modifications\n` +
+                            `• Profile analysis data\n` +
+                            `• Any debugging state\n\n` +
+                            `Do you want to continue and load fresh with the new profile?`;
+                        
+                        if (!confirm(confirmMessage)) {
+                            return; // User cancelled
+                        }
+                    }
+                    
+                    // Always clear session when changing profile/environment
+                    showNotification('Clearing session for new profile...', 'info');
+                    window.sessionManager.clearAllSessionData();
+                }
+            }
+            
+            // Sync forms before loading
+            if (typeof syncToQuickSettings === 'function') {
+                syncToQuickSettings();
+            }
+            
+            // Remove existing utag script if present
+            const existingScript = document.querySelector('script[src*="tags.tiqcdn.com"]');
+            if (existingScript) {
+                existingScript.remove();
+                // Clear utag object
+                if (window.utag) {
+                    window.utag = undefined;
+                }
+            }
+            
+            const tealiumUrl = `https://tags.tiqcdn.com/utag/${account}/${profile}/${env}/utag.js`;
+            
+            showNotification('Loading Tealium...', 'info');
+            
+            // Start session immediately when user clicks Load Tealium
+            if (typeof window.sessionManager !== 'undefined' && !window.sessionManager.isSessionActive) {
+                window.sessionManager.startNewSession();
+            }
+            
+            // Configure Tealium settings
+            if (typeof window.utag_cfg === 'undefined') {
+                window.utag_cfg = {};
+            }
+            
+            window.utag_cfg.domain_override = 'https://tags.tiqcdn.com';
+            window.utag_cfg.noload = false;
+            
+            // Enable Tealium debugging (utagdb) for detailed tag firing info
+            document.cookie = "utagdb=true; path=/";
+            window.utag_cfg.debug = true;
+            
+            // Create and load script
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.async = true;
+            script.src = tealiumUrl;
+            
+            script.onload = function() {
+                // Apply file protocol fixes if needed
+                if (window.utag && window.utag.loader && window.location.protocol === 'file:') {
+                    const originalAS = window.utag.loader.AS;
+                    if (originalAS) {
+                        window.utag.loader.AS = function(a, b, c, d) {
+                            const result = originalAS.call(this, a, b, c, d);
+                            if (typeof result === 'string' && result.includes('file://tags.tiqcdn.com')) {
+                                return result.replace('file://tags.tiqcdn.com', 'https://tags.tiqcdn.com');
+                            }
+                            return result;
+                        };
+                    }
+                }
+                
+                showNotification('Tealium loaded successfully!', 'success');
+                
+                // Update status panel immediately
+                updateTealiumStatus(true, account, profile, env, tealiumUrl);
+                
+                // Save current settings
+                if (typeof saveCurrentSettings === 'function') {
+                    saveCurrentSettings();
+                }
+                
+                // Trigger session save and UI update
+                window.dispatchEvent(new Event('tealiumLoaded'));
+                
+                if (typeof window.sessionManager !== 'undefined') {
+                    if (!window.sessionManager.isSessionActive) {
+                        window.sessionManager.startNewSession();
+                    } else {
+                        // Wait for data layer to initialize properly before saving session
+                        setTimeout(() => {
+                            window.sessionManager.saveSession();
+                            if (typeof window.updateSessionStatusDisplay === 'function') {
+                                window.updateSessionStatusDisplay();
+                            }
+                        }, 3000);
+                    }
+                }
+                
+                // Auto-analyze after load
+                setTimeout(() => {
+                    if (typeof window.analyzeTealiumCookies === 'function') {
+                        window.analyzeTealiumCookies();
+                    }
+                    if (typeof window.analyzeUtagCfgSettings === 'function') {
+                        window.analyzeUtagCfgSettings();
+                    }
+                    if (currentSection === 'profile-inspector' && typeof window.initializeProfileInspector === 'function') {
+                        window.initializeProfileInspector();
+                    }
+                }, 2000);
+            };
+            
+            script.onerror = function() {
+                showNotification('Failed to load Tealium', 'error');
+                updateTealiumStatus(false, account, profile, env, tealiumUrl);
+            };
+            
+            document.head.appendChild(script);
+        };
+        
+        // Function to update the status panel
+        window.updateTealiumStatus = function(isLoaded, account, profile, env, url) {
+            // Update status badge
+            const statusBadge = document.getElementById('tealiumStatusBadge');
+            if (statusBadge) {
+                if (isLoaded) {
+                    statusBadge.className = 'px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full';
+                    statusBadge.textContent = 'Loaded & Ready';
+                } else {
+                    statusBadge.className = 'px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full';
+                    statusBadge.textContent = 'Failed to Load';
+                }
+            }
+            
+            // Update current profile
+            const currentProfileEl = document.getElementById('currentProfile');
+            if (currentProfileEl && account && profile) {
+                currentProfileEl.textContent = `${account}/${profile}`;
+            }
+            
+            // Update environment
+            const currentEnvEl = document.getElementById('currentEnv');
+            if (currentEnvEl && env) {
+                currentEnvEl.textContent = env;
+            }
+            
+            // Update loaded URL
+            const loadedUrlEl = document.getElementById('loadedUrl');
+            if (loadedUrlEl && url) {
+                loadedUrlEl.textContent = url.length > 50 ? url.substring(0, 47) + '...' : url;
+                loadedUrlEl.title = url;
+            }
+        };
+        
+        // Function to sync main form to quick settings
+        window.syncToQuickSettings = function() {
+            const mainAccount = document.getElementById('account');
+            const mainProfile = document.getElementById('profile');
+            const mainEnvironment = document.getElementById('environment');
+            const mainCustomEnv = document.getElementById('customEnvironment');
+            
+            const quickAccount = document.getElementById('quickAccount');
+            const quickProfile = document.getElementById('quickProfile');
+            const quickEnvironment = document.getElementById('quickEnvironment');
+            const quickCustomEnv = document.getElementById('quickCustomEnv');
+            
+            if (mainAccount && quickAccount) quickAccount.value = mainAccount.value;
+            if (mainProfile && quickProfile) quickProfile.value = mainProfile.value;
+            if (mainEnvironment && quickEnvironment) quickEnvironment.value = mainEnvironment.value;
+            if (mainCustomEnv && quickCustomEnv) quickCustomEnv.value = mainCustomEnv.value;
+        };
+        
+        // Function to restart session
+        window.restartSession = function() {
+            if (typeof window.sessionManager !== 'undefined') {
+                window.sessionManager.restartSession();
+            } else {
+                if (confirm('Are you sure you want to restart? This will clear all data and reload the page.')) {
+                    localStorage.clear();
+                    window.location.reload();
+                }
+            }
+        };
+        
+        window.saveCurrentSettings = function() {
+            console.log('💾 Saving current settings...');
+            const accountEl = document.getElementById('account');
+            const profileEl = document.getElementById('profile');
+            const environmentEl = document.getElementById('environment');
+            const customEnvEl = document.getElementById('customEnvironment');
+            const enableDebugEl = document.getElementById('enableDebug');
+            const enableTraceEl = document.getElementById('enableTrace');
+            const enableNetworkLoggingEl = document.getElementById('enableNetworkLogging');
+            
+            if (!accountEl || !profileEl || !environmentEl) {
+                window.showNotification('Configuration form not found', 'error');
+                return;
+            }
+            
+            const account = accountEl.value.trim();
+            const profile = profileEl.value.trim();
+            const environment = environmentEl.value;
+            const customEnv = customEnvEl ? customEnvEl.value.trim() : '';
+            
+            const env = environment === 'custom' ? customEnv : environment;
+            
+            if (!account || !profile || !env) {
+                window.showNotification('Account, Profile, and Environment cannot be empty', 'error');
+                return;
+            }
+            
+            const settings = {
+                account,
+                profile,
+                env,
+                debug: {
+                    debugMode: enableDebugEl ? enableDebugEl.checked : false,
+                    verboseLogging: enableTraceEl ? enableTraceEl.checked : false,
+                    networkLogging: enableNetworkLoggingEl ? enableNetworkLoggingEl.checked : false
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            // Save current settings
+            localStorage.setItem('tealium-sandbox-settings', JSON.stringify(settings));
+            
+            // Update saved profiles list
+            let savedProfiles = JSON.parse(localStorage.getItem('tealium-sandbox-profiles') || '[]');
+            const existingIndex = savedProfiles.findIndex(s => 
+                s.account === account && s.profile === profile && s.env === env
+            );
+            
+            if (existingIndex > -1) {
+                savedProfiles[existingIndex] = settings; // Update existing
+            } else {
+                savedProfiles.unshift(settings); // Add new to top
+            }
+            
+            // Keep only the latest 10 profiles
+            savedProfiles = savedProfiles.slice(0, 10);
+            localStorage.setItem('tealium-sandbox-profiles', JSON.stringify(savedProfiles));
+            
+            // Update UI
+            window.updateSavedProfilesList();
+            window.showNotification('Settings saved!', 'success');
+        };
+        
+        window.resetToDefaults = function() {
+            console.log('🔄 Resetting to defaults...');
+            if (document.getElementById('account')) document.getElementById('account').value = 'success-laura-solanes';
+            if (document.getElementById('profile')) document.getElementById('profile').value = 'main';
+            if (document.getElementById('environment')) document.getElementById('environment').value = 'prod';
+            window.showNotification && window.showNotification('Reset to defaults', 'info');
+        };
+        
+        window.toggleCustomEnvironment = function() {
+            const envSelect = document.getElementById('environment');
+            const customDiv = document.getElementById('customEnvironmentDiv');
+            if (envSelect && customDiv) {
+                if (envSelect.value === 'custom') {
+                    customDiv.classList.remove('hidden');
+                } else {
+                    customDiv.classList.add('hidden');
+                }
+            }
+        };
+        
+        // Saved profiles management
+        window.updateSavedProfilesList = function() {
+            const savedProfiles = JSON.parse(localStorage.getItem('tealium-sandbox-profiles') || '[]');
+            const container = document.getElementById('mainSavedProfilesList');
+            
+            if (!container) return;
+            
+            if (savedProfiles.length === 0) {
+                container.innerHTML = '<p class="text-gray-500">No profiles saved yet.</p>';
+                return;
+            }
+            
+            container.innerHTML = savedProfiles.map((profile, index) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-900">${profile.account}/${profile.profile}/${profile.env}</div>
+                        <div class="text-sm text-gray-500">Saved: ${new Date(profile.timestamp).toLocaleDateString()}</div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="loadSavedProfileByIndex(${index})" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Load</button>
+                        <button onclick="deleteSavedProfile(${index})" class="text-red-600 hover:text-red-800 text-sm font-medium">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        };
+        
+        window.exportSavedProfiles = function() {
+            const savedProfiles = JSON.parse(localStorage.getItem('tealium-sandbox-profiles') || '[]');
+            
+            if (savedProfiles.length === 0) {
+                window.showNotification('No profiles to export', 'info');
+                return;
+            }
+            
+            const exportData = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                profiles: savedProfiles
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tealium-sandbox-profiles-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            window.showNotification(`Exported ${savedProfiles.length} profiles`, 'success');
+        };
+        
+        window.importSavedProfiles = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importData = JSON.parse(e.target.result);
+                    
+                    if (!importData.profiles || !Array.isArray(importData.profiles)) {
+                        throw new Error('Invalid file format');
+                    }
+                    
+                    const validProfiles = importData.profiles.filter(profile => 
+                        profile.account && profile.profile && profile.env
+                    );
+                    
+                    if (validProfiles.length === 0) {
+                        throw new Error('No valid profiles found');
+                    }
+                    
+                    const existingProfiles = JSON.parse(localStorage.getItem('tealium-sandbox-profiles') || '[]');
+                    const mergedProfiles = [...validProfiles, ...existingProfiles].slice(0, 20); // Keep max 20
+                    
+                    localStorage.setItem('tealium-sandbox-profiles', JSON.stringify(mergedProfiles));
+                    window.updateSavedProfilesList();
+                    window.showNotification(`Imported ${validProfiles.length} profiles`, 'success');
+                } catch (error) {
+                    window.showNotification(`Import failed: ${error.message}`, 'error');
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        window.clearSavedProfiles = function() {
+            if (confirm('Are you sure you want to clear all saved profiles? This cannot be undone.')) {
+                localStorage.removeItem('tealium-sandbox-profiles');
+                window.updateSavedProfilesList();
+                window.showNotification('All profiles cleared', 'info');
+            }
+        };
+        
+        window.loadSavedProfileByIndex = function(index) {
+            const savedProfiles = JSON.parse(localStorage.getItem('tealium-sandbox-profiles') || '[]');
+            if (index >= 0 && index < savedProfiles.length) {
+                const profile = savedProfiles[index];
+                
+                // Load into form
+                if (document.getElementById('account')) document.getElementById('account').value = profile.account;
+                if (document.getElementById('profile')) document.getElementById('profile').value = profile.profile;
+                
+                const envSelect = document.getElementById('environment');
+                const customEnvInput = document.getElementById('customEnvironment');
+                
+                if (envSelect) {
+                    if (['dev', 'qa', 'prod'].includes(profile.env)) {
+                        envSelect.value = profile.env;
+                        if (customEnvInput) customEnvInput.parentElement.classList.add('hidden');
+                    } else {
+                        envSelect.value = 'custom';
+                        if (customEnvInput) {
+                            customEnvInput.value = profile.env;
+                            customEnvInput.parentElement.classList.remove('hidden');
+                        }
+                    }
+                }
+                
+                // Load debug options if available
+                if (profile.debug) {
+                    const debugMode = document.getElementById('enableDebug');
+                    const verboseMode = document.getElementById('enableTrace');
+                    const networkMode = document.getElementById('enableNetworkLogging');
+                    
+                    if (debugMode) debugMode.checked = profile.debug.debugMode || false;
+                    if (verboseMode) verboseMode.checked = profile.debug.verboseLogging || false;
+                    if (networkMode) networkMode.checked = profile.debug.networkLogging || false;
+                }
+                
+                window.showNotification(`Loaded profile: ${profile.account}/${profile.profile}/${profile.env}`, 'success');
+            }
+        };
+        
+        window.deleteSavedProfile = function(index) {
+            const savedProfiles = JSON.parse(localStorage.getItem('tealium-sandbox-profiles') || '[]');
+            if (index >= 0 && index < savedProfiles.length) {
+                const profile = savedProfiles[index];
+                if (confirm(`Delete profile: ${profile.account}/${profile.profile}/${profile.env}?`)) {
+                    savedProfiles.splice(index, 1);
+                    localStorage.setItem('tealium-sandbox-profiles', JSON.stringify(savedProfiles));
+                    window.updateSavedProfilesList();
+                    window.showNotification('Profile deleted', 'info');
+                }
+            }
+        };
+        window.addLoadRule = function() { console.log('addLoadRule - will be enhanced when sandbox.js loads'); };
+        window.testLoadRules = function() { console.log('testLoadRules - will be enhanced when sandbox.js loads'); };
+        window.generateTiQSyntax = function() { console.log('generateTiQSyntax - will be enhanced when sandbox.js loads'); };
+        window.testUtag = function() { console.log('testUtag - will be enhanced when sandbox.js loads'); };
+        window.unloadTealium = function() { console.log('unloadTealium - will be enhanced when sandbox.js loads'); };
+        // quickLoadTealium will be loaded from sandbox.js
+        
+        // Tags section functions are now loaded from js/tags.js - no placeholders needed
+        
+        // Simple notification function
+        window.showNotification = function(message, type = 'info') {
+            console.log(`${type.toUpperCase()}: ${message}`);
+            
+            // Try to show visual notification if container exists
+            const container = document.getElementById('notificationContainer');
+            if (container) {
+                const notification = document.createElement('div');
+                const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+                notification.className = `${bgColor} text-white px-4 py-2 rounded-md shadow-lg`;
+                notification.textContent = message;
+                container.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 3000);
+            }
+        };
+        
+        // Test function to manually load Profile Inspector
+        window.testProfileInspector = function() {
+            console.log('🧪 Testing Profile Inspector loading...');
+            showSection('profile-inspector');
+        };
+        
+        // Auto-analyze cookies when the page loads and when Tealium loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to try analyzing cookies and settings
+            function tryAnalyzeCookiesAndSettings() {
+                if (typeof window.analyzeTealiumCookies === 'function') {
+                    console.log('🚀 Triggering automatic cookie analysis...');
+                    window.analyzeTealiumCookies();
+                } else {
+                    console.log('⏳ Cookie analysis function not available yet');
+                }
+                
+                if (typeof window.analyzeUtagCfgSettings === 'function') {
+                    console.log('🚀 Triggering automatic utag.cfg analysis...');
+                    window.analyzeUtagCfgSettings();
+                } else {
+                    console.log('⏳ utag.cfg analysis function not available yet');
+                }
+            }
+            
+            // Try immediately
+            setTimeout(tryAnalyzeCookiesAndSettings, 500);
+            
+            // Try again after scripts load
+            setTimeout(tryAnalyzeCookiesAndSettings, 2000);
+            
+            // Try when Tealium loads (if not already loaded)
+            if (typeof window.utag === 'undefined') {
+                const checkTealium = setInterval(function() {
+                    if (typeof window.utag !== 'undefined') {
+                        clearInterval(checkTealium);
+                        console.log('🎯 Tealium detected, analyzing cookies and settings...');
+                        setTimeout(tryAnalyzeCookiesAndSettings, 1000);
+                    }
+                }, 1000);
+                
+                // Stop checking after 30 seconds
+                setTimeout(() => clearInterval(checkTealium), 30000);
+            }
+        });
     </script>
 
 </body>

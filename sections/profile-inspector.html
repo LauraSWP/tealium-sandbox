@@ -1,3 +1,4 @@
+<!-- SECTION_META: {"title": "Profile Inspector", "subtitle": "Analyze and debug Tealium profiles", "icon": "fas fa-search", "order": 2, "category": "debug"} -->
 <!-- Enhanced Profile Inspector Section -->
 <section id="profile-inspector" class="section-content hidden">
     <div class="space-y-6">
@@ -15,293 +16,264 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
             <div class="flex flex-wrap items-center gap-4">
                 <button onclick="inspectCurrentProfile()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-eye mr-2"></i>Inspect Current
+                    <i class="fas fa-search mr-2"></i>Analyze Profile
                 </button>
-                <button onclick="toggleRealTimeMonitoring()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                    <i class="fas fa-play mr-2"></i>Start Monitoring
+                <button onclick="updateEnvironmentStatus()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-sync mr-2"></i>Refresh Status
                 </button>
-                <button onclick="clearInspectorLogs()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                    <i class="fas fa-broom mr-2"></i>Clear Logs
-                </button>
-                <button onclick="exportInspectorData()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-                    <i class="fas fa-download mr-2"></i>Export Report
-                </button>
+                <div class="text-sm text-gray-600 ml-auto">
+                    <span class="font-medium">Tip:</span> For testing events, use the Events section. For load rule debugging, use the Load Rules section.
+                </div>
             </div>
         </div>
 
-        <!-- Main Inspector Grid -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            
-            <!-- Profile Analysis Panel -->
-            <div class="space-y-6">
-                
-                <!-- Profile Input -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <i class="fas fa-search text-blue-600 mr-2"></i>
-                        Profile Analysis
-                    </h4>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Profile URL or Path</label>
-                            <input type="text" id="profileInspectorInput" 
-                                   placeholder="account/profile/env OR full URL" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        
-                        <div class="flex space-x-3">
-                            <button onclick="inspectProfile()" 
-                                    class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-microscope mr-2"></i>Analyze
-                            </button>
-                            <button onclick="inspectWithProxy()" 
-                                    class="flex-1 bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition-colors">
-                                <i class="fas fa-shield-alt mr-2"></i>Use Proxy
-                            </button>
-                        </div>
+        <!-- Status Overview - 2 panels -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h4 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                    Tealium Status & Profile Info
+                </h4>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Status:</span>
+                        <div id="tealiumLoadStatus" class="text-lg font-bold text-red-600">Not Loaded</div>
                     </div>
-                    
-                    <!-- Manual Analysis -->
-                    <div class="mt-6 pt-4 border-t border-gray-200">
-                        <h5 class="font-medium text-gray-900 mb-3">Manual Analysis</h5>
-                        <p class="text-sm text-gray-600 mb-3">Paste utag.js content for offline analysis:</p>
-                        <textarea id="manualUtagContent" rows="4" 
-                                  placeholder="Paste utag.js content here..." 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-xs font-mono"></textarea>
-                        <button onclick="analyzeManualContent()" 
-                                class="mt-2 w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
-                            <i class="fas fa-cogs mr-2"></i>Analyze Content
-                        </button>
-                    </div>
+                    <div id="profileOverview"><div class="text-gray-500">No profile analyzed</div></div>
                 </div>
-
-                <!-- Profile Overview -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <i class="fas fa-info-circle text-green-600 mr-2"></i>
-                        Profile Overview
-                    </h4>
-                    <div id="profileOverview" class="space-y-3">
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-clipboard-list text-gray-300 text-3xl mb-3"></i>
-                            <p>No profile analyzed yet</p>
-                        </div>
-                    </div>
-                </div>
-
             </div>
-
-            <!-- Real-time Monitoring Panel -->
-            <div class="space-y-6">
-                
-                <!-- Data Layer Monitor -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <i class="fas fa-database text-purple-600 mr-2"></i>
-                        Data Layer Monitor
-                        <span id="dataLayerStatus" class="ml-auto px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">Inactive</span>
-                    </h4>
-                    
-                    <div id="dataLayerMonitor" class="space-y-2 max-h-64 overflow-y-auto">
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-database text-gray-300 text-3xl mb-3"></i>
-                            <p>Start monitoring to see real-time data layer changes</p>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h4 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-chart-bar text-green-500 mr-2"></i>
+                    Quick Stats & Data Layer
+                </h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Data Layer:</span>
+                        <div id="dataLayerStatusDisplay" class="text-lg font-bold text-yellow-600">Not Detected</div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-3 pt-2 border-t border-gray-100">
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-blue-600" id="variableCount">0</div>
+                            <div class="text-xs text-gray-500">Variables</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-purple-600" id="tagCount">0</div>
+                            <div class="text-xs text-gray-500">Tags</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-indigo-600" id="extensionCount">0</div>
+                            <div class="text-xs text-gray-500">Extensions</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-orange-600" id="loadRuleCount">0</div>
+                            <div class="text-xs text-gray-500">Load Rules</div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Tag Execution Monitor -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <i class="fas fa-tags text-red-600 mr-2"></i>
-                        Tag Execution Monitor
-                        <span id="tagMonitorStatus" class="ml-auto px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">Inactive</span>
-                    </h4>
-                    
-                    <div id="tagExecutionMonitor" class="space-y-2 max-h-64 overflow-y-auto">
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-tags text-gray-300 text-3xl mb-3"></i>
-                            <p>Start monitoring to see tag execution in real-time</p>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
-
-        <!-- Detailed Analysis Tabs -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div class="border-b border-gray-200">
-                <nav class="flex space-x-8 px-6" aria-label="Inspector Tabs">
-                    <button onclick="switchInspectorTab('configuration')" 
-                            class="inspector-tab-btn active border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600">
-                        Configuration
-                    </button>
-                    <button onclick="switchInspectorTab('tags')" 
-                            class="inspector-tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">
-                        Tags & Variables
-                    </button>
-                    <button onclick="switchInspectorTab('load-rules')" 
-                            class="inspector-tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">
-                        Load Rules
-                    </button>
-                    <button onclick="switchInspectorTab('extensions')" 
-                            class="inspector-tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">
-                        Extensions
-                    </button>
-                    <button onclick="switchInspectorTab('network')" 
-                            class="inspector-tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">
-                        Network Analysis
-                    </button>
-                    <button onclick="switchInspectorTab('performance')" 
-                            class="inspector-tab-btn border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">
-                        Performance
-                    </button>
-                </nav>
+        
+        <!-- Analysis Panels - Restructured Layout -->
+        <!-- Row 1: Load Rules, Extensions, Tags (3 columns) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        
+        <!-- Load Rules Analysis -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-filter text-orange-500 mr-2"></i>
+                    Load Rules Analysis
+                    <span id="loadRulesCountBadge" class="ml-2 bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">0</span>
+                </h4>
             </div>
-            
-            <div class="p-6">
-                
-                <!-- Configuration Tab -->
-                <div id="inspector-tab-configuration" class="inspector-tab-content">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div>
-                            <h5 class="font-medium text-gray-900 mb-3 flex items-center">
-                                <i class="fas fa-database text-blue-500 mr-2"></i>Variables Detected
-                            </h5>
-                            <div id="detectedVariables" class="bg-gray-50 rounded-lg p-3 min-h-24 text-sm">
-                                None detected
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h5 class="font-medium text-gray-900 mb-3 flex items-center">
-                                <i class="fas fa-tags text-green-500 mr-2"></i>Tags Found
-                            </h5>
-                            <div id="detectedTags" class="bg-gray-50 rounded-lg p-3 min-h-24 text-sm">
-                                None detected
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h5 class="font-medium text-gray-900 mb-3 flex items-center">
-                                <i class="fas fa-puzzle-piece text-purple-500 mr-2"></i>Extensions
-                            </h5>
-                            <div id="detectedExtensions" class="bg-gray-50 rounded-lg p-3 min-h-24 text-sm">
-                                None detected
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6 pt-4 border-t border-gray-200">
-                        <button onclick="importProfileConfig()" 
-                                class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
-                            <i class="fas fa-download mr-2"></i>Import Configuration
-                        </button>
-                    </div>
+            <div class="mb-4 space-y-3">
+                <!-- Filter Section -->
+                <div class="flex gap-2">
+                    <select id="loadRulesFilterType" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500 bg-white">
+                        <option value="all">All Fields</option>
+                        <option value="id">Rule ID</option>
+                        <option value="status">Status</option>
+                        <option value="condition">Condition</option>
+                    </select>
+                    <input type="text" id="loadRulesFilter" placeholder="Try typing a variable name (e.g., page_type, customer_type)" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500" style="display: none;">
+                    <select id="loadRulesStatusFilter" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500 bg-white" style="display: none;">
+                        <option value="all">All Statuses</option>
+                        <option value="true">Loading (TRUE)</option>
+                        <option value="false">Not Loading (FALSE)</option>
+                        <option value="unknown">Unknown</option>
+                    </select>
                 </div>
-
-                <!-- Tags & Variables Tab -->
-                <div id="inspector-tab-tags" class="inspector-tab-content hidden">
-                    <div id="tagsVariablesContent" class="space-y-4">
-                        <div class="text-center py-12 text-gray-500">
-                            <i class="fas fa-tags text-gray-300 text-4xl mb-4"></i>
-                            <p>Analyze a profile to see detailed tag and variable information</p>
-                        </div>
-                    </div>
+                <!-- Sort Section -->
+                <div class="flex gap-2 items-center">
+                    <span class="text-sm text-gray-600">Sort:</span>
+                    <select id="loadRulesSortType" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500 bg-white">
+                        <option value="id">Rule ID</option>
+                        <option value="title">Title</option>
+                        <option value="status">Status</option>
+                    </select>
+                    <button id="loadRulesSortDirection" class="px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 focus:ring-orange-500 focus:border-orange-500 bg-white" data-direction="asc" title="Toggle sort direction">
+                        <i class="fas fa-sort-amount-down-alt"></i>
+                    </button>
                 </div>
-
-                <!-- Load Rules Tab -->
-                <div id="inspector-tab-load-rules" class="inspector-tab-content hidden">
-                    <div id="loadRulesContent" class="space-y-4">
-                        <div class="text-center py-12 text-gray-500">
-                            <i class="fas fa-filter text-gray-300 text-4xl mb-4"></i>
-                            <p>Analyze a profile to see load rule configurations</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Extensions Tab -->
-                <div id="inspector-tab-extensions" class="inspector-tab-content hidden">
-                    <div id="extensionsContent" class="space-y-4">
-                        <div class="text-center py-12 text-gray-500">
-                            <i class="fas fa-puzzle-piece text-gray-300 text-4xl mb-4"></i>
-                            <p>Analyze a profile to see extension details</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Network Analysis Tab -->
-                <div id="inspector-tab-network" class="inspector-tab-content hidden">
-                    <div id="networkAnalysisContent" class="space-y-4">
-                        <div class="bg-blue-50 rounded-lg p-4 mb-4">
-                            <h6 class="font-medium text-blue-900 mb-2">Network Monitoring</h6>
-                            <p class="text-blue-800 text-sm">Monitor all network requests made by Tealium tags and extensions</p>
-                        </div>
-                        
-                        <div id="networkRequests" class="space-y-2 max-h-96 overflow-y-auto">
-                            <div class="text-center py-12 text-gray-500">
-                                <i class="fas fa-network-wired text-gray-300 text-4xl mb-4"></i>
-                                <p>Start monitoring to see network requests</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Performance Tab -->
-                <div id="inspector-tab-performance" class="inspector-tab-content hidden">
-                    <div id="performanceContent" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-green-50 rounded-lg p-4">
-                                <h6 class="font-medium text-green-900">Load Time</h6>
-                                <p id="performanceLoadTime" class="text-2xl font-bold text-green-600">--</p>
-                                <p class="text-green-700 text-sm">Tealium initialization</p>
-                            </div>
-                            
-                            <div class="bg-blue-50 rounded-lg p-4">
-                                <h6 class="font-medium text-blue-900">Tags Fired</h6>
-                                <p id="performanceTagCount" class="text-2xl font-bold text-blue-600">--</p>
-                                <p class="text-blue-700 text-sm">Total tag executions</p>
-                            </div>
-                            
-                            <div class="bg-purple-50 rounded-lg p-4">
-                                <h6 class="font-medium text-purple-900">Data Events</h6>
-                                <p id="performanceEventCount" class="text-2xl font-bold text-purple-600">--</p>
-                                <p class="text-purple-700 text-sm">Data layer updates</p>
-                            </div>
-                        </div>
-                        
-                        <div id="performanceChart" class="mt-6">
-                            <h6 class="font-medium text-gray-900 mb-3">Performance Timeline</h6>
-                            <div class="bg-gray-50 rounded-lg p-8 text-center text-gray-500">
-                                <i class="fas fa-chart-line text-gray-300 text-4xl mb-4"></i>
-                                <p>Performance data will appear here during monitoring</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+            </div>
+            <div id="profileLoadRulesList" class="max-h-80 overflow-y-auto">
+                <div class="text-gray-500">No profile analyzed</div>
             </div>
         </div>
-
-        <!-- CORS Solutions -->
-        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        
+        <!-- Extensions Analysis -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-puzzle-piece text-purple-500 mr-2"></i>
+                    Extensions Analysis
+                    <span id="extensionsCountBadge" class="ml-2 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">0</span>
+                </h4>
+            </div>
+            <div class="mb-4 space-y-3">
+                <!-- Filter Section -->
+                <div class="flex gap-2">
+                    <select id="extensionsFilterType" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-purple-500 focus:border-purple-500 bg-white">
+                        <option value="all">All Fields</option>
+                        <option value="id">ID</option>
+                        <option value="scope">Scope</option>
+                        <option value="code">Code</option>
+                    </select>
+                    <input type="text" id="extensionsFilter" placeholder="Type to filter..." class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-purple-500 focus:border-purple-500" style="display: none;">
+                    <select id="extensionsScopeFilter" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-purple-500 focus:border-purple-500 bg-white" style="display: none;">
+                        <option value="all">All Scopes</option>
+                        <option value="pre_loader">Pre Loader</option>
+                        <option value="before_load_rules">Before Load Rules</option>
+                        <option value="after_load_rules">After Load Rules</option>
+                        <option value="tag_scoped">Tag Scoped</option>
+                    </select>
+                </div>
+                <!-- Sort Section -->
+                <div class="flex gap-2 items-center">
+                    <span class="text-sm text-gray-600">Sort:</span>
+                    <select id="extensionsSortType" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-purple-500 focus:border-purple-500 bg-white">
+                        <option value="order">Execution Order</option>
+                        <option value="status">Status</option>
+                        <option value="id">ID</option>
+                    </select>
+                    <button id="extensionsSortDirection" class="px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 focus:ring-purple-500 focus:border-purple-500 bg-white" data-direction="asc" title="Toggle sort direction">
+                        <i class="fas fa-sort-amount-down-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="profileExtensionsList" class="max-h-80 overflow-y-auto">
+                <div class="text-gray-500">No profile analyzed</div>
+            </div>
+        </div>
+        
+        <!-- Tags Analysis -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-tags text-blue-500 mr-2"></i>
+                    Tags Analysis
+                    <span id="tagsCountBadge" class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">0</span>
+                </h4>
+            </div>
+            <div class="mb-4 space-y-3">
+                <!-- Filter Section -->
+                <div class="flex gap-2">
+                    <select id="tagsFilterType" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 bg-white">
+                        <option value="all">All Fields</option>
+                        <option value="uid">UID</option>
+                        <option value="status">Status</option>
+                        <option value="version">Version</option>
+                    </select>
+                    <input type="text" id="tagsFilter" placeholder="Type to filter..." class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500" style="display: none;">
+                    <select id="tagsStatusFilter" class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 bg-white" style="display: none;">
+                        <option value="all">All Statuses</option>
+                        <option value="ok">OK</option>
+                        <option value="not loaded">Not Loaded</option>
+                        <option value="not sent">Not Sent</option>
+                        <option value="condition false">Condition False</option>
+                        <option value="not reported">Not Reported</option>
+                        <option value="not executed">Not Executed</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+                <!-- Sort Section -->
+                <div class="flex gap-2 items-center">
+                    <span class="text-sm text-gray-600">Sort:</span>
+                    <select id="tagsSortType" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500 bg-white">
+                        <option value="uid">UID</option>
+                        <option value="status">Status</option>
+                        <option value="version">Version</option>
+                    </select>
+                    <button id="tagsSortDirection" class="px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 focus:ring-blue-500 focus:border-blue-500 bg-white" data-direction="asc" title="Toggle sort direction">
+                        <i class="fas fa-sort-amount-down-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="profileTagsList" class="max-h-80 overflow-y-auto">
+                <div class="text-gray-500">No profile analyzed</div>
+            </div>
+        </div>
+        
+        </div> <!-- End Row 1: 3 columns -->
+        
+        <!-- Row 2: Settings and Cookies (2 columns) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- utag.cfg Settings -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-cogs text-green-500 mr-2"></i>
+                    utag.cfg Settings
+                    <a href="https://docs.tealium.com/platforms/javascript/settings/" target="_blank" class="ml-2 text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-external-link-alt"></i> Documentation
+                    </a>
+                </h4>
+                <button onclick="analyzeUtagCfgSettings()" class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200 transition-colors">
+                    <i class="fas fa-refresh mr-1"></i>Refresh
+                </button>
+            </div>
+            <div id="utagCfgSettings" class="space-y-3">
+                <div class="text-gray-500">No Tealium profile loaded</div>
+            </div>
+        </div>
+        
+        <!-- Tealium Cookies -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-cookie-bite text-orange-500 mr-2"></i>
+                    Tealium Cookies
+                    <span id="tealiumCookiesCountBadge" class="ml-2 bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">0</span>
+                </h4>
+                <button onclick="analyzeTealiumCookies()" class="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded hover:bg-orange-200 transition-colors">
+                    <i class="fas fa-refresh mr-1"></i>Refresh
+                </button>
+            </div>
+            <div id="tealiumCookies" class="space-y-3">
+                <div class="text-gray-500">Loading Tealium cookies...</div>
+            </div>
+        </div>
+        
+        </div> <!-- End Row 2: 2 columns -->
+        
+        <!-- Profile Analysis Summary -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div class="flex items-start">
-                <i class="fas fa-exclamation-triangle text-amber-500 mt-1 mr-3"></i>
+                <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
                 <div>
-                    <h4 class="text-amber-800 font-medium">CORS Workarounds Available</h4>
-                    <p class="text-amber-700 text-sm mt-1">
-                        If automatic inspection fails due to CORS policy, use manual analysis or browser developer tools.
-                    </p>
-                    <div class="mt-3 flex space-x-3">
-                        <button onclick="showCORSHelp()" class="text-amber-800 hover:text-amber-900 text-sm font-medium">
-                            View Solutions →
-                        </button>
+                    <h4 class="text-blue-800 font-medium">Profile Analysis</h4>
+                    <div class="text-blue-700 text-sm mt-2 space-y-1">
+                        <p>• This section provides comprehensive analysis of the currently loaded Tealium profile</p>
+                        <p>• View detailed information about tags, extensions, load rules, and configuration</p>
+                        <p>• For testing actions, navigate to the respective sections (Events, Load Rules, etc.)</p>
+                        <p>• Use <code>utag.cond</code> in console to check load rule results manually</p>
                     </div>
                 </div>
             </div>
         </div>
+
 
     </div>
 </section>

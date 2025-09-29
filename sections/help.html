@@ -1,397 +1,185 @@
-<!-- Help Section -->
+<!-- SECTION_META: {"title": "Help & Documentation", "subtitle": "Guides, best practices, and troubleshooting", "icon": "fas fa-question-circle", "order": 9, "category": "docs"} -->
+
 <section id="help" class="section-content hidden">
     <div class="space-y-6">
         
         <!-- Header -->
-        <div class="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl p-6 text-white">
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-6 text-white">
             <h3 class="text-xl font-bold mb-2 flex items-center">
                 <i class="fas fa-question-circle mr-3"></i>
                 Help & Documentation
             </h3>
-            <p class="text-teal-100">Complete guide to using the Tealium Sandbox</p>
+            <p class="text-purple-100">Comprehensive guide for using the Tealium Sandbox</p>
         </div>
 
-        <!-- Quick Navigation -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h4 class="text-lg font-semibold text-gray-900 mb-4">Quick Navigation</h4>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button onclick="scrollToSection('getting-started')" 
-                        class="text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-play text-green-600 mb-2"></i>
-                    <div class="font-medium">Getting Started</div>
-                    <div class="text-sm text-gray-600">Basic setup</div>
-                </button>
-                
-                <button onclick="scrollToSection('best-practices')" 
-                        class="text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-star text-yellow-600 mb-2"></i>
-                    <div class="font-medium">Best Practices</div>
-                    <div class="text-sm text-gray-600">Recommended usage</div>
-                </button>
-                
-                <button onclick="scrollToSection('troubleshooting')" 
-                        class="text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-wrench text-red-600 mb-2"></i>
-                    <div class="font-medium">Troubleshooting</div>
-                    <div class="text-sm text-gray-600">Common issues</div>
-                </button>
-                
-                <button onclick="scrollToSection('examples')" 
-                        class="text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-code text-blue-600 mb-2"></i>
-                    <div class="font-medium">Examples</div>
-                    <div class="text-sm text-gray-600">Code samples</div>
-                </button>
+        <!-- Quick Help Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Getting Started -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center mb-4">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i class="fas fa-play text-green-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 ml-3">Getting Started</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Learn how to set up and configure your first Tealium profile in the sandbox.</p>
+                <ul class="text-sm text-gray-700 space-y-1">
+                    <li>• Load your Tealium profile</li>
+                    <li>• Configure data layer variables</li>
+                    <li>• Test basic events</li>
+                    <li>• Debug common issues</li>
+                </ul>
             </div>
+
+            <!-- Best Practices -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center mb-4">
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i class="fas fa-star text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 ml-3">Best Practices</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Follow Tealium best practices for optimal implementation and debugging.</p>
+                <ul class="text-sm text-gray-700 space-y-1">
+                    <li>• Data layer naming conventions</li>
+                    <li>• Load rule optimization</li>
+                    <li>• Extension best practices</li>
+                    <li>• Performance monitoring</li>
+                </ul>
+            </div>
+
+            <!-- Troubleshooting -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center mb-4">
+                    <div class="p-3 bg-red-100 rounded-lg">
+                        <i class="fas fa-tools text-red-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 ml-3">Troubleshooting</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Solutions for common issues and debugging techniques.</p>
+                <ul class="text-sm text-gray-700 space-y-1">
+                    <li>• Tags not firing</li>
+                    <li>• Data layer issues</li>
+                    <li>• Load rule problems</li>
+                    <li>• Console errors</li>
+                </ul>
+            </div>
+
         </div>
 
-        <!-- Getting Started -->
-        <div id="getting-started" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-play text-green-600 mr-2"></i>
-                Getting Started
+        <!-- Documentation Sections -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-book text-purple-600 mr-2"></i>
+                Documentation
             </h4>
             
             <div class="space-y-6">
+                
+                <!-- Section Features -->
                 <div>
-                    <h5 class="text-lg font-semibold text-gray-900 mb-3">1. Initial Setup</h5>
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <ul class="space-y-2 text-gray-700">
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-600 mt-1 mr-2"></i>
-                                Enter your Tealium account, profile, and environment in the Configuration section
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-600 mt-1 mr-2"></i>
-                                Click "Load Tealium" to initialize the utag.js script
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-600 mt-1 mr-2"></i>
-                                Configure your data layer variables in the Data Layer section
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check text-green-600 mt-1 mr-2"></i>
-                                Test events and monitor tag execution using the debugging tools
-                            </li>
-                        </ul>
+                    <h5 class="font-semibold text-gray-900 mb-3">Section Features</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <strong>Configuration:</strong> Set up your Tealium account, profile, and environment settings. Save multiple profiles for quick switching.
+                        </div>
+                        <div>
+                            <strong>Profile Inspector:</strong> Analyze loaded profiles to see tags, extensions, load rules, cookies, and configuration settings.
+                        </div>
+                        <div>
+                            <strong>Data Layer:</strong> Manage utag_data variables with a visual table, JSON editor, validation, and real-time monitoring.
+                        </div>
+                        <div>
+                            <strong>Events:</strong> Test page views, link events, e-commerce tracking, and custom events with batch testing capabilities.
+                        </div>
+                        <div>
+                            <strong>Load Rules:</strong> Build and test conditional tag firing rules with TiQ syntax generation and debugging tools.
+                        </div>
+                        <div>
+                            <strong>Analytics:</strong> Monitor real-time activity, performance metrics, and generate reports for data quality analysis.
+                        </div>
                     </div>
                 </div>
-                
+
+                <!-- Adding New Sections -->
                 <div>
-                    <h5 class="text-lg font-semibold text-gray-900 mb-3">2. Basic Workflow</h5>
-                    <div class="bg-blue-50 rounded-lg p-4">
-                        <ol class="space-y-2 text-gray-700">
-                            <li class="flex items-start">
-                                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">1</span>
-                                Load your Tealium configuration
-                            </li>
-                            <li class="flex items-start">
-                                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">2</span>
-                                Set up your data layer with relevant variables
-                            </li>
-                            <li class="flex items-start">
-                                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">3</span>
-                                Test page views and custom events
-                            </li>
-                            <li class="flex items-start">
-                                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">4</span>
-                                Monitor tag execution and debug issues
-                            </li>
-                            <li class="flex items-start">
-                                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">5</span>
-                                Export configurations and reports
-                            </li>
+                    <h5 class="font-semibold text-gray-900 mb-3">Adding New Sections</h5>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-700 mb-3">The sandbox automatically discovers new sections. To add a new section:</p>
+                        <ol class="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+                            <li>Create a new HTML file in the <code class="bg-gray-200 px-1 rounded">sections/</code> folder</li>
+                            <li>Add section metadata in a comment at the top of the file</li>
+                            <li>Wrap your content in a <code class="bg-gray-200 px-1 rounded">&lt;section&gt;</code> element</li>
+                            <li>Include any JavaScript for initialization</li>
+                            <li>Refresh the page - the section will automatically appear in the menu</li>
                         </ol>
                     </div>
                 </div>
+
+                <!-- Example Section Template -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-3">Section Template</h5>
+                    <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto"><code>&lt;!-- SECTION_META: {"title": "My Section", "subtitle": "Description", "icon": "fas fa-icon", "order": 10, "category": "custom"} --&gt;
+
+&lt;section id="my-section" class="section-content hidden"&gt;
+    &lt;div class="space-y-6"&gt;
+        &lt;!-- Header --&gt;
+        &lt;div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white"&gt;
+            &lt;h3 class="text-xl font-bold mb-2 flex items-center"&gt;
+                &lt;i class="fas fa-icon mr-3"&gt;&lt;/i&gt;
+                My Section
+            &lt;/h3&gt;
+            &lt;p class="text-blue-100"&gt;Section description&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Content --&gt;
+        &lt;div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"&gt;
+            &lt;p&gt;Your content here&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/section&gt;
+
+&lt;script&gt;
+function initializeMySection() {
+    console.log('🔧 Initializing My Section...');
+    // Your initialization code
+}
+
+// Expose globally
+window.initializeMySection = initializeMySection;
+&lt;/script&gt;</code></pre>
+                </div>
+
             </div>
         </div>
 
-        <!-- Best Practices -->
-        <div id="best-practices" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-star text-yellow-600 mr-2"></i>
-                Best Practices
-            </h4>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h5 class="text-lg font-semibold text-gray-900 mb-3">Data Layer Management</h5>
-                    <div class="space-y-3">
-                        <div class="bg-green-50 border-l-4 border-green-400 p-3">
-                            <div class="font-medium text-green-800">✓ Use Tealium Data Layer Variables</div>
-                            <div class="text-green-700 text-sm">Configure variables in Tealium iQ instead of hardcoding in extensions</div>
-                        </div>
-                        
-                        <div class="bg-green-50 border-l-4 border-green-400 p-3">
-                            <div class="font-medium text-green-800">✓ Validate Data Types</div>
-                            <div class="text-green-700 text-sm">Ensure consistent data types across all environments</div>
-                        </div>
-                        
-                        <div class="bg-green-50 border-l-4 border-green-400 p-3">
-                            <div class="font-medium text-green-800">✓ Use Meaningful Names</div>
-                            <div class="text-green-700 text-sm">Choose descriptive variable names that indicate purpose</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h5 class="text-lg font-semibold text-gray-900 mb-3">Testing Strategy</h5>
-                    <div class="space-y-3">
-                        <div class="bg-blue-50 border-l-4 border-blue-400 p-3">
-                            <div class="font-medium text-blue-800">🧪 Test All Environments</div>
-                            <div class="text-blue-700 text-sm">Verify functionality in dev, QA, and production</div>
-                        </div>
-                        
-                        <div class="bg-blue-50 border-l-4 border-blue-400 p-3">
-                            <div class="font-medium text-blue-800">🧪 Use Batch Testing</div>
-                            <div class="text-blue-700 text-sm">Simulate complete user journeys with event sequences</div>
-                        </div>
-                        
-                        <div class="bg-blue-50 border-l-4 border-blue-400 p-3">
-                            <div class="font-medium text-blue-800">🧪 Monitor Performance</div>
-                            <div class="text-blue-700 text-sm">Check load times and tag execution speeds</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Troubleshooting -->
-        <div id="troubleshooting" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-wrench text-red-600 mr-2"></i>
-                Troubleshooting Guide
-            </h4>
-            
-            <div class="space-y-6">
-                <div>
-                    <h5 class="text-lg font-semibold text-gray-900 mb-3">Common Issues</h5>
-                    
-                    <div class="space-y-4">
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex items-start">
-                                <i class="fas fa-exclamation-triangle text-red-500 mt-1 mr-3"></i>
-                                <div class="flex-1">
-                                    <h6 class="font-medium text-gray-900">Tealium Script Not Loading</h6>
-                                    <p class="text-gray-600 text-sm mt-1">The utag.js script fails to load or returns 404 errors</p>
-                                    <div class="mt-2">
-                                        <span class="text-xs font-medium text-red-600">Solutions:</span>
-                                        <ul class="text-sm text-gray-600 mt-1 ml-4">
-                                            <li>• Verify account, profile, and environment names are correct</li>
-                                            <li>• Check if the profile has been published</li>
-                                            <li>• Ensure the environment exists in Tealium iQ</li>
-                                            <li>• Use the Profile Inspector to analyze existing configurations</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex items-start">
-                                <i class="fas fa-exclamation-triangle text-orange-500 mt-1 mr-3"></i>
-                                <div class="flex-1">
-                                    <h6 class="font-medium text-gray-900">Tags Not Firing</h6>
-                                    <p class="text-gray-600 text-sm mt-1">Tags are loaded but not executing on events</p>
-                                    <div class="mt-2">
-                                        <span class="text-xs font-medium text-orange-600">Solutions:</span>
-                                        <ul class="text-sm text-gray-600 mt-1 ml-4">
-                                            <li>• Check load rules and trigger conditions</li>
-                                            <li>• Verify data layer variables match expected values</li>
-                                            <li>• Enable debug mode to see tag execution details</li>
-                                            <li>• Test load rules in the Load Rules Testing section</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex items-start">
-                                <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
-                                <div class="flex-1">
-                                    <h6 class="font-medium text-gray-900">CORS Policy Errors</h6>
-                                    <p class="text-gray-600 text-sm mt-1">Cross-origin requests blocked when analyzing external profiles</p>
-                                    <div class="mt-2">
-                                        <span class="text-xs font-medium text-yellow-600">Solutions:</span>
-                                        <ul class="text-sm text-gray-600 mt-1 ml-4">
-                                            <li>• Use the manual analysis feature in Profile Inspector</li>
-                                            <li>• Deploy sandbox to GitHub Pages (hosted version)</li>
-                                            <li>• Use browser developer tools to copy utag.js content</li>
-                                            <li>• Enable CORS proxy for development testing</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Examples -->
-        <div id="examples" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-code text-blue-600 mr-2"></i>
-                Code Examples
-            </h4>
-            
-            <div class="space-y-6">
-                <div>
-                    <h5 class="text-lg font-semibold text-gray-900 mb-3">Data Layer Examples</h5>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <h6 class="font-medium text-gray-900 mb-2">E-commerce Product Page</h6>
-                            <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>{
-  "page_type": "product",
-  "page_name": "Product Detail - Blue Widget",
-  "product_id": "WIDGET-001", 
-  "product_name": "Blue Widget",
-  "product_category": "Widgets",
-  "product_price": "29.99",
-  "product_currency": "USD",
-  "product_brand": "WidgetCorp",
-  "product_availability": "in_stock"
-}</code></pre>
-                        </div>
-                        
-                        <div>
-                            <h6 class="font-medium text-gray-900 mb-2">User Login Event</h6>
-                            <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>{
-  "event_type": "login",
-  "user_id": "user123456",
-  "user_type": "registered",
-  "login_method": "email",
-  "membership_level": "premium",
-  "login_timestamp": "2024-09-24T10:30:00Z"
-}</code></pre>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h5 class="text-lg font-semibold text-gray-900 mb-3">Extension Examples</h5>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <h6 class="font-medium text-gray-900 mb-2">Consent Banner (All Tags - Pre Loader)</h6>
-                            <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>// Show consent banner if no consent preference exists
-if (!localStorage.getItem('consent_preference')) {
-  var banner = document.createElement('div');
-  banner.id = 'consent-banner';
-  banner.innerHTML = 'We use cookies. <button onclick="acceptConsent()">Accept</button>';
-  banner.style.cssText = 'position:fixed;bottom:0;width:100%;background:#333;color:#fff;padding:10px;z-index:9999;';
-  document.body.appendChild(banner);
-  
-  window.acceptConsent = function() {
-    localStorage.setItem('consent_preference', 'accepted');
-    document.getElementById('consent-banner').remove();
-    utag.view(utag_data); // Reload tags with consent
-  };
-}</code></pre>
-                        </div>
-                        
-                        <div>
-                            <h6 class="font-medium text-gray-900 mb-2">Enhanced Data Layer (All Tags - Pre Loader)</h6>
-                            <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>// Add timestamp and session info to all events
-utag_data.timestamp = new Date().toISOString();
-utag_data.session_id = utag_data.session_id || 'session_' + Date.now();
-utag_data.page_load_time = Date.now();
-
-// Add user agent info
-utag_data.user_agent = navigator.userAgent;
-utag_data.screen_resolution = screen.width + 'x' + screen.height;
-utag_data.browser_language = navigator.language;</code></pre>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Keyboard Shortcuts -->
+        <!-- FAQ -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-keyboard text-purple-600 mr-2"></i>
-                Keyboard Shortcuts
+            <h4 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-question text-orange-600 mr-2"></i>
+                Frequently Asked Questions
             </h4>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h5 class="font-medium text-gray-900 mb-3">Navigation</h5>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Quick Settings</span>
-                            <span class="font-mono bg-gray-100 px-2 py-1 rounded">Ctrl + ,</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Load Tealium</span>
-                            <span class="font-mono bg-gray-100 px-2 py-1 rounded">Ctrl + L</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Clear Console</span>
-                            <span class="font-mono bg-gray-100 px-2 py-1 rounded">Ctrl + K</span>
-                        </div>
-                    </div>
+            <div class="space-y-4">
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <strong class="text-gray-900">Q: Why aren't my tags firing?</strong>
+                    <p class="text-gray-700 text-sm mt-1">Check your load rules in the Profile Inspector. Ensure the conditions match your data layer variables and that the tags are properly configured.</p>
                 </div>
                 
-                <div>
-                    <h5 class="font-medium text-gray-900 mb-3">Events</h5>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Fire Page View</span>
-                            <span class="font-mono bg-gray-100 px-2 py-1 rounded">Ctrl + P</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Fire Link Event</span>
-                            <span class="font-mono bg-gray-100 px-2 py-1 rounded">Ctrl + E</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Update Data Layer</span>
-                            <span class="font-mono bg-gray-100 px-2 py-1 rounded">Ctrl + U</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact & Support -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-life-ring text-green-600 mr-2"></i>
-                Support & Resources
-            </h4>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="text-center">
-                    <i class="fas fa-book text-blue-600 text-2xl mb-3"></i>
-                    <h5 class="font-medium text-gray-900 mb-2">Documentation</h5>
-                    <p class="text-gray-600 text-sm">Comprehensive guides and references</p>
-                    <a href="https://docs.tealium.com" target="_blank" 
-                       class="inline-block mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium">
-                        docs.tealium.com →
-                    </a>
+                <div class="border-l-4 border-green-500 pl-4">
+                    <strong class="text-gray-900">Q: How do I debug data layer issues?</strong>
+                    <p class="text-gray-700 text-sm mt-1">Use the Data Layer section to view current variables, validate naming conventions, and monitor real-time changes. Check the browser console for errors.</p>
                 </div>
                 
-                <div class="text-center">
-                    <i class="fas fa-users text-purple-600 text-2xl mb-3"></i>
-                    <h5 class="font-medium text-gray-900 mb-2">Community</h5>
-                    <p class="text-gray-600 text-sm">Connect with other Tealium users</p>
-                    <a href="https://community.tealiumiq.com" target="_blank" 
-                       class="inline-block mt-2 text-purple-600 hover:text-purple-700 text-sm font-medium">
-                        Community Forum →
-                    </a>
+                <div class="border-l-4 border-purple-500 pl-4">
+                    <strong class="text-gray-900">Q: Can I save my configuration?</strong>
+                    <p class="text-gray-700 text-sm mt-1">Yes! Use the Configuration section to save multiple profiles. Your settings are stored in browser local storage and can be exported/imported.</p>
                 </div>
                 
-                <div class="text-center">
-                    <i class="fas fa-headset text-green-600 text-2xl mb-3"></i>
-                    <h5 class="font-medium text-gray-900 mb-2">Support</h5>
-                    <p class="text-gray-600 text-sm">Get help from Tealium experts</p>
-                    <a href="https://tealium.com/support" target="_blank" 
-                       class="inline-block mt-2 text-green-600 hover:text-green-700 text-sm font-medium">
-                        Contact Support →
-                    </a>
+                <div class="border-l-4 border-red-500 pl-4">
+                    <strong class="text-gray-900">Q: What if I get CORS errors?</strong>
+                    <p class="text-gray-700 text-sm mt-1">Deploy the sandbox to GitHub Pages or run a local web server. The file:// protocol has limitations that are resolved by serving over HTTP/HTTPS.</p>
                 </div>
             </div>
         </div>
@@ -400,14 +188,11 @@ utag_data.browser_language = navigator.language;</code></pre>
 </section>
 
 <script>
-// Help section specific functions
-function scrollToSection(sectionId) {
-    const element = document.getElementById(sectionId);
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+function initializeHelp() {
+    console.log('🔧 Initializing Help section...');
+    // Help section doesn't need special initialization
 }
 
-// Expose function globally
-window.scrollToSection = scrollToSection;
+// Expose globally  
+window.initializeHelp = initializeHelp;
 </script>
