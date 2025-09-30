@@ -709,18 +709,18 @@ function updateTagsAnalysis(tags) {
         countBadge.textContent = currentTagsData.length;
     }
     
+    // Setup filter only once (before checking data, so it works even with no tags)
+    if (!tagsFilterSetup) {
+        setupTagsFilter();
+        tagsFilterSetup = true;
+    }
+    
     if (currentTagsData.length === 0) {
         container.innerHTML = '<div class="text-gray-500 text-sm p-4">No tags found in this profile</div>';
         return;
     }
     
     renderTagsList(currentTagsData);
-    
-    // Setup filter only once when data is first loaded
-    if (currentTagsData.length > 0 && !tagsFilterSetup) {
-        setupTagsFilter();
-        tagsFilterSetup = true;
-    }
 }
 
 /**
@@ -941,48 +941,18 @@ function updateExtensionsAnalysis(extensions) {
         countBadge.textContent = currentExtensionsData.length;
     }
     
+    // Setup extensions filter only once (before checking data, so it works even with no extensions)
+    if (!extensionsFilterSetup) {
+        setupExtensionsFilter();
+        extensionsFilterSetup = true;
+    }
+    
     if (!extensions || extensions.length === 0) {
         container.innerHTML = '<div class="text-gray-500 text-sm p-4">No extensions found in this profile</div>';
         return;
     }
     
-    const html = `
-        <div class="space-y-2">
-            ${extensions.map(ext => `
-                <div class="flex items-center justify-between py-3 px-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas ${ext.icon} ${ext.statusClass} text-lg"></i>
-                        <div class="flex-1 min-w-0">
-                            <div class="font-medium text-gray-900 truncate">${ext.name}</div>
-                            <div class="flex items-center space-x-2 text-xs text-gray-500">
-                                <span>ID: ${ext.id}</span>
-                                <span>• Index: ${ext.index}</span>
-                                <span>• Order: ${ext.order}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-right flex items-center space-x-2">
-                        <div>
-                            <div class="text-sm ${ext.statusClass} font-medium">${ext.status}</div>
-                            <div class="text-xs text-gray-500">${ext.scope}</div>
-                        </div>
-                        <button onclick="viewExtensionCode(${ext.index}, '${ext.id}', '${ext.name.replace(/'/g, "\\'")}')"
-                                class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors">
-                            <i class="fas fa-code mr-1"></i>View Code
-                        </button>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-    `;
-    
-    container.innerHTML = html;
-    
-    // Setup extensions filter only once
-    if (!extensionsFilterSetup) {
-        setupExtensionsFilter();
-        extensionsFilterSetup = true;
-    }
+    renderExtensionsList(extensions);
 }
 
 /**
@@ -1185,18 +1155,18 @@ function updateLoadRulesAnalysis(loadRules) {
         countBadge.textContent = currentLoadRulesData.length;
     }
     
+    // Setup filter only once (before checking data, so it works even with no load rules)
+    if (!loadRulesFilterSetup) {
+        setupLoadRulesFilter();
+        loadRulesFilterSetup = true;
+    }
+    
     if (currentLoadRulesData.length === 0) {
         container.innerHTML = '<div class="text-gray-500 text-sm p-4">No load rules found or evaluated</div>';
         return;
     }
     
     renderLoadRulesList(currentLoadRulesData);
-    
-    // Setup filter only once when data is first loaded
-    if (currentLoadRulesData.length > 0 && !loadRulesFilterSetup) {
-        setupLoadRulesFilter();
-        loadRulesFilterSetup = true;
-    }
 }
 
 /**

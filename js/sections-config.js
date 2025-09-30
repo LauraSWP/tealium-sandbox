@@ -21,14 +21,6 @@ const SECTIONS_CONFIG = {
         order: 2,
         category: 'debug'
     },
-    'tags': {
-        title: 'Tags',
-        subtitle: 'Detailed analysis of Tealium tags',
-        icon: 'fas fa-tags',
-        file: 'sections/tags.html',
-        order: 3,
-        category: 'debug'
-    },
     'data-layer': {
         title: 'Data Layer',
         subtitle: 'Debug and manage utag_data variables',
