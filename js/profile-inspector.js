@@ -3031,6 +3031,54 @@ function initializeProfileInspector() {
     }
 }
 
+/**
+ * Open tag file (utag.XX.js) in a new tab
+ */
+function openTagFile(tagUid) {
+    try {
+        // Get profile information from current analysis or utag.cfg
+        const overview = window.profileAnalysis?.overview || {};
+        
+        let account = overview.account;
+        let profile = overview.profile;
+        let environment = overview.environment;
+        
+        // Fallback: try to extract from utag.cfg if not in analysis
+        if (!account || account === 'Unknown') {
+            if (window.utag?.cfg) {
+                // Try to extract from path
+                const path = window.utag.cfg.path;
+                if (path && typeof path === 'string') {
+                    const pathMatch = path.match(/\/utag\/([^\/]+)\/([^\/]+)\/([^\/]+)\//);
+                    if (pathMatch) {
+                        account = pathMatch[1];
+                        profile = pathMatch[2];
+                        environment = pathMatch[3];
+                    }
+                }
+            }
+        }
+        
+        // Validate we have the required information
+        if (!account || account === 'Unknown' || !profile || profile === 'Unknown' || !environment || environment === 'Unknown') {
+            showNotification('Cannot determine profile information. Please analyze the profile first.', 'warning');
+            return;
+        }
+        
+        // Construct the tag file URL
+        const tagUrl = `https://tags.tiqcdn.com/utag/${account}/${profile}/${environment}/utag.${tagUid}.js`;
+        
+        // Open in new tab
+        window.open(tagUrl, '_blank');
+        
+        console.log(`📂 Opening tag file: utag.${tagUid}.js`);
+        
+    } catch (error) {
+        console.error('Error opening tag file:', error);
+        showNotification('Error opening tag file: ' + error.message, 'error');
+    }
+}
+
 // Expose functions globally for HTML event handlers
 window.inspectCurrentProfile = inspectCurrentProfile;
 window.initializeProfileInspector = initializeProfileInspector;
@@ -3043,3 +3091,4 @@ window.closeLoadRuleModal = closeLoadRuleModal;
 window.analyzeTealiumCookies = analyzeTealiumCookies;
 window.analyzeUtagCfgSettings = analyzeUtagCfgSettings;
 window.runAllProfileAnalysis = runAllProfileAnalysis;
+window.openTagFile = openTagFile;
