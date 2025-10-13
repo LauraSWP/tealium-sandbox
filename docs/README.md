@@ -4,7 +4,7 @@ A comprehensive testing and troubleshooting toolkit for Tealium implementations,
 
 ## 🚀 Live Demo
 
-**Access the sandbox here: [https://your-username.github.io/tealium-sandbox](https://your-username.github.io/tealium-sandbox)**
+**Access the sandbox here: https://lauraswp.github.io/tealium-sandbox/**
 
 ## ✨ Features
 
@@ -161,5 +161,6 @@ For questions, issues, or feature requests:
 This project is designed for internal Tealium use and testing purposes.
 
 ---
+
 
 **🎯 Ready to test? [Launch the Tealium Sandbox](https://your-username.github.io/tealium-sandbox)**
