@@ -40,7 +40,8 @@ class TealiumAPIManager {
         try {
             console.log('🔐 Authenticating with Tealium API...');
             
-            // Call Tealium authentication endpoint
+            // Call Tealium authentication endpoint directly
+            // Note: This will work in development but may have CORS issues in production
             const response = await fetch('https://api.tealiumiq.com/v3/auth', {
                 method: 'POST',
                 headers: {
