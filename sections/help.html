@@ -212,7 +212,8 @@
                             <p class="text-xs text-gray-600 mt-1">
                                 • Check that your API key is correct (no extra spaces)<br>
                                 • Verify your API key has the required permissions<br>
-                                • Ensure your API key hasn't expired
+                                • Ensure your API key hasn't expired<br>
+                                • <strong>CORS Error:</strong> If you see "CORS policy" errors, try running the tool locally or use a browser extension to disable CORS for testing
                             </p>
                         </div>
                         <div class="border border-gray-200 rounded p-3">
@@ -231,6 +232,22 @@
                                 • Watch the expiration timer in the header
                             </p>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- CORS Limitations -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>
+                        CORS Limitations
+                    </h5>
+                    <p class="text-sm text-gray-700 mb-2">
+                        Due to browser security policies, the API may not work when hosted on GitHub Pages. 
+                        For full functionality, run the tool locally:
+                    </p>
+                    <div class="text-xs text-gray-600 bg-white p-2 rounded border">
+                        <code>python -m http.server 8000</code><br>
+                        Then open: <code>http://localhost:8000</code>
                     </div>
                 </div>
                 
