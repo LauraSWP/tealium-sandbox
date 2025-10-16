@@ -1,0 +1,379 @@
+<!-- SECTION_META: {"title": "Help & Documentation", "subtitle": "Guides, best practices, and troubleshooting", "icon": "fas fa-question-circle", "order": 9, "category": "docs"} -->
+
+<section id="help" class="section-content hidden">
+    <div class="space-y-6">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-6 text-white">
+            <h3 class="text-xl font-bold mb-2 flex items-center">
+                <i class="fas fa-question-circle mr-3"></i>
+                Help & Documentation
+            </h3>
+            <p class="text-purple-100">Comprehensive guide for using the Tealium Sandbox</p>
+        </div>
+
+        <!-- Quick Help Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Getting Started -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center mb-4">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i class="fas fa-play text-green-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 ml-3">Getting Started</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Learn how to set up and configure your first Tealium profile in the sandbox.</p>
+                <ul class="text-sm text-gray-700 space-y-1">
+                    <li>• Load your Tealium profile</li>
+                    <li>• Configure data layer variables</li>
+                    <li>• Test basic events</li>
+                    <li>• Debug common issues</li>
+                </ul>
+            </div>
+
+            <!-- Best Practices -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center mb-4">
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i class="fas fa-star text-blue-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 ml-3">Best Practices</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Follow Tealium best practices for optimal implementation and debugging.</p>
+                <ul class="text-sm text-gray-700 space-y-1">
+                    <li>• Data layer naming conventions</li>
+                    <li>• Load rule optimization</li>
+                    <li>• Extension best practices</li>
+                    <li>• Performance monitoring</li>
+                </ul>
+            </div>
+
+            <!-- Troubleshooting -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center mb-4">
+                    <div class="p-3 bg-red-100 rounded-lg">
+                        <i class="fas fa-tools text-red-600 text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 ml-3">Troubleshooting</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Solutions for common issues and debugging techniques.</p>
+                <ul class="text-sm text-gray-700 space-y-1">
+                    <li>• Tags not firing</li>
+                    <li>• Data layer issues</li>
+                    <li>• Load rule problems</li>
+                    <li>• Console errors</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- API Setup Guide -->
+        <div class="bg-white rounded-xl shadow-sm border border-blue-200 p-6 border-2">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-key text-blue-600 mr-2"></i>
+                Tealium API v3 Setup Guide
+                <span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">New Feature</span>
+            </h4>
+            
+            <div class="space-y-4">
+                <!-- What is the API? -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-blue-900 mb-2">What is the Tealium iQ Profiles API?</h5>
+                    <p class="text-sm text-blue-800 leading-relaxed">
+                        The Tealium iQ Profiles API v3 allows you to programmatically access your iQ Tag Management configuration, 
+                        including tags, extensions, variables, load rules, and events. This enhanced sandbox integrates with the API 
+                        to show actual tag names, extension titles, and more detailed configuration data.
+                    </p>
+                </div>
+                
+                <!-- How to Get API Key -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">1</span>
+                        Generate Your API Key
+                    </h5>
+                    <div class="pl-8 space-y-2 text-sm text-gray-700">
+                        <p>To generate a Tealium API key:</p>
+                        <ol class="list-decimal list-inside space-y-1 ml-2">
+                            <li>Log into your Tealium iQ account</li>
+                            <li>Navigate to <strong>Admin → API Keys</strong></li>
+                            <li>Click <strong>Create API Key</strong></li>
+                            <li>Select the appropriate permissions (minimum: Save and Save as New Versions)</li>
+                            <li>Copy your API key (you won't be able to see it again!)</li>
+                        </ol>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mt-2">
+                            <p class="text-xs text-yellow-800 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <strong>Important:</strong> Store your API key securely. Never share it or commit it to version control.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- How to Connect -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">2</span>
+                        Connect to the API
+                    </h5>
+                    <div class="pl-8 space-y-2 text-sm text-gray-700">
+                        <ol class="list-decimal list-inside space-y-1 ml-2">
+                            <li>Go to the <strong>Configuration</strong> section</li>
+                            <li>Scroll down to the <strong>API Configuration</strong> section</li>
+                            <li>Paste your API key into the input field</li>
+                            <li>Click <strong>Connect API</strong></li>
+                            <li>Wait for the success message - your API region will be automatically detected</li>
+                        </ol>
+                        <div class="bg-green-50 border-l-4 border-green-400 p-3 mt-2">
+                            <p class="text-xs text-green-800">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Once connected, the sandbox will automatically enhance profile data with API information.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- What Gets Enhanced -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">3</span>
+                        What Gets Enhanced?
+                    </h5>
+                    <div class="pl-8 text-sm text-gray-700">
+                        <p class="mb-2">When API is connected, these sections get enhanced data:</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                <strong class="text-blue-600">
+                                    <i class="fas fa-tags mr-1"></i> Tags Section
+                                </strong>
+                                <p class="text-xs mt-1">View comprehensive tag configurations, data mappings, load rules, target environments, and advanced settings.</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                <strong class="text-blue-600">
+                                    <i class="fas fa-search mr-1"></i> Profile Inspector
+                                </strong>
+                                <p class="text-xs mt-1">See actual tag names instead of "Tag X", extension names instead of "Extension Y", and load rule titles.</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                <strong class="text-blue-600">
+                                    <i class="fas fa-database mr-1"></i> Data Layer
+                                </strong>
+                                <p class="text-xs mt-1">Compare current data layer with API-defined variables. See which expected variables are missing.</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                <strong class="text-blue-600">
+                                    <i class="fas fa-shield-alt mr-1"></i> API Enhanced Badges
+                                </strong>
+                                <p class="text-xs mt-1">Look for blue "API" badges throughout the interface to identify data from the API.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security & Privacy -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <i class="fas fa-shield-alt text-green-600 mr-2"></i>
+                        Security & Privacy
+                    </h5>
+                    <div class="space-y-2 text-sm text-gray-700">
+                        <div class="bg-gray-50 p-3 rounded">
+                            <p class="font-medium text-gray-900 mb-1">
+                                <i class="fas fa-lock text-green-600 mr-1"></i>
+                                Your API credentials are secure:
+                            </p>
+                            <ul class="list-disc list-inside space-y-1 ml-4 text-xs">
+                                <li>Stored in <code class="bg-gray-200 px-1 rounded">sessionStorage</code> only (cleared when you close the tab)</li>
+                                <li>Never saved to <code class="bg-gray-200 px-1 rounded">localStorage</code> or cookies</li>
+                                <li>Never logged to the browser console</li>
+                                <li>Automatically cleared when you disconnect or close the browser</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-50 border-l-4 border-red-400 p-3">
+                            <p class="text-xs text-red-800">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <strong>Note:</strong> You'll need to reconnect your API key each time you open a new browser tab or window.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Troubleshooting -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <i class="fas fa-wrench text-orange-600 mr-2"></i>
+                        Troubleshooting
+                    </h5>
+                    <div class="space-y-2 text-sm">
+                        <div class="border border-gray-200 rounded p-3">
+                            <p class="font-medium text-gray-900">API connection fails</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                • Check that your API key is correct (no extra spaces)<br>
+                                • Verify your API key has the required permissions<br>
+                                • Ensure your API key hasn't expired
+                            </p>
+                        </div>
+                        <div class="border border-gray-200 rounded p-3">
+                            <p class="font-medium text-gray-900">Profile fetch fails</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                • Verify account and profile names are correct<br>
+                                • Check if another user is editing the profile (423 error)<br>
+                                • Wait 15 seconds if concurrent user lock is detected
+                            </p>
+                        </div>
+                        <div class="border border-gray-200 rounded p-3">
+                            <p class="font-medium text-gray-900">Token expired</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                • API tokens typically last 1 hour<br>
+                                • Simply reconnect with your API key<br>
+                                • Watch the expiration timer in the header
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Learn More -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-900 mb-2">
+                        <i class="fas fa-external-link-alt mr-2"></i>
+                        Learn More
+                    </h5>
+                    <p class="text-sm text-gray-700 mb-2">For complete API documentation, visit:</p>
+                    <a href="https://docs.tealium.com/early-access/api/api-v3/iq-profiles/about/" 
+                       target="_blank" 
+                       class="text-sm text-blue-600 hover:text-blue-700 underline">
+                        Tealium iQ Profiles API v3 Documentation →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation Sections -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-book text-purple-600 mr-2"></i>
+                Documentation
+            </h4>
+            
+            <div class="space-y-6">
+                
+                <!-- Section Features -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-3">Section Features</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <strong>Configuration:</strong> Set up your Tealium account, profile, and environment settings. Save multiple profiles for quick switching.
+                        </div>
+                        <div>
+                            <strong>Profile Inspector:</strong> Analyze loaded profiles to see tags, extensions, load rules, cookies, and configuration settings.
+                        </div>
+                        <div>
+                            <strong>Data Layer:</strong> Manage utag_data variables with a visual table, JSON editor, validation, and real-time monitoring.
+                        </div>
+                        <div>
+                            <strong>Events:</strong> Test page views, link events, e-commerce tracking, and custom events with batch testing capabilities.
+                        </div>
+                        <div>
+                            <strong>Load Rules:</strong> Build and test conditional tag firing rules with TiQ syntax generation and debugging tools.
+                        </div>
+                        <div>
+                            <strong>Analytics:</strong> Monitor real-time activity, performance metrics, and generate reports for data quality analysis.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Adding New Sections -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-3">Adding New Sections</h5>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-700 mb-3">The sandbox automatically discovers new sections. To add a new section:</p>
+                        <ol class="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+                            <li>Create a new HTML file in the <code class="bg-gray-200 px-1 rounded">sections/</code> folder</li>
+                            <li>Add section metadata in a comment at the top of the file</li>
+                            <li>Wrap your content in a <code class="bg-gray-200 px-1 rounded">&lt;section&gt;</code> element</li>
+                            <li>Include any JavaScript for initialization</li>
+                            <li>Refresh the page - the section will automatically appear in the menu</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Example Section Template -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-3">Section Template</h5>
+                    <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto"><code>&lt;!-- SECTION_META: {"title": "My Section", "subtitle": "Description", "icon": "fas fa-icon", "order": 10, "category": "custom"} --&gt;
+
+&lt;section id="my-section" class="section-content hidden"&gt;
+    &lt;div class="space-y-6"&gt;
+        &lt;!-- Header --&gt;
+        &lt;div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white"&gt;
+            &lt;h3 class="text-xl font-bold mb-2 flex items-center"&gt;
+                &lt;i class="fas fa-icon mr-3"&gt;&lt;/i&gt;
+                My Section
+            &lt;/h3&gt;
+            &lt;p class="text-blue-100"&gt;Section description&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Content --&gt;
+        &lt;div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"&gt;
+            &lt;p&gt;Your content here&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/section&gt;
+
+&lt;script&gt;
+function initializeMySection() {
+    console.log('🔧 Initializing My Section...');
+    // Your initialization code
+}
+
+// Expose globally
+window.initializeMySection = initializeMySection;
+&lt;/script&gt;</code></pre>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-question text-orange-600 mr-2"></i>
+                Frequently Asked Questions
+            </h4>
+            
+            <div class="space-y-4">
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <strong class="text-gray-900">Q: Why aren't my tags firing?</strong>
+                    <p class="text-gray-700 text-sm mt-1">Check your load rules in the Profile Inspector. Ensure the conditions match your data layer variables and that the tags are properly configured.</p>
+                </div>
+                
+                <div class="border-l-4 border-green-500 pl-4">
+                    <strong class="text-gray-900">Q: How do I debug data layer issues?</strong>
+                    <p class="text-gray-700 text-sm mt-1">Use the Data Layer section to view current variables, validate naming conventions, and monitor real-time changes. Check the browser console for errors.</p>
+                </div>
+                
+                <div class="border-l-4 border-purple-500 pl-4">
+                    <strong class="text-gray-900">Q: Can I save my configuration?</strong>
+                    <p class="text-gray-700 text-sm mt-1">Yes! Use the Configuration section to save multiple profiles. Your settings are stored in browser local storage and can be exported/imported.</p>
+                </div>
+                
+                <div class="border-l-4 border-red-500 pl-4">
+                    <strong class="text-gray-900">Q: What if I get CORS errors?</strong>
+                    <p class="text-gray-700 text-sm mt-1">Deploy the sandbox to GitHub Pages or run a local web server. The file:// protocol has limitations that are resolved by serving over HTTP/HTTPS.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script>
+function initializeHelp() {
+    console.log('🔧 Initializing Help section...');
+    // Help section doesn't need special initialization
+}
+
+// Expose globally  
+window.initializeHelp = initializeHelp;
+</script>

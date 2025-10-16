@@ -1,0 +1,246 @@
+<!-- Data Layer Section -->
+<section id="data-layer" class="section-content hidden">
+    <div class="space-y-6">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-green-600 to-teal-600 rounded-xl p-6 text-white">
+            <h3 class="text-xl font-bold mb-2 flex items-center">
+                <i class="fas fa-database mr-3"></i>
+                Data Layer Management
+            </h3>
+            <p class="text-green-100">Configure and manage your utag_data variables</p>
+        </div>
+
+        <!-- API Variable Comparison -->
+        <div id="apiVariableComparisonPanel" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-balance-scale text-blue-600 mr-2"></i>
+                API Variable Comparison
+                <span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">API Enhanced</span>
+            </h4>
+            <div id="apiVariableComparison">
+                <!-- API comparison will be populated here -->
+            </div>
+        </div>
+
+        <!-- Data Layer Panel and Builder - Side by Side -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Current Data Layer Panel -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-table text-blue-600 mr-2"></i>
+                        Current Data Layer
+                    </h4>
+                    <div class="flex space-x-2">
+                        <button onclick="loadCurrentDataLayer(); updateDataLayerTable();" 
+                                class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-refresh mr-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Search bar -->
+                <div class="mb-3">
+                    <input type="text" id="dataLayerSearch" placeholder="Search variables..." 
+                           onkeyup="searchDataLayer()"
+                           class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div class="mb-3 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div id="searchStatus" class="text-sm text-gray-600"></div>
+                        <div class="text-xs text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            utag_data & environment
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-2">
+                        <div class="text-xs text-blue-700 flex items-center">
+                            <i class="fas fa-magic text-blue-500 mr-2"></i>
+                            <span><strong>Auto-Apply:</strong> Click any value to edit inline. Changes are automatically applied to Tealium when you press Enter or click away.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="dataLayerTableContainer" class="border border-gray-200 rounded-lg max-h-96 overflow-y-auto">
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-spinner fa-spin text-gray-300 text-3xl mb-3"></i>
+                        <p>Loading data layer...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Layer Builder -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold text-gray-900">Data Layer Builder</h4>
+                <div class="flex space-x-2">
+                    <button onclick="loadPresetDataLayer('ecommerce')" 
+                            class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                        E-commerce Preset
+                    </button>
+                    <button onclick="loadPresetDataLayer('content')" 
+                            class="text-green-600 hover:text-green-700 text-sm font-medium">
+                        Content Preset
+                    </button>
+                    <button onclick="loadPresetDataLayer('user')" 
+                            class="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                        User Preset
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Variable Form Builder -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <h5 class="font-medium text-gray-900 mb-3">Add Variable</h5>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Variable Name</label>
+                        <select id="dataLayerVariable" onchange="updateVariableInput()" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                            <option value="">Select or type custom</option>
+                            <optgroup label="Page Variables">
+                                <option value="page_name">page_name</option>
+                                <option value="page_type">page_type</option>
+                                <option value="page_url">page_url</option>
+                                <option value="page_title">page_title</option>
+                                <option value="site_section">site_section</option>
+                            </optgroup>
+                            <optgroup label="User Variables">
+                                <option value="user_id">user_id</option>
+                                <option value="user_type">user_type</option>
+                                <option value="user_status">user_status</option>
+                                <option value="customer_id">customer_id</option>
+                            </optgroup>
+                            <optgroup label="E-commerce Variables">
+                                <option value="product_id">product_id</option>
+                                <option value="product_name">product_name</option>
+                                <option value="product_category">product_category</option>
+                                <option value="product_price">product_price</option>
+                                <option value="product_quantity">product_quantity</option>
+                                <option value="order_id">order_id</option>
+                                <option value="order_total">order_total</option>
+                                <option value="currency">currency</option>
+                            </optgroup>
+                            <optgroup label="Event Variables">
+                                <option value="event_type">event_type</option>
+                                <option value="event_category">event_category</option>
+                                <option value="event_action">event_action</option>
+                                <option value="event_label">event_label</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Custom Name</label>
+                        <input type="text" id="customVariableName" placeholder="custom_variable"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Value</label>
+                        <input type="text" id="variableValue" placeholder="Enter value"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    
+                    <div class="flex items-end">
+                        <button onclick="addDataLayerVariable()" 
+                                class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </button>
+                    </div>
+                </div>
+                </div>
+                
+                <!-- Data Layer Editor -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h5 class="font-medium text-gray-900">Edit Data Layer</h5>
+                        <div class="flex space-x-1">
+                            <button onclick="formatDataLayer()" 
+                                    class="text-purple-600 hover:text-purple-700 text-xs font-medium">
+                                <i class="fas fa-code mr-1"></i>Format
+                            </button>
+                            <button onclick="clearDataLayer()" 
+                                    class="text-red-600 hover:text-red-700 text-xs font-medium">
+                                <i class="fas fa-trash mr-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <textarea id="dataLayerEditor" rows="10" 
+                              placeholder="Data layer variables will appear here..."
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 font-mono text-sm">
+{
+  "page_name": "Tealium Sandbox Home",
+  "page_type": "sandbox",
+  "page_url": "sandbox.html",
+  "site_section": "sandbox",
+  "environment": "dev"
+}
+                    </textarea>
+                    
+                    <div class="grid grid-cols-1 gap-2">
+                        <button onclick="updateDataLayer()" 
+                                class="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
+                            <i class="fas fa-sync-alt mr-2"></i>Update & Apply to Tealium
+                        </button>
+                        
+                        <button onclick="debugTealiumDataLayers()" 
+                                class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm">
+                            <i class="fas fa-bug mr-2"></i>Debug utag_data vs utag.data
+                        </button>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="exportDataLayer()" 
+                                    class="bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
+                                <i class="fas fa-download mr-1"></i>Export
+                            </button>
+                            
+                            <button onclick="importDataLayer()" 
+                                    class="bg-purple-600 text-white py-2 px-3 rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm">
+                                <i class="fas fa-upload mr-1"></i>Import
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div> <!-- End Data Layer Panel and Builder Row -->
+
+        <!-- Data Layer Validation -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-check-double text-orange-600 mr-2"></i>
+                    Data Layer Validation
+                </h4>
+                <button onclick="validateDataLayer()" 
+                        class="bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition-colors font-medium text-sm">
+                    <i class="fas fa-check-circle mr-2"></i>Validate Data Layer
+                </button>
+            </div>
+            
+            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <div class="text-xs text-blue-700 flex items-start">
+                    <i class="fas fa-info-circle text-blue-500 mr-2 mt-0.5"></i>
+                    <div>
+                        <strong>Enhanced Validation:</strong> This validator follows Tealium best practices and ignores default utag values. 
+                        It checks for proper naming conventions, data types, and common implementation issues.
+                    </div>
+                </div>
+            </div>
+            
+            <div id="validationResults" class="space-y-3">
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-clipboard-check text-gray-300 text-3xl mb-3"></i>
+                    <p>Click "Validate Data Layer" to check your implementation against Tealium best practices</p>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</section>
