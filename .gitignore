@@ -85,3 +85,6 @@ pids
 
 # TernJS port file
 .tern-port
+
+# Deployment documentation (workflow is self-documenting)
+DEPLOYMENT.md
