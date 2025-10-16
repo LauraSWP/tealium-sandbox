@@ -95,9 +95,10 @@
                     </h5>
                     <div class="pl-8 space-y-2 text-sm text-gray-700">
                         <p>To generate a Tealium API key:</p>
+                        <!-- Updated instructions -->
                         <ol class="list-decimal list-inside space-y-1 ml-2">
                             <li>Log into your Tealium iQ account</li>
-                            <li>Navigate to <strong>Admin → API Keys</strong></li>
+                            <li>Navigate to <strong>Edit/View User Settings → API Key</strong> (under the admin panel)</li>
                             <li>Click <strong>Create API Key</strong></li>
                             <li>Select the appropriate permissions (minimum: Save and Save as New Versions)</li>
                             <li>Copy your API key (you won't be able to see it again!)</li>
@@ -111,10 +112,36 @@
                     </div>
                 </div>
                 
-                <!-- How to Connect -->
+                <!-- Step 2: Install Extension -->
                 <div>
                     <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
                         <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">2</span>
+                        Install the API Connector Extension
+                    </h5>
+                    <div class="pl-8 space-y-2 text-sm text-gray-700">
+                        <p>Install the Chrome extension to enable API features:</p>
+                        <ol class="list-decimal list-inside space-y-1 ml-2">
+                            <li>Download extension from Configuration section</li>
+                            <li>Extract ZIP to a folder</li>
+                            <li>Open <code class="bg-gray-100 px-1 rounded">chrome://extensions/</code></li>
+                            <li>Enable "Developer mode" (top right toggle)</li>
+                            <li>Click "Load unpacked"</li>
+                            <li>Select extracted folder</li>
+                            <li>Refresh Tealium Sandbox page</li>
+                        </ol>
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-3 mt-2">
+                            <p class="text-xs text-blue-800 flex items-start">
+                                <i class="fas fa-info-circle mr-2 mt-0.5"></i>
+                                <span><strong>Temporary Solution:</strong> This extension will be integrated into Tealium Tools in the future.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- How to Connect -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">3</span>
                         Connect to the API
                     </h5>
                     <div class="pl-8 space-y-2 text-sm text-gray-700">
@@ -137,7 +164,7 @@
                 <!-- What Gets Enhanced -->
                 <div>
                     <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
-                        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">3</span>
+                        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">4</span>
                         What Gets Enhanced?
                     </h5>
                     <div class="pl-8 text-sm text-gray-700">
@@ -211,7 +238,8 @@
                             <p class="text-xs text-gray-600 mt-1">
                                 • Check that your API key is correct (no extra spaces)<br>
                                 • Verify your API key has the required permissions<br>
-                                • Ensure your API key hasn't expired
+                                • Ensure your API key hasn't expired<br>
+                                • If you see "CORS policy" errors, the API server may be temporarily unavailable
                             </p>
                         </div>
                         <div class="border border-gray-200 rounded p-3">
