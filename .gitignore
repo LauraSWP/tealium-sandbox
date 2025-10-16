@@ -94,6 +94,3 @@ node_modules/
 
 # Archive directory (deprecated server files)
 archive/
-
-# Extension ZIP files (regenerated on build)
-*.zip
