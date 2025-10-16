@@ -2,12 +2,12 @@
 
 This repository uses GitHub Actions to automatically deploy both `main` and `dev` branches to GitHub Pages at different paths.
 
-## 🌐 Live URLs
+## Live URLs
 
 - **Production (main branch):** https://lauraswp.github.io/tealium-sandbox/
 - **Development (dev branch):** https://lauraswp.github.io/tealium-sandbox/dev/
 
-## 📋 How It Works
+## How It Works
 
 The GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) automatically:
 
@@ -18,7 +18,7 @@ The GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) automatically
 3. **Manages a `gh-pages` branch** that contains both deployments
 4. **Updates base href** automatically for dev deployment to ensure proper resource loading
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### 1. Enable GitHub Pages
 
@@ -47,23 +47,23 @@ The workflow runs automatically on push, but you can also trigger it manually:
 4. Choose branch (`main` or `dev`)
 5. Click **Run workflow**
 
-## 📦 Deployment Process
+## Deployment Process
 
 ### When you push to `main`:
 ```bash
 git checkout main
 git push origin main
 ```
-→ Deploys to: `https://lauraswp.github.io/tealium-sandbox/`
+Deploys to: `https://lauraswp.github.io/tealium-sandbox/`
 
 ### When you push to `dev`:
 ```bash
 git checkout dev
 git push origin dev
 ```
-→ Deploys to: `https://lauraswp.github.io/tealium-sandbox/dev/`
+Deploys to: `https://lauraswp.github.io/tealium-sandbox/dev/`
 
-## 🔄 Workflow Details
+## Workflow Details
 
 ### What Happens During Deployment:
 
@@ -88,7 +88,7 @@ Repository Branches:
         └── index.html, js/, css/, etc.  (dev deployment)
 ```
 
-## 🧪 Testing
+## Testing
 
 After deployment, verify both URLs are working:
 
@@ -100,7 +100,7 @@ curl -I https://lauraswp.github.io/tealium-sandbox/
 curl -I https://lauraswp.github.io/tealium-sandbox/dev/
 ```
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Issue: Pages not updating
 
@@ -125,7 +125,7 @@ curl -I https://lauraswp.github.io/tealium-sandbox/dev/
 2. Ensure workflow has **Read and write permissions**
 3. Check workflow logs in **Actions** tab for specific errors
 
-## 📝 Manual Deployment (Not Recommended)
+## Manual Deployment (Not Recommended)
 
 If you need to deploy manually without the workflow:
 
@@ -148,13 +148,13 @@ git commit -m "Manual deploy: dev"
 git push origin gh-pages
 ```
 
-## 🔒 Security Notes
+## Security Notes
 
 - Workflow runs with `contents: write` and `pages: write` permissions
 - Only pushes to `main` and `dev` trigger deployments
 - The `gh-pages` branch is auto-managed (don't edit directly)
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [GitHub Pages Documentation](https://docs.github.com/en/pages)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
