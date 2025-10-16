@@ -38,6 +38,14 @@ async function inspectCurrentProfile() {
         // Get comprehensive profile analysis
         const profileData = await analyzeLoadedProfile();
         
+        // Enhance with API data if available
+        if (window.tealiumAPI && window.tealiumAPI.isAuthenticated() && window.apiProfileData) {
+            console.log('🔄 Enhancing profile analysis with API data...');
+            profileData.tags = enhanceTagsWithAPI(profileData.tags);
+            profileData.extensions = enhanceExtensionsWithAPI(profileData.extensions);
+            profileData.loadRules = enhanceLoadRulesWithAPI(profileData.loadRules);
+        }
+        
         // Store analysis globally for modal access
         window.profileAnalysis = profileData;
         
@@ -706,13 +714,12 @@ function updateTagsAnalysis(tags) {
     
     // Update count badge
     if (countBadge) {
-        countBadge.textContent = currentTagsData.length;
-    }
-    
-    // Setup filter only once (before checking data, so it works even with no tags)
-    if (!tagsFilterSetup) {
-        setupTagsFilter();
-        tagsFilterSetup = true;
+        const apiEnhancedCount = currentTagsData.filter(t => t.apiEnhanced).length;
+        if (apiEnhancedCount > 0) {
+            countBadge.innerHTML = `${currentTagsData.length} <span class="text-xs ml-1">(${apiEnhancedCount} API enhanced)</span>`;
+        } else {
+            countBadge.textContent = currentTagsData.length;
+        }
     }
     
     if (currentTagsData.length === 0) {
@@ -721,6 +728,12 @@ function updateTagsAnalysis(tags) {
     }
     
     renderTagsList(currentTagsData);
+    
+    // Setup filter only once when data is first loaded
+    if (currentTagsData.length > 0 && !tagsFilterSetup) {
+        setupTagsFilter();
+        tagsFilterSetup = true;
+    }
 }
 
 /**
@@ -736,7 +749,10 @@ function renderTagsList(tags) {
                     <div class="flex items-center space-x-3">
                         <i class="fas ${tag.icon} ${tag.statusClass} text-lg"></i>
                         <div class="flex-1 min-w-0">
-                            <div class="font-medium text-gray-900 truncate">${tag.name}</div>
+                            <div class="font-medium text-gray-900 truncate flex items-center">
+                                ${tag.name}
+                                ${tag.apiEnhanced ? '<span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">API</span>' : ''}
+                            </div>
                             <div class="flex items-center space-x-2 text-xs text-gray-500">
                                 <span>UID: ${tag.uid}</span>
                                 ${tag.version !== 'N/A' ? `<span>• v${tag.version}</span>` : ''}
@@ -941,18 +957,48 @@ function updateExtensionsAnalysis(extensions) {
         countBadge.textContent = currentExtensionsData.length;
     }
     
-    // Setup extensions filter only once (before checking data, so it works even with no extensions)
-    if (!extensionsFilterSetup) {
-        setupExtensionsFilter();
-        extensionsFilterSetup = true;
-    }
-    
     if (!extensions || extensions.length === 0) {
         container.innerHTML = '<div class="text-gray-500 text-sm p-4">No extensions found in this profile</div>';
         return;
     }
     
-    renderExtensionsList(extensions);
+    const html = `
+        <div class="space-y-2">
+            ${extensions.map(ext => `
+                <div class="flex items-center justify-between py-3 px-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas ${ext.icon} ${ext.statusClass} text-lg"></i>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium text-gray-900 truncate">${ext.name}</div>
+                            <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                <span>ID: ${ext.id}</span>
+                                <span>• Index: ${ext.index}</span>
+                                <span>• Order: ${ext.order}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right flex items-center space-x-2">
+                        <div>
+                            <div class="text-sm ${ext.statusClass} font-medium">${ext.status}</div>
+                            <div class="text-xs text-gray-500">${ext.scope}</div>
+                        </div>
+                        <button onclick="viewExtensionCode(${ext.index}, '${ext.id}', '${ext.name.replace(/'/g, "\\'")}')"
+                                class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-code mr-1"></i>View Code
+                        </button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    container.innerHTML = html;
+    
+    // Setup extensions filter only once
+    if (!extensionsFilterSetup) {
+        setupExtensionsFilter();
+        extensionsFilterSetup = true;
+    }
 }
 
 /**
@@ -1114,7 +1160,10 @@ function renderExtensionsList(extensions) {
                     <div class="flex items-center space-x-3">
                         <i class="fas ${ext.icon} ${ext.statusClass} text-lg"></i>
                         <div class="flex-1 min-w-0">
-                            <div class="font-medium text-gray-900 truncate">${ext.name}</div>
+                            <div class="font-medium text-gray-900 truncate flex items-center">
+                                ${ext.name}
+                                ${ext.apiEnhanced ? '<span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">API</span>' : ''}
+                            </div>
                             <div class="flex items-center space-x-2 text-xs text-gray-500">
                                 <span>ID: ${ext.id}</span>
                                 <span>• Index: ${ext.index}</span>
@@ -1155,18 +1204,18 @@ function updateLoadRulesAnalysis(loadRules) {
         countBadge.textContent = currentLoadRulesData.length;
     }
     
-    // Setup filter only once (before checking data, so it works even with no load rules)
-    if (!loadRulesFilterSetup) {
-        setupLoadRulesFilter();
-        loadRulesFilterSetup = true;
-    }
-    
     if (currentLoadRulesData.length === 0) {
         container.innerHTML = '<div class="text-gray-500 text-sm p-4">No load rules found or evaluated</div>';
         return;
     }
     
     renderLoadRulesList(currentLoadRulesData);
+    
+    // Setup filter only once when data is first loaded
+    if (currentLoadRulesData.length > 0 && !loadRulesFilterSetup) {
+        setupLoadRulesFilter();
+        loadRulesFilterSetup = true;
+    }
 }
 
 /**
@@ -1182,7 +1231,10 @@ function renderLoadRulesList(loadRules) {
                     <div class="flex items-center space-x-3">
                         <i class="fas ${rule.icon} ${rule.statusClass} text-lg"></i>
                         <div class="flex-1 min-w-0">
-                            <div class="font-medium text-gray-900 truncate">${rule.title}</div>
+                            <div class="font-medium text-gray-900 truncate flex items-center">
+                                ${rule.title}
+                                ${rule.apiEnhanced ? '<span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">API</span>' : ''}
+                            </div>
                             <div class="text-xs text-gray-500">Rule ID: ${rule.id}</div>
                             ${rule.associatedTags && rule.associatedTags.length > 0 ? `
                                 <div class="text-xs mt-1 p-2 bg-blue-50 rounded">
@@ -3032,51 +3084,112 @@ function initializeProfileInspector() {
 }
 
 /**
- * Open tag file (utag.XX.js) in a new tab
+ * Enhance tags with API data
+ * Replaces generic names with actual tag names from API
  */
-function openTagFile(tagUid) {
-    try {
-        // Get profile information from current analysis or utag.cfg
-        const overview = window.profileAnalysis?.overview || {};
-        
-        let account = overview.account;
-        let profile = overview.profile;
-        let environment = overview.environment;
-        
-        // Fallback: try to extract from utag.cfg if not in analysis
-        if (!account || account === 'Unknown') {
-            if (window.utag?.cfg) {
-                // Try to extract from path
-                const path = window.utag.cfg.path;
-                if (path && typeof path === 'string') {
-                    const pathMatch = path.match(/\/utag\/([^\/]+)\/([^\/]+)\/([^\/]+)\//);
-                    if (pathMatch) {
-                        account = pathMatch[1];
-                        profile = pathMatch[2];
-                        environment = pathMatch[3];
-                    }
-                }
-            }
-        }
-        
-        // Validate we have the required information
-        if (!account || account === 'Unknown' || !profile || profile === 'Unknown' || !environment || environment === 'Unknown') {
-            showNotification('Cannot determine profile information. Please analyze the profile first.', 'warning');
-            return;
-        }
-        
-        // Construct the tag file URL
-        const tagUrl = `https://tags.tiqcdn.com/utag/${account}/${profile}/${environment}/utag.${tagUid}.js`;
-        
-        // Open in new tab
-        window.open(tagUrl, '_blank');
-        
-        console.log(`📂 Opening tag file: utag.${tagUid}.js`);
-        
-    } catch (error) {
-        console.error('Error opening tag file:', error);
-        showNotification('Error opening tag file: ' + error.message, 'error');
+function enhanceTagsWithAPI(runtimeTags) {
+    if (!window.apiProfileData || !window.apiProfileData.tags) {
+        return runtimeTags;
     }
+    
+    const apiTags = window.apiProfileData.tags;
+    
+    // Create mapping of tag UID to API data
+    const apiTagsMap = new Map();
+    apiTags.forEach(apiTag => {
+        const uid = String(apiTag.id || apiTag.tagId || apiTag.uid);
+        apiTagsMap.set(uid, apiTag);
+    });
+    
+    // Enhance runtime tags with API data
+    return runtimeTags.map(tag => {
+        const apiTag = apiTagsMap.get(String(tag.uid));
+        
+        if (apiTag) {
+            return {
+                ...tag,
+                name: apiTag.name || tag.name, // Use API name if available
+                templateName: apiTag.tagId || tag.templateId,
+                notes: apiTag.notes,
+                dataMappings: apiTag.dataMappings,
+                configuration: apiTag.configuration,
+                apiEnhanced: true
+            };
+        }
+        
+        return tag;
+    });
+}
+
+/**
+ * Enhance extensions with API data
+ * Replaces "Extension X" with actual extension names from API
+ */
+function enhanceExtensionsWithAPI(runtimeExtensions) {
+    if (!window.apiProfileData || !window.apiProfileData.extensions) {
+        return runtimeExtensions;
+    }
+    
+    const apiExtensions = window.apiProfileData.extensions;
+    
+    // Create mapping of extension ID to API data
+    const apiExtensionsMap = new Map();
+    apiExtensions.forEach(apiExt => {
+        const id = String(apiExt.id);
+        apiExtensionsMap.set(id, apiExt);
+    });
+    
+    // Enhance runtime extensions with API data
+    return runtimeExtensions.map(ext => {
+        const apiExt = apiExtensionsMap.get(String(ext.id));
+        
+        if (apiExt) {
+            return {
+                ...ext,
+                name: apiExt.name || apiExt.title || ext.name, // Use API name
+                notes: apiExt.notes,
+                apiEnhanced: true
+            };
+        }
+        
+        return ext;
+    });
+}
+
+/**
+ * Enhance load rules with API data
+ * Adds more accurate rule information from API
+ */
+function enhanceLoadRulesWithAPI(runtimeRules) {
+    if (!window.apiProfileData || !window.apiProfileData.loadRules) {
+        return runtimeRules;
+    }
+    
+    const apiRules = window.apiProfileData.loadRules;
+    
+    // Create mapping of rule ID to API data
+    const apiRulesMap = new Map();
+    apiRules.forEach(apiRule => {
+        const id = String(apiRule.id || apiRule.uid);
+        apiRulesMap.set(id, apiRule);
+    });
+    
+    // Enhance runtime rules with API data
+    return runtimeRules.map(rule => {
+        const apiRule = apiRulesMap.get(String(rule.id));
+        
+        if (apiRule) {
+            return {
+                ...rule,
+                title: apiRule.title || apiRule.name || rule.title,
+                notes: apiRule.notes,
+                condition: apiRule.condition || rule.condition,
+                apiEnhanced: true
+            };
+        }
+        
+        return rule;
+    });
 }
 
 // Expose functions globally for HTML event handlers
@@ -3091,4 +3204,6 @@ window.closeLoadRuleModal = closeLoadRuleModal;
 window.analyzeTealiumCookies = analyzeTealiumCookies;
 window.analyzeUtagCfgSettings = analyzeUtagCfgSettings;
 window.runAllProfileAnalysis = runAllProfileAnalysis;
-window.openTagFile = openTagFile;
+window.enhanceTagsWithAPI = enhanceTagsWithAPI;
+window.enhanceExtensionsWithAPI = enhanceExtensionsWithAPI;
+window.enhanceLoadRulesWithAPI = enhanceLoadRulesWithAPI;

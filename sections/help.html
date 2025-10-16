@@ -68,6 +68,187 @@
 
         </div>
 
+        <!-- API Setup Guide -->
+        <div class="bg-white rounded-xl shadow-sm border border-blue-200 p-6 border-2">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-key text-blue-600 mr-2"></i>
+                Tealium API v3 Setup Guide
+                <span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">New Feature</span>
+            </h4>
+            
+            <div class="space-y-4">
+                <!-- What is the API? -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-blue-900 mb-2">What is the Tealium iQ Profiles API?</h5>
+                    <p class="text-sm text-blue-800 leading-relaxed">
+                        The Tealium iQ Profiles API v3 allows you to programmatically access your iQ Tag Management configuration, 
+                        including tags, extensions, variables, load rules, and events. This enhanced sandbox integrates with the API 
+                        to show actual tag names, extension titles, and more detailed configuration data.
+                    </p>
+                </div>
+                
+                <!-- How to Get API Key -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">1</span>
+                        Generate Your API Key
+                    </h5>
+                    <div class="pl-8 space-y-2 text-sm text-gray-700">
+                        <p>To generate a Tealium API key:</p>
+                        <ol class="list-decimal list-inside space-y-1 ml-2">
+                            <li>Log into your Tealium iQ account</li>
+                            <li>Navigate to <strong>Admin → API Keys</strong></li>
+                            <li>Click <strong>Create API Key</strong></li>
+                            <li>Select the appropriate permissions (minimum: Save and Save as New Versions)</li>
+                            <li>Copy your API key (you won't be able to see it again!)</li>
+                        </ol>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mt-2">
+                            <p class="text-xs text-yellow-800 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <strong>Important:</strong> Store your API key securely. Never share it or commit it to version control.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- How to Connect -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">2</span>
+                        Connect to the API
+                    </h5>
+                    <div class="pl-8 space-y-2 text-sm text-gray-700">
+                        <ol class="list-decimal list-inside space-y-1 ml-2">
+                            <li>Go to the <strong>Configuration</strong> section</li>
+                            <li>Scroll down to the <strong>API Configuration</strong> section</li>
+                            <li>Paste your API key into the input field</li>
+                            <li>Click <strong>Connect API</strong></li>
+                            <li>Wait for the success message - your API region will be automatically detected</li>
+                        </ol>
+                        <div class="bg-green-50 border-l-4 border-green-400 p-3 mt-2">
+                            <p class="text-xs text-green-800">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Once connected, the sandbox will automatically enhance profile data with API information.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- What Gets Enhanced -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm mr-2">3</span>
+                        What Gets Enhanced?
+                    </h5>
+                    <div class="pl-8 text-sm text-gray-700">
+                        <p class="mb-2">When API is connected, these sections get enhanced data:</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                <strong class="text-blue-600">
+                                    <i class="fas fa-tags mr-1"></i> Tags Section
+                                </strong>
+                                <p class="text-xs mt-1">View comprehensive tag configurations, data mappings, load rules, target environments, and advanced settings.</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                <strong class="text-blue-600">
+                                    <i class="fas fa-search mr-1"></i> Profile Inspector
+                                </strong>
+                                <p class="text-xs mt-1">See actual tag names instead of "Tag X", extension names instead of "Extension Y", and load rule titles.</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                <strong class="text-blue-600">
+                                    <i class="fas fa-database mr-1"></i> Data Layer
+                                </strong>
+                                <p class="text-xs mt-1">Compare current data layer with API-defined variables. See which expected variables are missing.</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                                <strong class="text-blue-600">
+                                    <i class="fas fa-shield-alt mr-1"></i> API Enhanced Badges
+                                </strong>
+                                <p class="text-xs mt-1">Look for blue "API" badges throughout the interface to identify data from the API.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security & Privacy -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <i class="fas fa-shield-alt text-green-600 mr-2"></i>
+                        Security & Privacy
+                    </h5>
+                    <div class="space-y-2 text-sm text-gray-700">
+                        <div class="bg-gray-50 p-3 rounded">
+                            <p class="font-medium text-gray-900 mb-1">
+                                <i class="fas fa-lock text-green-600 mr-1"></i>
+                                Your API credentials are secure:
+                            </p>
+                            <ul class="list-disc list-inside space-y-1 ml-4 text-xs">
+                                <li>Stored in <code class="bg-gray-200 px-1 rounded">sessionStorage</code> only (cleared when you close the tab)</li>
+                                <li>Never saved to <code class="bg-gray-200 px-1 rounded">localStorage</code> or cookies</li>
+                                <li>Never logged to the browser console</li>
+                                <li>Automatically cleared when you disconnect or close the browser</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-50 border-l-4 border-red-400 p-3">
+                            <p class="text-xs text-red-800">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <strong>Note:</strong> You'll need to reconnect your API key each time you open a new browser tab or window.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Troubleshooting -->
+                <div>
+                    <h5 class="font-semibold text-gray-900 mb-2 flex items-center">
+                        <i class="fas fa-wrench text-orange-600 mr-2"></i>
+                        Troubleshooting
+                    </h5>
+                    <div class="space-y-2 text-sm">
+                        <div class="border border-gray-200 rounded p-3">
+                            <p class="font-medium text-gray-900">API connection fails</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                • Check that your API key is correct (no extra spaces)<br>
+                                • Verify your API key has the required permissions<br>
+                                • Ensure your API key hasn't expired
+                            </p>
+                        </div>
+                        <div class="border border-gray-200 rounded p-3">
+                            <p class="font-medium text-gray-900">Profile fetch fails</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                • Verify account and profile names are correct<br>
+                                • Check if another user is editing the profile (423 error)<br>
+                                • Wait 15 seconds if concurrent user lock is detected
+                            </p>
+                        </div>
+                        <div class="border border-gray-200 rounded p-3">
+                            <p class="font-medium text-gray-900">Token expired</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                • API tokens typically last 1 hour<br>
+                                • Simply reconnect with your API key<br>
+                                • Watch the expiration timer in the header
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Learn More -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-900 mb-2">
+                        <i class="fas fa-external-link-alt mr-2"></i>
+                        Learn More
+                    </h5>
+                    <p class="text-sm text-gray-700 mb-2">For complete API documentation, visit:</p>
+                    <a href="https://docs.tealium.com/early-access/api/api-v3/iq-profiles/about/" 
+                       target="_blank" 
+                       class="text-sm text-blue-600 hover:text-blue-700 underline">
+                        Tealium iQ Profiles API v3 Documentation →
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <!-- Documentation Sections -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h4 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
