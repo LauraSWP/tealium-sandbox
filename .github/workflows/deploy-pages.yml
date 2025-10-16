@@ -110,15 +110,15 @@ jobs:
       
       - name: Create deployment summary
         run: |
-          echo "## Deployment Complete! 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** \`${{ steps.setup.outputs.branch_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Deployed to:** \`${{ steps.setup.outputs.deployment_url }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.setup.outputs.branch_name }}" = "main" ]; then
-            echo "🌐 **Live URL:** https://${{ github.repository_owner }}.github.io/tealium-sandbox/" >> $GITHUB_STEP_SUMMARY
+            echo "**Live URL:** https://${{ github.repository_owner }}.github.io/tealium-sandbox/" >> $GITHUB_STEP_SUMMARY
           else
-            echo "🌐 **Live URL:** https://${{ github.repository_owner }}.github.io/tealium-sandbox/dev/" >> $GITHUB_STEP_SUMMARY
+            echo "**Live URL:** https://${{ github.repository_owner }}.github.io/tealium-sandbox/dev/" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
