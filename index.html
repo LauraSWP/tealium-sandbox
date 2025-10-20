@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tealium Sandbox - Testing & Troubleshooting Toolkit</title>
-    <!-- Deployment test -->
+    <!-- Deployment: Fixed JS loading issue - v2.1 -->
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -270,7 +270,6 @@
     <script src="js/custom-functions.js"></script>
     <script src="js/profile-inspector.js"></script>
     <script src="js/data-layer.js"></script>
-</script>
     
     <!-- Ensure functions are available -->
     <script>
@@ -510,6 +509,33 @@
                                                     <i class="fas fa-exclamation-triangle mr-1"></i>
                                                     Credentials are not saved after closing browser
                                                 </p>
+                                            </div>
+                                            
+                                            <!-- Extension Requirement Notice -->
+                                            <div id="extensionNotice" class="p-3 rounded-md bg-blue-50 border border-blue-200">
+                                                <div class="flex items-start">
+                                                    <i class="fas fa-puzzle-piece text-blue-600 mt-1 mr-2"></i>
+                                                    <div class="flex-1">
+                                                        <p class="text-sm font-medium text-blue-900 mb-1">
+                                                            <span id="extensionStatusText">Checking for extension...</span>
+                                                        </p>
+                                                        <p class="text-xs text-blue-700 mb-2" id="extensionStatusMessage">
+                                                            Detecting Tealium Sandbox API Connector...
+                                                        </p>
+                                                        <div id="extensionActions" class="hidden">
+                                                            <a href="chrome-extension/tealium-sandbox-connector.zip" download 
+                                                               class="inline-flex items-center text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 mr-2">
+                                                                <i class="fas fa-download mr-1"></i>
+                                                                Download Extension
+                                                            </a>
+                                                            <a href="#help" onclick="showSection('help')" 
+                                                               class="inline-flex items-center text-xs text-blue-600 hover:underline">
+                                                                <i class="fas fa-question-circle mr-1"></i>
+                                                                Installation Guide
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             
                                             <div id="apiStatusDisplay" class="hidden p-3 rounded-md bg-gray-50">
@@ -1530,6 +1556,42 @@
                 }
             }, 500);
         });
+        
+        // Extension Detection Script
+        // Listen for extension detection
+        window.addEventListener('extensionDetected', () => {
+            const notice = document.getElementById('extensionNotice');
+            const statusText = document.getElementById('extensionStatusText');
+            const statusMessage = document.getElementById('extensionStatusMessage');
+            const actions = document.getElementById('extensionActions');
+            
+            if (notice && statusText && statusMessage) {
+                notice.classList.remove('bg-blue-50', 'border-blue-200');
+                notice.classList.add('bg-green-50', 'border-green-200');
+                
+                statusText.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Extension Connected';
+                statusText.classList.add('text-green-900');
+                statusMessage.textContent = 'API features are now available!';
+                statusMessage.classList.remove('text-blue-700');
+                statusMessage.classList.add('text-green-700');
+                actions.classList.add('hidden');
+            }
+        });
+        
+        // Check after delay if extension not detected
+        setTimeout(() => {
+            if (window.tealiumAPI && !window.tealiumAPI.useExtension) {
+                const statusText = document.getElementById('extensionStatusText');
+                const statusMessage = document.getElementById('extensionStatusMessage');
+                const actions = document.getElementById('extensionActions');
+                
+                if (statusText && statusMessage && actions) {
+                    statusText.textContent = 'Extension Not Detected';
+                    statusMessage.innerHTML = 'Install the extension to enable API features. <em class="block mt-1">Future: Will be integrated into Tealium Tools.</em>';
+                    actions.classList.remove('hidden');
+                }
+            }
+        }, 2000);
         window.addLoadRule = function() { console.log('addLoadRule - will be enhanced when sandbox.js loads'); };
         window.testLoadRules = function() { console.log('testLoadRules - will be enhanced when sandbox.js loads'); };
         window.generateTiQSyntax = function() { console.log('generateTiQSyntax - will be enhanced when sandbox.js loads'); };

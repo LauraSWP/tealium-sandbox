@@ -7,13 +7,21 @@
 
 class TealiumAPIManager {
     constructor() {
-        this.bearerToken = null;
+        this.sessionId = null;
         this.apiHostname = null;
         this.tokenExpiry = null;
         this.profileData = null;
         this.account = null;
         this.profile = null;
         this.environment = null;
+        this.useExtension = false;
+        this.pendingRequests = {};
+        
+        // Setup extension listener BEFORE checking
+        this.setupExtensionListener();
+        
+        // Check for extension
+        this.checkExtension();
         
         // Restore from sessionStorage if available
         this.restoreFromSession();
@@ -25,83 +33,125 @@ class TealiumAPIManager {
     }
     
     /**
+     * Setup listener for extension messages
+     */
+    setupExtensionListener() {
+        window.addEventListener('message', (event) => {
+            if (event.source !== window) return;
+            
+            if (event.data.type === 'TEALIUM_EXTENSION_AVAILABLE') {
+                this.useExtension = true;
+                console.log('✅ Tealium Sandbox API Connector detected');
+                window.dispatchEvent(new CustomEvent('extensionDetected'));
+            }
+            
+            if (event.data.type === 'TEALIUM_API_RESPONSE') {
+                const callback = this.pendingRequests[event.data.requestId];
+                if (callback) {
+                    callback(event.data.response);
+                    delete this.pendingRequests[event.data.requestId];
+                }
+            }
+        });
+    }
+    
+    /**
+     * Check if extension is available
+     * @returns {Promise<boolean>}
+     */
+    async checkExtension() {
+        window.postMessage({ type: 'TEALIUM_EXTENSION_CHECK' }, '*');
+        
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(this.useExtension);
+            }, 1000);
+        });
+    }
+    
+    /**
+     * Generate unique request ID
+     * @returns {string}
+     */
+    generateRequestId() {
+        return 'req_' + Math.random().toString(36).substring(2) + Date.now();
+    }
+    
+    /**
      * Authenticate with API key to get bearer token
      * @param {string} apiKey - The Tealium API key
      * @returns {Promise<Object>} Authentication result
      */
     async authenticateWithApiKey(apiKey) {
-        if (!apiKey || apiKey.trim() === '') {
-            return {
-                success: false,
-                error: 'API key is required'
-            };
+        if (!apiKey || typeof apiKey !== 'string' || !apiKey.trim()) {
+            return { success: false, error: 'Invalid API key' };
         }
         
         try {
-            console.log('🔐 Authenticating with Tealium API...');
-            
-            // Call Tealium authentication endpoint
-            const response = await fetch('https://api.tealiumiq.com/v3/auth', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    key: apiKey
-                })
-            });
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('❌ Authentication failed:', response.status, errorText);
-                
-                if (response.status === 401) {
-                    return {
-                        success: false,
-                        error: 'Invalid API key. Please check your credentials.'
-                    };
-                } else if (response.status === 429) {
-                    return {
-                        success: false,
-                        error: 'Too many authentication attempts. Please try again later.'
-                    };
-                } else {
-                    return {
-                        success: false,
-                        error: `Authentication failed: ${response.status} ${response.statusText}`
-                    };
-                }
+            if (this.useExtension) {
+                console.log('🔌 Authenticating via extension');
+                return await this.authenticateViaExtension(apiKey);
+            } else {
+                console.log('⚠️ Extension not detected - API features unavailable');
+                return {
+                    success: false,
+                    error: 'Extension not installed. Please install the Tealium Sandbox API Connector extension.'
+                };
             }
-            
-            const authData = await response.json();
-            
-            // Extract bearer token and hostname from response
-            this.bearerToken = authData.token || authData.access_token || authData.bearer_token;
-            this.apiHostname = authData.hostname || authData.region || 'api.tealiumiq.com';
-            
-            // Set token expiry (typically 1 hour, default to 55 minutes for safety)
-            const expiryMinutes = authData.expires_in ? Math.floor(authData.expires_in / 60) - 5 : 55;
-            this.tokenExpiry = Date.now() + (expiryMinutes * 60 * 1000);
-            
-            // Save to sessionStorage
-            this.saveToSession();
-            
-            console.log('✅ Authentication successful');
-            console.log('🌐 API Region:', this.apiHostname);
-            
-            return {
-                success: true,
-                hostname: this.apiHostname,
-                expiresIn: expiryMinutes
-            };
-            
         } catch (error) {
             console.error('❌ Authentication error:', error);
-            return {
-                success: false,
-                error: `Network error: ${error.message}`
-            };
+            return { success: false, error: error.message };
         }
+    }
+    
+    /**
+     * Authenticate via Chrome extension
+     * @param {string} apiKey
+     * @returns {Promise<Object>}
+     */
+    async authenticateViaExtension(apiKey) {
+        const requestId = this.generateRequestId();
+        
+        return new Promise((resolve) => {
+            this.pendingRequests[requestId] = (response) => {
+                if (response.success) {
+                    this.sessionId = response.sessionId;
+                    this.apiHostname = response.hostname;
+                    this.tokenExpiry = Date.now() + (response.expiresIn * 1000);
+                    this.saveToSession();
+                    console.log('✅ Authentication successful');
+                    console.log('🌐 API Region:', this.apiHostname);
+                }
+                resolve(response);
+            };
+            
+            window.postMessage({
+                type: 'TEALIUM_API_AUTH',
+                requestId: requestId,
+                apiKey: apiKey
+            }, '*');
+            
+            setTimeout(() => {
+                if (this.pendingRequests[requestId]) {
+                    delete this.pendingRequests[requestId];
+                    resolve({
+                        success: false,
+                        error: 'Request timeout. Is the extension running?'
+                    });
+                }
+            }, 30000);
+        });
+    }
+    
+    /**
+     * Legacy authentication method (kept for reference)
+     */
+    async authenticateViaServer(apiKey) {
+        // Server-side authentication (not implemented in extension-only version)
+        return {
+            success: false,
+            error: 'Server-side authentication not available. Please use the Chrome extension.'
+        };
     }
     
     /**
@@ -109,7 +159,7 @@ class TealiumAPIManager {
      * @returns {boolean} Authentication status
      */
     isAuthenticated() {
-        if (!this.bearerToken || !this.tokenExpiry) {
+        if (!this.sessionId || !this.tokenExpiry) {
             return false;
         }
         
@@ -137,81 +187,62 @@ class TealiumAPIManager {
                 error: 'Not authenticated. Please connect with your API key first.'
             };
         }
-        
+
         try {
-            // Store account/profile for future reference
             this.account = account;
             this.profile = profile;
             
-            // Build API URL
-            let apiUrl = `https://${this.apiHostname}/v3/${account}/${profile}`;
-            
-            if (version) {
-                apiUrl += `/version/${version}`;
-            }
-            
-            console.log('📡 Fetching profile from API:', apiUrl);
-            
-            const response = await fetch(apiUrl, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.bearerToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            if (!response.ok) {
-                if (response.status === 401) {
-                    // Token expired or invalid
-                    this.disconnect();
-                    return {
-                        success: false,
-                        error: 'Authentication expired. Please reconnect with your API key.',
-                        needsReauth: true
-                    };
-                } else if (response.status === 404) {
-                    return {
-                        success: false,
-                        error: `Profile not found: ${account}/${profile}`
-                    };
-                } else if (response.status === 423) {
-                    return {
-                        success: false,
-                        error: 'Profile is currently being edited by another user. Please try again in 15 seconds.'
-                    };
-                } else if (response.status === 429) {
-                    return {
-                        success: false,
-                        error: 'API rate limit exceeded. Please wait before trying again.'
-                    };
-                }
-                
+            if (this.useExtension) {
+                console.log('🔌 Fetching profile via extension');
+                return await this.fetchProfileViaExtension(account, profile, version);
+            } else {
                 return {
                     success: false,
-                    error: `API error: ${response.status} ${response.statusText}`
+                    error: 'Extension not available'
                 };
             }
-            
-            const profileData = await response.json();
-            
-            // Cache the profile data
-            this.profileData = profileData;
-            this.saveToSession();
-            
-            console.log('✅ Profile data fetched successfully');
-            
-            return {
-                success: true,
-                data: profileData
-            };
-            
         } catch (error) {
             console.error('❌ Error fetching profile:', error);
-            return {
-                success: false,
-                error: `Network error: ${error.message}`
-            };
+            return { success: false, error: error.message };
         }
+    }
+    
+    /**
+     * Fetch profile via Chrome extension
+     * @param {string} account
+     * @param {string} profile  
+     * @param {string|null} version
+     * @returns {Promise<Object>}
+     */
+    async fetchProfileViaExtension(account, profile, version) {
+        const requestId = this.generateRequestId();
+        
+        return new Promise((resolve) => {
+            this.pendingRequests[requestId] = (response) => {
+                if (response.success) {
+                    this.profileData = response.data;
+                    this.saveToSession();
+                    console.log('✅ Profile data fetched successfully');
+                }
+                resolve(response);
+            };
+            
+            window.postMessage({
+                type: 'TEALIUM_API_PROFILE',
+                requestId: requestId,
+                sessionId: this.sessionId,
+                account: account,
+                profile: profile,
+                version: version
+            }, '*');
+            
+            setTimeout(() => {
+                if (this.pendingRequests[requestId]) {
+                    delete this.pendingRequests[requestId];
+                    resolve({ success: false, error: 'Request timeout' });
+                }
+            }, 30000);
+        });
     }
     
     /**
@@ -297,7 +328,7 @@ class TealiumAPIManager {
     disconnect() {
         console.log('🔌 Disconnecting from Tealium API');
         
-        this.bearerToken = null;
+        this.sessionId = null;
         this.apiHostname = null;
         this.tokenExpiry = null;
         this.profileData = null;
@@ -315,7 +346,7 @@ class TealiumAPIManager {
     saveToSession() {
         try {
             const state = {
-                bearerToken: this.bearerToken,
+                sessionId: this.sessionId,
                 apiHostname: this.apiHostname,
                 tokenExpiry: this.tokenExpiry,
                 profileData: this.profileData,
@@ -344,7 +375,7 @@ class TealiumAPIManager {
             
             // Only restore if token hasn't expired
             if (state.tokenExpiry && Date.now() < state.tokenExpiry) {
-                this.bearerToken = state.bearerToken;
+                this.sessionId = state.sessionId;
                 this.apiHostname = state.apiHostname;
                 this.tokenExpiry = state.tokenExpiry;
                 this.profileData = state.profileData;

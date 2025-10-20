@@ -4,6 +4,10 @@
  * Focuses on INFORMATION about the profile, not triggering actions
  */
 
+// Early declaration: Ensure critical functions are available immediately for onclick handlers
+// These will be properly defined below but are exposed to window right away
+console.log('🔧 Profile Inspector JS loading...');
+
 /**
  * Safe evaluation function for accessing page context variables
  * @param {string} code - JavaScript code to evaluate
@@ -83,6 +87,8 @@ async function inspectCurrentProfile() {
         showNotification('Error analyzing profile: ' + error.message, 'error');
     }
 }
+// Expose immediately for onclick handlers
+window.inspectCurrentProfile = inspectCurrentProfile;
 
 /**
  * Comprehensive analysis of the loaded Tealium profile
@@ -1563,6 +1569,8 @@ function updateEnvironmentStatus() {
         }
     }
 }
+// Expose immediately for onclick handlers
+window.updateEnvironmentStatus = updateEnvironmentStatus;
 
 /**
  * Clear all displays when no profile is loaded
@@ -1720,6 +1728,8 @@ function viewExtensionCode(index, id, name) {
         content.innerHTML = `<code>Error loading extension code: ${error.message}</code>`;
     }
 }
+// Expose immediately for onclick handlers
+window.viewExtensionCode = viewExtensionCode;
 
 /**
  * View load rule details in modal
@@ -1830,6 +1840,8 @@ function viewLoadRuleDetails(ruleId, ruleTitle) {
         details.innerHTML = `<div class="text-red-600">Error loading rule details: ${error.message}</div>`;
     }
 }
+// Expose immediately for onclick handlers
+window.viewLoadRuleDetails = viewLoadRuleDetails;
 
 /**
  * Get related tags for a specific load rule
@@ -2465,6 +2477,8 @@ function closeExtensionCodeModal() {
         modal.classList.add('hidden');
     }
 }
+// Expose immediately for onclick handlers
+window.closeExtensionCodeModal = closeExtensionCodeModal;
 
 /**
  * Close load rule modal
@@ -2475,6 +2489,8 @@ function closeLoadRuleModal() {
         modal.classList.add('hidden');
     }
 }
+// Expose immediately for onclick handlers
+window.closeLoadRuleModal = closeLoadRuleModal;
 
 /**
  * Utility function to escape HTML
@@ -2643,6 +2659,8 @@ function analyzeTealiumCookies() {
     updateTealiumCookiesDisplay(tealiumCookies);
     return tealiumCookies;
 }
+// Expose immediately for onclick handlers
+window.analyzeTealiumCookies = analyzeTealiumCookies;
 
 /**
  * Get description for utag_main cookie variables
@@ -2977,6 +2995,8 @@ function analyzeUtagCfgSettings() {
     
     container.innerHTML = html;
 }
+// Expose immediately for onclick handlers
+window.analyzeUtagCfgSettings = analyzeUtagCfgSettings;
 
 /**
  * Format setting value for display
@@ -3082,6 +3102,8 @@ function initializeProfileInspector() {
         });
     }
 }
+// Expose immediately for section initialization
+window.initializeProfileInspector = initializeProfileInspector;
 
 /**
  * Enhance tags with API data
@@ -3192,7 +3214,8 @@ function enhanceLoadRulesWithAPI(runtimeRules) {
     });
 }
 
-// Expose functions globally for HTML event handlers
+// Expose functions globally for HTML event handlers (keep at end for reference)
+// Main exports moved to immediate after function declarations
 window.inspectCurrentProfile = inspectCurrentProfile;
 window.initializeProfileInspector = initializeProfileInspector;
 window.exportDataLayer = exportDataLayer;
@@ -3207,3 +3230,10 @@ window.runAllProfileAnalysis = runAllProfileAnalysis;
 window.enhanceTagsWithAPI = enhanceTagsWithAPI;
 window.enhanceExtensionsWithAPI = enhanceExtensionsWithAPI;
 window.enhanceLoadRulesWithAPI = enhanceLoadRulesWithAPI;
+
+console.log('✅ Profile Inspector functions exposed globally:', {
+    inspectCurrentProfile: typeof window.inspectCurrentProfile,
+    updateEnvironmentStatus: typeof window.updateEnvironmentStatus,
+    analyzeTealiumCookies: typeof window.analyzeTealiumCookies,
+    analyzeUtagCfgSettings: typeof window.analyzeUtagCfgSettings
+});

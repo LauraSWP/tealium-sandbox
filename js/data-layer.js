@@ -1274,6 +1274,7 @@ window.toggleDataLayerMonitor = toggleDataLayerMonitor;
 window.editDataLayerVariable = editDataLayerVariable;
 window.copyDataLayerVariable = copyDataLayerVariable;
 window.deleteDataLayerVariable = deleteDataLayerVariable;
+window.debugTealiumDataLayers = debugTealiumDataLayers;
 window.compareDataLayerWithAPI = compareDataLayerWithAPI;
 window.displayAPIVariableComparison = displayAPIVariableComparison;
 
