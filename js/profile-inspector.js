@@ -839,9 +839,7 @@ async function openTagFile(tagId) {
         
         console.log(`📂 Looking for tag ${tagId}`);
         
-        let codeText = '';
-        
-        // STRATEGY 1: Try to extract from already-loaded script tags in the DOM
+        // Check if tag script is loaded in the DOM
         const scripts = document.querySelectorAll('script[src]');
         let scriptElement = null;
         
@@ -853,18 +851,8 @@ async function openTagFile(tagId) {
             }
         }
         
-        // STRATEGY 2: Try to get code from utag.loader if available
-        if (!codeText && window.utag && window.utag.loader && window.utag.loader.cfg) {
-            const tagConfig = window.utag.loader.cfg[tagId];
-            if (tagConfig && typeof tagConfig === 'object') {
-                console.log(`📦 Found tag ${tagId} config in utag.loader`);
-                codeText = `// Tag ${tagId} Configuration\n// This tag is loaded and active\n\n` + 
-                          JSON.stringify(tagConfig, null, 2);
-            }
-        }
-        
-        // STRATEGY 3: If script found in DOM but we can't access content (CORS), show helpful message with open option
-        if (scriptElement && !codeText) {
+        // If script found in DOM, we know it's loaded but can't access content due to CORS
+        if (scriptElement) {
             content.innerHTML = `
                 <div class="text-gray-300 space-y-4">
                     <div class="bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded p-4">
@@ -914,110 +902,48 @@ async function openTagFile(tagId) {
             return;
         }
         
-        // If we still don't have code, try to fetch (will likely fail due to CORS but worth trying)
-        if (!codeText) {
-            try {
-                console.log(`🌐 Attempting to fetch from CDN: ${tagFileUrl}`);
-                content.innerHTML = `<code class="text-blue-400">Attempting to fetch from CDN...</code>`;
+        // If script not found in DOM, tag is not loaded - show message
+        content.innerHTML = `
+            <div class="text-gray-300 space-y-4">
+                <div class="bg-red-900 bg-opacity-30 border border-red-600 rounded p-4">
+                    <p class="text-red-300 font-semibold mb-2">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Tag Not Loaded
+                    </p>
+                    <p class="text-gray-300 text-sm">
+                        Tag ${tagId} is not currently loaded on this page. The tag may be blocked by a load rule or not configured for this environment.
+                    </p>
+                </div>
                 
-                const response = await fetch(tagFileUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                codeText = await response.text();
-                console.log(`✅ Successfully fetched tag code`);
-            } catch (fetchError) {
-                // CORS error - show helpful message
-                console.log(`❌ Fetch failed (likely CORS):`, fetchError.message);
-                content.innerHTML = `
-                    <div class="text-gray-300 space-y-4">
-                        <div class="bg-red-900 bg-opacity-30 border border-red-600 rounded p-4">
-                            <p class="text-red-300 font-semibold mb-2">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>Cannot Fetch Tag Code
-                            </p>
-                            <p class="text-gray-300 text-sm">
-                                Browser security (CORS policy) prevents loading the tag code directly from Tealium's CDN.
-                            </p>
-                        </div>
-                        
-                        <div class="bg-gray-800 rounded p-4">
-                            <p class="text-gray-300 font-semibold mb-2">Tag File Location:</p>
-                            <code class="text-blue-300 text-xs break-all block bg-gray-900 p-2 rounded">
-                                ${escapeHtml(tagFileUrl)}
-                            </code>
-                        </div>
-                        
-                        <div class="flex space-x-3">
-                            <button onclick="window.open('${escapeHtml(tagFileUrl)}', '_blank')" 
-                                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
-                                <i class="fas fa-external-link-alt mr-2"></i>Open in New Tab
-                            </button>
-                            <button onclick="closeTagCodeModal()" 
-                                    class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
-                                Close
-                            </button>
-                        </div>
-                        
-                        <div class="bg-blue-900 bg-opacity-30 border border-blue-600 rounded p-4 text-sm">
-                            <p class="text-blue-300 font-semibold mb-2">
-                                <i class="fas fa-lightbulb mr-2"></i>How to View the Code
-                            </p>
-                            <ul class="text-gray-300 space-y-1 list-disc list-inside">
-                                <li>Click "Open in New Tab" above</li>
-                                <li>Press F12 to open DevTools</li>
-                                <li>The code will be formatted and searchable</li>
-                            </ul>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-        }
-        
-        // If we got code, beautify and display it
-        if (codeText) {
-            // Beautify code using JS Beautify
-            try {
-                if (typeof js_beautify !== 'undefined') {
-                    const beautifiedCode = js_beautify(codeText, {
-                        indent_size: 2,
-                        indent_char: ' ',
-                        max_preserve_newlines: 2,
-                        preserve_newlines: true,
-                        keep_array_indentation: false,
-                        break_chained_methods: false,
-                        indent_scripts: 'normal',
-                        brace_style: 'collapse',
-                        space_before_conditional: true,
-                        unescape_strings: false,
-                        jslint_happy: false,
-                        end_with_newline: true,
-                        wrap_line_length: 100,
-                        indent_inner_html: false,
-                        comma_first: false,
-                        e4x: false,
-                        indent_empty_lines: false
-                    });
-                    
-                    codeText = beautifiedCode;
-                }
-            } catch (beautifyError) {
-                console.warn('Could not beautify code:', beautifyError);
-            }
-            
-            // Format and display code
-            content.innerHTML = `<code class="language-javascript">${escapeHtml(codeText)}</code>`;
-            
-            // Apply syntax highlighting if available
-            if (typeof hljs !== 'undefined') {
-                hljs.highlightElement(content.querySelector('code'));
-            }
-            
-            // Setup search functionality
-            setupCodeSearch(searchInput, content, codeText);
-            
-            showNotification(`Loaded utag.${tagId}.js (${codeText.length} chars)`, 'success');
-        }
+                <div class="bg-gray-800 rounded p-4">
+                    <p class="text-gray-300 font-semibold mb-2">Tag File Location:</p>
+                    <code class="text-blue-300 text-xs break-all block bg-gray-900 p-2 rounded">
+                        ${escapeHtml(tagFileUrl)}
+                    </code>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="window.open('${escapeHtml(tagFileUrl)}', '_blank')" 
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
+                        <i class="fas fa-external-link-alt mr-2"></i>Try Opening in New Tab
+                    </button>
+                    <button onclick="closeTagCodeModal()" 
+                            class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
+                        Close
+                    </button>
+                </div>
+                
+                <div class="bg-blue-900 bg-opacity-30 border border-blue-600 rounded p-4 text-sm">
+                    <p class="text-blue-300 font-semibold mb-2">
+                        <i class="fas fa-lightbulb mr-2"></i>Tip
+                    </p>
+                    <p class="text-gray-300">
+                        Opening in a new tab will attempt to load the tag file directly from Tealium's CDN. 
+                        If the tag exists, you'll be able to view its code.
+                    </p>
+                </div>
+            </div>
+        `;
+        console.log(`⚠️ Tag ${tagId} not found in loaded scripts`);
         
     } catch (error) {
         console.error('Error loading tag file:', error);
