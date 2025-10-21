@@ -252,62 +252,40 @@
     </div>
 
 
-    <!-- Early Function Declarations - Prevent "not defined" errors -->
-    <script>
-        // Define placeholder functions that will be replaced when scripts load
-        console.log('🔧 Setting up early function placeholders v2.1...');
-        
-        // Create a placeholder factory
-        const createPlaceholder = (name, file) => function() { 
-            console.warn(`⏳ ${name}() called but ${file} hasn't loaded yet. Function will work once scripts load.`); 
-        };
-        
-        // Profile Inspector functions
-        window.inspectCurrentProfile = createPlaceholder('inspectCurrentProfile', 'profile-inspector.js');
-        window.updateEnvironmentStatus = createPlaceholder('updateEnvironmentStatus', 'profile-inspector.js');
-        window.analyzeTealiumCookies = createPlaceholder('analyzeTealiumCookies', 'profile-inspector.js');
-        window.analyzeUtagCfgSettings = createPlaceholder('analyzeUtagCfgSettings', 'profile-inspector.js');
-        window.viewExtensionCode = createPlaceholder('viewExtensionCode', 'profile-inspector.js');
-        window.viewLoadRuleDetails = createPlaceholder('viewLoadRuleDetails', 'profile-inspector.js');
-        window.closeExtensionCodeModal = createPlaceholder('closeExtensionCodeModal', 'profile-inspector.js');
-        window.closeLoadRuleModal = createPlaceholder('closeLoadRuleModal', 'profile-inspector.js');
-        window.runAllProfileAnalysis = createPlaceholder('runAllProfileAnalysis', 'profile-inspector.js');
-        window.exportDataLayer = createPlaceholder('exportDataLayer', 'profile-inspector.js');
-        
-        // Data Layer functions
-        window.loadCurrentDataLayer = createPlaceholder('loadCurrentDataLayer', 'data-layer.js');
-        window.updateDataLayerTable = createPlaceholder('updateDataLayerTable', 'data-layer.js');
-        window.loadPresetDataLayer = createPlaceholder('loadPresetDataLayer', 'data-layer.js');
-        window.addDataLayerVariable = createPlaceholder('addDataLayerVariable', 'data-layer.js');
-        window.formatDataLayer = createPlaceholder('formatDataLayer', 'data-layer.js');
-        window.clearDataLayer = createPlaceholder('clearDataLayer', 'data-layer.js');
-        window.updateDataLayer = createPlaceholder('updateDataLayer', 'data-layer.js');
-        window.debugTealiumDataLayers = createPlaceholder('debugTealiumDataLayers', 'data-layer.js');
-        window.importDataLayer = createPlaceholder('importDataLayer', 'data-layer.js');
-        window.validateDataLayer = createPlaceholder('validateDataLayer', 'data-layer.js');
-        
-        // Tags functions
-        window.refreshTagsData = createPlaceholder('refreshTagsData', 'tags.js');
-        window.exportTagsData = createPlaceholder('exportTagsData', 'tags.js');
-        window.toggleTagsSortDirection = createPlaceholder('toggleTagsSortDirection', 'tags.js');
-        window.closeTagDetailsModal = createPlaceholder('closeTagDetailsModal', 'tags.js');
-        
-        // Events functions
-        window.toggleEventInterceptor = createPlaceholder('toggleEventInterceptor', 'events.js');
-        window.triggerPageView = createPlaceholder('triggerPageView', 'events.js');
-        
-        console.log('✅ Early placeholders set for', Object.keys(window).filter(k => typeof window[k] === 'function' && k !== 'createPlaceholder').length, 'functions');
-    </script>
+    <!-- JavaScript Files - Load synchronously in correct order -->
+    <script src="js/session-manager.js?v=2.3.0"></script>
+    <script src="js/sections-config.js?v=2.3.0"></script>
+    <script src="js/profile-inspector.js?v=2.3.0"></script>
+    <script src="js/data-layer.js?v=2.3.0"></script>
+    <script src="js/tags.js?v=2.3.0"></script>
+    <script src="js/events.js?v=2.3.0"></script>
+    <script src="js/custom-functions.js?v=2.3.0"></script>
+    <script src="js/sandbox.js?v=2.3.0"></script>
     
-    <!-- JavaScript Files -->
-    <script src="js/session-manager.js?v=2.1"></script>
-    <script src="js/sections-config.js?v=2.1"></script>
-    <script src="js/sandbox.js?v=2.1"></script>
-    <script src="js/tags.js?v=2.1"></script>
-    <script src="js/events.js?v=2.1"></script>
-    <script src="js/custom-functions.js?v=2.1"></script>
-    <script src="js/profile-inspector.js?v=2.1"></script>
-    <script src="js/data-layer.js?v=2.1"></script>
+    <!-- Verify Critical Functions Loaded -->
+    <script>
+        (function() {
+            const criticalFunctions = [
+                'inspectCurrentProfile',
+                'updateEnvironmentStatus', 
+                'analyzeTealiumCookies',
+                'analyzeUtagCfgSettings',
+                'viewExtensionCode',
+                'closeExtensionCodeModal',
+                'closeLoadRuleModal',
+                'exportDataLayer'
+            ];
+            
+            const missing = criticalFunctions.filter(fn => typeof window[fn] !== 'function');
+            
+            if (missing.length > 0) {
+                console.error('❌ CRITICAL: These functions failed to load:', missing);
+                console.error('💡 Try: Ctrl+Shift+R to hard refresh');
+            } else {
+                console.log('✅ All critical functions loaded successfully');
+            }
+        })();
+    </script>
     
     <!-- Ensure functions are available -->
     <script>
