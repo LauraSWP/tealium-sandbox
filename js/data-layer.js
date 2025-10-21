@@ -38,11 +38,6 @@ function initializeDataLayer() {
     updateDataLayerTable();
     updateDataLayerEditor();
     
-    // Display API comparison if available
-    if (typeof displayAPIVariableComparison === 'function') {
-        displayAPIVariableComparison();
-    }
-    
     // Set up real-time monitoring if requested
     if (isMonitoring) {
         startDataLayerMonitoring();
@@ -56,12 +51,6 @@ function initializeDataLayer() {
             }
         }
     }
-    
-    // Listen for API profile loaded events
-    window.addEventListener('apiProfileLoaded', function() {
-        console.log('🔄 API profile loaded, updating data layer comparison...');
-        displayAPIVariableComparison();
-    });
 }
 
 /**
@@ -107,145 +96,6 @@ function loadCurrentDataLayer() {
     // Data layer loaded successfully
 }
 
-/**
- * Compare current data layer with API-defined variables
- * Shows which variables are missing or different from expected
- */
-function compareDataLayerWithAPI() {
-    if (!window.tealiumAPI || !window.tealiumAPI.isAuthenticated() || !window.apiProfileData) {
-        return null;
-    }
-    
-    const apiVariables = window.tealiumAPI.getVariables();
-    if (!apiVariables || apiVariables.length === 0) {
-        return null;
-    }
-    
-    const comparison = {
-        expected: [],
-        present: [],
-        missing: [],
-        unexpected: []
-    };
-    
-    // Create set of expected variable names from API
-    const expectedVarNames = new Set();
-    apiVariables.forEach(apiVar => {
-        const varName = apiVar.alias || apiVar.name;
-        if (varName) {
-            expectedVarNames.add(varName);
-            comparison.expected.push({
-                name: varName,
-                type: apiVar.type,
-                source: apiVar.alias ? 'alias' : 'name',
-                notes: apiVar.notes
-            });
-        }
-    });
-    
-    // Check which expected variables are present
-    Object.keys(currentDataLayer).forEach(key => {
-        if (expectedVarNames.has(key)) {
-            comparison.present.push(key);
-        } else {
-            comparison.unexpected.push(key);
-        }
-    });
-    
-    // Check which expected variables are missing
-    expectedVarNames.forEach(varName => {
-        if (!(varName in currentDataLayer)) {
-            comparison.missing.push(varName);
-        }
-    });
-    
-    return comparison;
-}
-
-/**
- * Display API variable comparison
- */
-function displayAPIVariableComparison() {
-    const comparisonContainer = document.getElementById('apiVariableComparison');
-    if (!comparisonContainer) return;
-    
-    const comparison = compareDataLayerWithAPI();
-    
-    if (!comparison) {
-        comparisonContainer.innerHTML = `
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p class="text-sm text-yellow-700">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    Connect API to compare expected variables with current data layer
-                </p>
-            </div>
-        `;
-        return;
-    }
-    
-    const html = `
-        <div class="space-y-4">
-            <!-- Statistics -->
-            <div class="grid grid-cols-3 gap-4">
-                <div class="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <div class="text-sm text-green-600 font-medium">Present</div>
-                    <div class="text-2xl font-bold text-green-700">${comparison.present.length}</div>
-                    <div class="text-xs text-green-600">Expected variables found</div>
-                </div>
-                <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <div class="text-sm text-red-600 font-medium">Missing</div>
-                    <div class="text-2xl font-bold text-red-700">${comparison.missing.length}</div>
-                    <div class="text-xs text-red-600">Expected variables not found</div>
-                </div>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div class="text-sm text-blue-600 font-medium">Unexpected</div>
-                    <div class="text-2xl font-bold text-blue-700">${comparison.unexpected.length}</div>
-                    <div class="text-xs text-blue-600">Variables not in API config</div>
-                </div>
-            </div>
-            
-            <!-- Missing Variables -->
-            ${comparison.missing.length > 0 ? `
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <h5 class="text-sm font-semibold text-red-900 mb-2">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        Missing Variables (${comparison.missing.length})
-                    </h5>
-                    <div class="space-y-1">
-                        ${comparison.missing.map(varName => {
-                            const varInfo = comparison.expected.find(v => v.name === varName);
-                            return `
-                                <div class="text-xs text-red-700 font-mono bg-red-100 px-2 py-1 rounded">
-                                    ${varName}
-                                    ${varInfo && varInfo.type ? `<span class="ml-2 text-red-600">(${varInfo.type})</span>` : ''}
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            ` : ''}
-            
-            <!-- Unexpected Variables -->
-            ${comparison.unexpected.length > 0 ? `
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h5 class="text-sm font-semibold text-blue-900 mb-2">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        Unexpected Variables (${comparison.unexpected.length})
-                    </h5>
-                    <div class="text-xs text-blue-700 mb-2">These variables are in the data layer but not defined in the API configuration</div>
-                    <div class="flex flex-wrap gap-1">
-                        ${comparison.unexpected.slice(0, 20).map(varName => `
-                            <span class="text-xs text-blue-700 font-mono bg-blue-100 px-2 py-1 rounded">${varName}</span>
-                        `).join('')}
-                        ${comparison.unexpected.length > 20 ? `<span class="text-xs text-blue-600">...and ${comparison.unexpected.length - 20} more</span>` : ''}
-                    </div>
-                </div>
-            ` : ''}
-        </div>
-    `;
-    
-    comparisonContainer.innerHTML = html;
-}
 
 /**
  * Update data layer table display
@@ -1274,7 +1124,6 @@ window.toggleDataLayerMonitor = toggleDataLayerMonitor;
 window.editDataLayerVariable = editDataLayerVariable;
 window.copyDataLayerVariable = copyDataLayerVariable;
 window.deleteDataLayerVariable = deleteDataLayerVariable;
-window.compareDataLayerWithAPI = compareDataLayerWithAPI;
-window.displayAPIVariableComparison = displayAPIVariableComparison;
+window.debugTealiumDataLayers = debugTealiumDataLayers;
 
 console.log('✅ Data Layer management system loaded');
