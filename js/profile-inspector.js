@@ -835,65 +835,211 @@ async function openTagFile(tagId) {
         
         // Show modal with loading state
         modal.classList.remove('hidden');
-        content.innerHTML = `<code class="text-blue-400">Loading tag code from CDN...</code>`;
+        content.innerHTML = `<code class="text-blue-400">Looking for tag code...</code>`;
         
-        console.log(`📂 Fetching tag file: ${tagFileUrl}`);
+        console.log(`📂 Looking for tag ${tagId}`);
         
-        // Fetch the tag file
-        const response = await fetch(tagFileUrl);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch tag file: ${response.status} ${response.statusText}`);
-        }
+        let codeText = '';
         
-        let codeText = await response.text();
+        // STRATEGY 1: Try to extract from already-loaded script tags in the DOM
+        const scripts = document.querySelectorAll('script[src]');
+        let scriptElement = null;
         
-        // Beautify code using JS Beautify
-        try {
-            if (typeof js_beautify !== 'undefined') {
-                const beautifiedCode = js_beautify(codeText, {
-                    indent_size: 2,
-                    indent_char: ' ',
-                    max_preserve_newlines: 2,
-                    preserve_newlines: true,
-                    keep_array_indentation: false,
-                    break_chained_methods: false,
-                    indent_scripts: 'normal',
-                    brace_style: 'collapse',
-                    space_before_conditional: true,
-                    unescape_strings: false,
-                    jslint_happy: false,
-                    end_with_newline: true,
-                    wrap_line_length: 100,
-                    indent_inner_html: false,
-                    comma_first: false,
-                    e4x: false,
-                    indent_empty_lines: false
-                });
-                
-                codeText = beautifiedCode;
+        for (const script of scripts) {
+            if (script.src.includes(`utag.${tagId}.js`)) {
+                scriptElement = script;
+                console.log(`✅ Found tag ${tagId} script in DOM:`, script.src);
+                break;
             }
-        } catch (beautifyError) {
-            console.warn('Could not beautify code:', beautifyError);
-            // Continue with original code if beautification fails
         }
         
-        // Format and display code
-        content.innerHTML = `<code class="language-javascript">${escapeHtml(codeText)}</code>`;
-        
-        // Apply syntax highlighting if available
-        if (typeof hljs !== 'undefined') {
-            hljs.highlightElement(content.querySelector('code'));
+        // STRATEGY 2: Try to get code from utag.loader if available
+        if (!codeText && window.utag && window.utag.loader && window.utag.loader.cfg) {
+            const tagConfig = window.utag.loader.cfg[tagId];
+            if (tagConfig && typeof tagConfig === 'object') {
+                console.log(`📦 Found tag ${tagId} config in utag.loader`);
+                codeText = `// Tag ${tagId} Configuration\n// This tag is loaded and active\n\n` + 
+                          JSON.stringify(tagConfig, null, 2);
+            }
         }
         
-        // Setup search functionality
-        setupCodeSearch(searchInput, content, codeText);
+        // STRATEGY 3: If script found in DOM but we can't access content (CORS), show helpful message with open option
+        if (scriptElement && !codeText) {
+            content.innerHTML = `
+                <div class="text-gray-300 space-y-4">
+                    <div class="bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded p-4">
+                        <p class="text-yellow-300 font-semibold mb-2">
+                            <i class="fas fa-info-circle mr-2"></i>CORS Security Restriction
+                        </p>
+                        <p class="text-gray-300 text-sm">
+                            Due to browser security (CORS policy), we cannot directly fetch and display the tag code from Tealium's CDN.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-800 rounded p-4">
+                        <p class="text-gray-300 font-semibold mb-2">
+                            <i class="fas fa-check-circle text-green-400 mr-2"></i>Tag is Active
+                        </p>
+                        <p class="text-gray-400 text-sm mb-3">
+                            Tag ${tagId} is loaded and running on this page from:
+                        </p>
+                        <code class="text-blue-300 text-xs break-all block bg-gray-900 p-2 rounded">
+                            ${escapeHtml(scriptElement.src)}
+                        </code>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button onclick="window.open('${escapeHtml(tagFileUrl)}', '_blank')" 
+                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
+                            <i class="fas fa-external-link-alt mr-2"></i>Open in New Tab
+                        </button>
+                        <button onclick="closeTagCodeModal()" 
+                                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
+                            Close
+                        </button>
+                    </div>
+                    
+                    <div class="bg-blue-900 bg-opacity-30 border border-blue-600 rounded p-4 text-sm">
+                        <p class="text-blue-300 font-semibold mb-2">
+                            <i class="fas fa-lightbulb mr-2"></i>Tip
+                        </p>
+                        <p class="text-gray-300">
+                            Opening in a new tab will show the raw JavaScript code directly from Tealium's CDN.
+                            You can use your browser's DevTools (F12) to format and search the code.
+                        </p>
+                    </div>
+                </div>
+            `;
+            console.log(`ℹ️ CORS prevents direct fetch, offering to open in new tab`);
+            return;
+        }
         
-        showNotification(`Loaded utag.${tagId}.js (${codeText.length} chars)`, 'success');
+        // If we still don't have code, try to fetch (will likely fail due to CORS but worth trying)
+        if (!codeText) {
+            try {
+                console.log(`🌐 Attempting to fetch from CDN: ${tagFileUrl}`);
+                content.innerHTML = `<code class="text-blue-400">Attempting to fetch from CDN...</code>`;
+                
+                const response = await fetch(tagFileUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                codeText = await response.text();
+                console.log(`✅ Successfully fetched tag code`);
+            } catch (fetchError) {
+                // CORS error - show helpful message
+                console.log(`❌ Fetch failed (likely CORS):`, fetchError.message);
+                content.innerHTML = `
+                    <div class="text-gray-300 space-y-4">
+                        <div class="bg-red-900 bg-opacity-30 border border-red-600 rounded p-4">
+                            <p class="text-red-300 font-semibold mb-2">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>Cannot Fetch Tag Code
+                            </p>
+                            <p class="text-gray-300 text-sm">
+                                Browser security (CORS policy) prevents loading the tag code directly from Tealium's CDN.
+                            </p>
+                        </div>
+                        
+                        <div class="bg-gray-800 rounded p-4">
+                            <p class="text-gray-300 font-semibold mb-2">Tag File Location:</p>
+                            <code class="text-blue-300 text-xs break-all block bg-gray-900 p-2 rounded">
+                                ${escapeHtml(tagFileUrl)}
+                            </code>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button onclick="window.open('${escapeHtml(tagFileUrl)}', '_blank')" 
+                                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
+                                <i class="fas fa-external-link-alt mr-2"></i>Open in New Tab
+                            </button>
+                            <button onclick="closeTagCodeModal()" 
+                                    class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
+                                Close
+                            </button>
+                        </div>
+                        
+                        <div class="bg-blue-900 bg-opacity-30 border border-blue-600 rounded p-4 text-sm">
+                            <p class="text-blue-300 font-semibold mb-2">
+                                <i class="fas fa-lightbulb mr-2"></i>How to View the Code
+                            </p>
+                            <ul class="text-gray-300 space-y-1 list-disc list-inside">
+                                <li>Click "Open in New Tab" above</li>
+                                <li>Press F12 to open DevTools</li>
+                                <li>The code will be formatted and searchable</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+        }
+        
+        // If we got code, beautify and display it
+        if (codeText) {
+            // Beautify code using JS Beautify
+            try {
+                if (typeof js_beautify !== 'undefined') {
+                    const beautifiedCode = js_beautify(codeText, {
+                        indent_size: 2,
+                        indent_char: ' ',
+                        max_preserve_newlines: 2,
+                        preserve_newlines: true,
+                        keep_array_indentation: false,
+                        break_chained_methods: false,
+                        indent_scripts: 'normal',
+                        brace_style: 'collapse',
+                        space_before_conditional: true,
+                        unescape_strings: false,
+                        jslint_happy: false,
+                        end_with_newline: true,
+                        wrap_line_length: 100,
+                        indent_inner_html: false,
+                        comma_first: false,
+                        e4x: false,
+                        indent_empty_lines: false
+                    });
+                    
+                    codeText = beautifiedCode;
+                }
+            } catch (beautifyError) {
+                console.warn('Could not beautify code:', beautifyError);
+            }
+            
+            // Format and display code
+            content.innerHTML = `<code class="language-javascript">${escapeHtml(codeText)}</code>`;
+            
+            // Apply syntax highlighting if available
+            if (typeof hljs !== 'undefined') {
+                hljs.highlightElement(content.querySelector('code'));
+            }
+            
+            // Setup search functionality
+            setupCodeSearch(searchInput, content, codeText);
+            
+            showNotification(`Loaded utag.${tagId}.js (${codeText.length} chars)`, 'success');
+        }
         
     } catch (error) {
         console.error('Error loading tag file:', error);
-        content.innerHTML = `<code class="text-red-400">Error loading tag code: ${escapeHtml(error.message)}</code>`;
-        showNotification('Failed to load tag file: ' + error.message, 'error');
+        const tagFileUrl = `https://tags.tiqcdn.com/utag/${overview.account}/${overview.profile}/${overview.environment}/utag.${tagId}.js`;
+        content.innerHTML = `
+            <div class="text-gray-300 space-y-4">
+                <div class="bg-red-900 bg-opacity-30 border border-red-600 rounded p-4">
+                    <p class="text-red-300 font-semibold mb-2">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Error Loading Tag
+                    </p>
+                    <p class="text-gray-300 text-sm">
+                        ${escapeHtml(error.message)}
+                    </p>
+                </div>
+                
+                <button onclick="window.open('${escapeHtml(tagFileUrl)}', '_blank')" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
+                    <i class="fas fa-external-link-alt mr-2"></i>Try Opening in New Tab
+                </button>
+            </div>
+        `;
+        showNotification('Could not load tag code - see modal for options', 'warning');
     }
 }
 // Expose immediately for onclick handlers
