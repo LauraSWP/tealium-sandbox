@@ -12,41 +12,15 @@ let currentTagsSource = 'runtime';
 function initializeTagsSection() {
     console.log('🏷️ Initializing Tags section...');
     
-    // Check if API is connected
-    const apiConnected = window.tealiumAPI && window.tealiumAPI.isAuthenticated();
-    
-    // Show/hide API banner
-    const banner = document.getElementById('tagsAPIBanner');
-    if (banner && !apiConnected) {
-        banner.classList.remove('hidden');
-    }
-    
-    // Set default data source based on availability
+    // Set default data source to runtime only
     const dataSourceSelect = document.getElementById('tagsDataSource');
     if (dataSourceSelect) {
-        if (apiConnected && window.apiProfileData) {
-            dataSourceSelect.value = 'api';
-            currentTagsSource = 'api';
-        } else if (window.utag) {
-            dataSourceSelect.value = 'runtime';
-            currentTagsSource = 'runtime';
-        }
-        
-        // Disable API options if not connected
-        if (!apiConnected) {
-            dataSourceSelect.querySelector('option[value="api"]').disabled = true;
-            dataSourceSelect.querySelector('option[value="compare"]').disabled = true;
-        }
+        dataSourceSelect.value = 'runtime';
+        currentTagsSource = 'runtime';
     }
     
     // Load initial data
     loadTagsData();
-    
-    // Listen for API profile loaded events
-    window.addEventListener('apiProfileLoaded', function() {
-        console.log('🔄 API profile loaded, refreshing tags data...');
-        loadTagsData();
-    });
 }
 
 /**
@@ -60,13 +34,8 @@ async function loadTagsData() {
     
     let tags = [];
     
-    if (dataSource === 'runtime') {
-        tags = await loadTagsFromRuntime();
-    } else if (dataSource === 'api') {
-        tags = await loadTagsFromAPI();
-    } else if (dataSource === 'compare') {
-        tags = await compareTagsData();
-    }
+    // Only load from runtime (API removed)
+    tags = await loadTagsFromRuntime();
     
     currentTagsData = tags;
     
@@ -113,91 +82,6 @@ async function loadTagsFromRuntime() {
     return tags;
 }
 
-/**
- * Load tags from API
- */
-async function loadTagsFromAPI() {
-    if (!window.tealiumAPI || !window.tealiumAPI.isAuthenticated()) {
-        console.warn('⚠️ API not authenticated');
-        return [];
-    }
-    
-    // Check if we have cached profile data
-    if (!window.apiProfileData) {
-        // Fetch profile data
-        const account = document.getElementById('account')?.value;
-        const profile = document.getElementById('profile')?.value;
-        
-        if (!account || !profile) {
-            console.warn('⚠️ Account/profile not configured');
-            return [];
-        }
-        
-        await window.fetchProfileFromAPI(account, profile);
-    }
-    
-    const tags = window.tealiumAPI.getTags();
-    
-    // Transform API tags to consistent format
-    return tags.map(tag => ({
-        uid: tag.id || tag.tagId || tag.uid,
-        name: tag.name || tag.title || `Tag ${tag.id}`,
-        status: tag.status === 'active' ? 'Active' : 'Inactive',
-        templateId: tag.tagId || tag.tid,
-        dataMappings: tag.dataMappings || [],
-        configuration: tag.configuration || {},
-        advancedConfiguration: tag.advancedConfiguration || {},
-        rules: tag.rules || {},
-        selectedTargets: tag.selectedTargets || {},
-        notes: tag.notes || '',
-        source: 'api'
-    }));
-}
-
-/**
- * Compare runtime and API data
- */
-async function compareTagsData() {
-    const runtimeTags = await loadTagsFromRuntime();
-    const apiTags = await loadTagsFromAPI();
-    
-    // Merge tags by UID
-    const tagsMap = new Map();
-    
-    // Add runtime tags
-    runtimeTags.forEach(tag => {
-        tagsMap.set(tag.uid, {
-            ...tag,
-            runtimeData: tag,
-            hasRuntime: true,
-            hasAPI: false
-        });
-    });
-    
-    // Add/merge API tags
-    apiTags.forEach(tag => {
-        if (tagsMap.has(tag.uid)) {
-            const existing = tagsMap.get(tag.uid);
-            tagsMap.set(tag.uid, {
-                ...existing,
-                ...tag,
-                apiData: tag,
-                hasAPI: true,
-                source: 'compare'
-            });
-        } else {
-            tagsMap.set(tag.uid, {
-                ...tag,
-                apiData: tag,
-                hasRuntime: false,
-                hasAPI: true,
-                source: 'compare'
-            });
-        }
-    });
-    
-    return Array.from(tagsMap.values());
-}
 
 /**
  * Update tags statistics
