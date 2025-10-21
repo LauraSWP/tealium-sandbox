@@ -42,14 +42,6 @@ async function inspectCurrentProfile() {
         // Get comprehensive profile analysis
         const profileData = await analyzeLoadedProfile();
         
-        // Enhance with API data if available
-        if (window.tealiumAPI && window.tealiumAPI.isAuthenticated() && window.apiProfileData) {
-            console.log('🔄 Enhancing profile analysis with API data...');
-            profileData.tags = enhanceTagsWithAPI(profileData.tags);
-            profileData.extensions = enhanceExtensionsWithAPI(profileData.extensions);
-            profileData.loadRules = enhanceLoadRulesWithAPI(profileData.loadRules);
-        }
-        
         // Store analysis globally for modal access
         window.profileAnalysis = profileData;
         
@@ -3105,114 +3097,6 @@ function initializeProfileInspector() {
 // Expose immediately for section initialization
 window.initializeProfileInspector = initializeProfileInspector;
 
-/**
- * Enhance tags with API data
- * Replaces generic names with actual tag names from API
- */
-function enhanceTagsWithAPI(runtimeTags) {
-    if (!window.apiProfileData || !window.apiProfileData.tags) {
-        return runtimeTags;
-    }
-    
-    const apiTags = window.apiProfileData.tags;
-    
-    // Create mapping of tag UID to API data
-    const apiTagsMap = new Map();
-    apiTags.forEach(apiTag => {
-        const uid = String(apiTag.id || apiTag.tagId || apiTag.uid);
-        apiTagsMap.set(uid, apiTag);
-    });
-    
-    // Enhance runtime tags with API data
-    return runtimeTags.map(tag => {
-        const apiTag = apiTagsMap.get(String(tag.uid));
-        
-        if (apiTag) {
-            return {
-                ...tag,
-                name: apiTag.name || tag.name, // Use API name if available
-                templateName: apiTag.tagId || tag.templateId,
-                notes: apiTag.notes,
-                dataMappings: apiTag.dataMappings,
-                configuration: apiTag.configuration,
-                apiEnhanced: true
-            };
-        }
-        
-        return tag;
-    });
-}
-
-/**
- * Enhance extensions with API data
- * Replaces "Extension X" with actual extension names from API
- */
-function enhanceExtensionsWithAPI(runtimeExtensions) {
-    if (!window.apiProfileData || !window.apiProfileData.extensions) {
-        return runtimeExtensions;
-    }
-    
-    const apiExtensions = window.apiProfileData.extensions;
-    
-    // Create mapping of extension ID to API data
-    const apiExtensionsMap = new Map();
-    apiExtensions.forEach(apiExt => {
-        const id = String(apiExt.id);
-        apiExtensionsMap.set(id, apiExt);
-    });
-    
-    // Enhance runtime extensions with API data
-    return runtimeExtensions.map(ext => {
-        const apiExt = apiExtensionsMap.get(String(ext.id));
-        
-        if (apiExt) {
-            return {
-                ...ext,
-                name: apiExt.name || apiExt.title || ext.name, // Use API name
-                notes: apiExt.notes,
-                apiEnhanced: true
-            };
-        }
-        
-        return ext;
-    });
-}
-
-/**
- * Enhance load rules with API data
- * Adds more accurate rule information from API
- */
-function enhanceLoadRulesWithAPI(runtimeRules) {
-    if (!window.apiProfileData || !window.apiProfileData.loadRules) {
-        return runtimeRules;
-    }
-    
-    const apiRules = window.apiProfileData.loadRules;
-    
-    // Create mapping of rule ID to API data
-    const apiRulesMap = new Map();
-    apiRules.forEach(apiRule => {
-        const id = String(apiRule.id || apiRule.uid);
-        apiRulesMap.set(id, apiRule);
-    });
-    
-    // Enhance runtime rules with API data
-    return runtimeRules.map(rule => {
-        const apiRule = apiRulesMap.get(String(rule.id));
-        
-        if (apiRule) {
-            return {
-                ...rule,
-                title: apiRule.title || apiRule.name || rule.title,
-                notes: apiRule.notes,
-                condition: apiRule.condition || rule.condition,
-                apiEnhanced: true
-            };
-        }
-        
-        return rule;
-    });
-}
 
 // Expose functions globally for HTML event handlers (keep at end for reference)
 // Main exports moved to immediate after function declarations
@@ -3227,9 +3111,6 @@ window.closeLoadRuleModal = closeLoadRuleModal;
 window.analyzeTealiumCookies = analyzeTealiumCookies;
 window.analyzeUtagCfgSettings = analyzeUtagCfgSettings;
 window.runAllProfileAnalysis = runAllProfileAnalysis;
-window.enhanceTagsWithAPI = enhanceTagsWithAPI;
-window.enhanceExtensionsWithAPI = enhanceExtensionsWithAPI;
-window.enhanceLoadRulesWithAPI = enhanceLoadRulesWithAPI;
 
 console.log('✅ Profile Inspector functions exposed globally:', {
     inspectCurrentProfile: typeof window.inspectCurrentProfile,
