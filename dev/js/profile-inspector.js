@@ -800,9 +800,16 @@ function renderTagsList(tags) {
 }
 
 /**
- * Open tag file (utag.X.js) in new tab
+ * View tag file (utag.X.js) in modal with syntax highlighting and search
  */
-function openTagFile(tagId) {
+async function openTagFile(tagId) {
+    const modal = document.getElementById('tagCodeModal');
+    const title = document.getElementById('tagCodeTitle');
+    const content = document.getElementById('tagCodeContent');
+    const searchInput = document.getElementById('tagCodeSearch');
+    
+    if (!modal || !title || !content) return;
+    
     try {
         // Get profile information from the stored analysis
         if (!window.profileAnalysis || !window.profileAnalysis.overview) {
@@ -823,15 +830,70 @@ function openTagFile(tagId) {
         // Construct the URL to the tag file
         const tagFileUrl = `https://tags.tiqcdn.com/utag/${account}/${profile}/${environment}/utag.${tagId}.js`;
         
-        console.log(`📂 Opening tag file: ${tagFileUrl}`);
+        // Set title
+        title.textContent = `Tag ${tagId} - utag.${tagId}.js`;
         
-        // Open in new tab
-        window.open(tagFileUrl, '_blank');
+        // Show modal with loading state
+        modal.classList.remove('hidden');
+        content.innerHTML = `<code class="text-blue-400">Loading tag code from CDN...</code>`;
         
-        showNotification(`Opening utag.${tagId}.js in new tab`, 'info');
+        console.log(`📂 Fetching tag file: ${tagFileUrl}`);
+        
+        // Fetch the tag file
+        const response = await fetch(tagFileUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch tag file: ${response.status} ${response.statusText}`);
+        }
+        
+        let codeText = await response.text();
+        
+        // Beautify code using JS Beautify
+        try {
+            if (typeof js_beautify !== 'undefined') {
+                const beautifiedCode = js_beautify(codeText, {
+                    indent_size: 2,
+                    indent_char: ' ',
+                    max_preserve_newlines: 2,
+                    preserve_newlines: true,
+                    keep_array_indentation: false,
+                    break_chained_methods: false,
+                    indent_scripts: 'normal',
+                    brace_style: 'collapse',
+                    space_before_conditional: true,
+                    unescape_strings: false,
+                    jslint_happy: false,
+                    end_with_newline: true,
+                    wrap_line_length: 100,
+                    indent_inner_html: false,
+                    comma_first: false,
+                    e4x: false,
+                    indent_empty_lines: false
+                });
+                
+                codeText = beautifiedCode;
+            }
+        } catch (beautifyError) {
+            console.warn('Could not beautify code:', beautifyError);
+            // Continue with original code if beautification fails
+        }
+        
+        // Format and display code
+        content.innerHTML = `<code class="language-javascript">${escapeHtml(codeText)}</code>`;
+        
+        // Apply syntax highlighting if available
+        if (typeof hljs !== 'undefined') {
+            hljs.highlightElement(content.querySelector('code'));
+        }
+        
+        // Setup search functionality
+        setupCodeSearch(searchInput, content, codeText);
+        
+        showNotification(`Loaded utag.${tagId}.js (${codeText.length} chars)`, 'success');
+        
     } catch (error) {
-        console.error('Error opening tag file:', error);
-        showNotification('Failed to open tag file: ' + error.message, 'error');
+        console.error('Error loading tag file:', error);
+        content.innerHTML = `<code class="text-red-400">Error loading tag code: ${escapeHtml(error.message)}</code>`;
+        showNotification('Failed to load tag file: ' + error.message, 'error');
     }
 }
 // Expose immediately for onclick handlers
@@ -2525,6 +2587,18 @@ function closeLoadRuleModal() {
 window.closeLoadRuleModal = closeLoadRuleModal;
 
 /**
+ * Close tag code modal
+ */
+function closeTagCodeModal() {
+    const modal = document.getElementById('tagCodeModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+// Expose immediately for onclick handlers
+window.closeTagCodeModal = closeTagCodeModal;
+
+/**
  * Utility function to escape HTML
  */
 function escapeHtml(text) {
@@ -3148,6 +3222,7 @@ window.viewExtensionCode = viewExtensionCode;
 window.viewLoadRuleDetails = viewLoadRuleDetails;
 window.closeExtensionCodeModal = closeExtensionCodeModal;
 window.closeLoadRuleModal = closeLoadRuleModal;
+window.closeTagCodeModal = closeTagCodeModal;
 window.analyzeTealiumCookies = analyzeTealiumCookies;
 window.analyzeUtagCfgSettings = analyzeUtagCfgSettings;
 window.runAllProfileAnalysis = runAllProfileAnalysis;
@@ -3158,5 +3233,6 @@ console.log('✅ Profile Inspector functions exposed globally:', {
     updateEnvironmentStatus: typeof window.updateEnvironmentStatus,
     analyzeTealiumCookies: typeof window.analyzeTealiumCookies,
     analyzeUtagCfgSettings: typeof window.analyzeUtagCfgSettings,
-    openTagFile: typeof window.openTagFile
+    openTagFile: typeof window.openTagFile,
+    closeTagCodeModal: typeof window.closeTagCodeModal
 });
