@@ -800,6 +800,44 @@ function renderTagsList(tags) {
 }
 
 /**
+ * Open tag file (utag.X.js) in new tab
+ */
+function openTagFile(tagId) {
+    try {
+        // Get profile information from the stored analysis
+        if (!window.profileAnalysis || !window.profileAnalysis.overview) {
+            showNotification('Profile information not available. Please inspect profile first.', 'warning');
+            return;
+        }
+        
+        const overview = window.profileAnalysis.overview;
+        const account = overview.account;
+        const profile = overview.profile;
+        const environment = overview.environment;
+        
+        if (!account || !profile || !environment || account === 'Unknown' || profile === 'Unknown' || environment === 'Unknown') {
+            showNotification('Cannot determine profile location. Please reload Tealium.', 'error');
+            return;
+        }
+        
+        // Construct the URL to the tag file
+        const tagFileUrl = `https://tags.tiqcdn.com/utag/${account}/${profile}/${environment}/utag.${tagId}.js`;
+        
+        console.log(`📂 Opening tag file: ${tagFileUrl}`);
+        
+        // Open in new tab
+        window.open(tagFileUrl, '_blank');
+        
+        showNotification(`Opening utag.${tagId}.js in new tab`, 'info');
+    } catch (error) {
+        console.error('Error opening tag file:', error);
+        showNotification('Failed to open tag file: ' + error.message, 'error');
+    }
+}
+// Expose immediately for onclick handlers
+window.openTagFile = openTagFile;
+
+/**
  * Setup tags filter functionality
  */
 function setupTagsFilter() {
@@ -3113,10 +3151,12 @@ window.closeLoadRuleModal = closeLoadRuleModal;
 window.analyzeTealiumCookies = analyzeTealiumCookies;
 window.analyzeUtagCfgSettings = analyzeUtagCfgSettings;
 window.runAllProfileAnalysis = runAllProfileAnalysis;
+window.openTagFile = openTagFile;
 
 console.log('✅ Profile Inspector functions exposed globally:', {
     inspectCurrentProfile: typeof window.inspectCurrentProfile,
     updateEnvironmentStatus: typeof window.updateEnvironmentStatus,
     analyzeTealiumCookies: typeof window.analyzeTealiumCookies,
-    analyzeUtagCfgSettings: typeof window.analyzeUtagCfgSettings
+    analyzeUtagCfgSettings: typeof window.analyzeUtagCfgSettings,
+    openTagFile: typeof window.openTagFile
 });
