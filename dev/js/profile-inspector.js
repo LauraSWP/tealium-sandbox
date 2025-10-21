@@ -6,7 +6,8 @@
 
 // Early declaration: Ensure critical functions are available immediately for onclick handlers
 // These will be properly defined below but are exposed to window right away
-console.log('🔧 Profile Inspector JS loading...');
+console.log('🔧 Profile Inspector JS loading... v2.1');
+console.log('📍 Script start - functions will be defined');
 
 /**
  * Safe evaluation function for accessing page context variables
@@ -81,6 +82,7 @@ async function inspectCurrentProfile() {
 }
 // Expose immediately for onclick handlers
 window.inspectCurrentProfile = inspectCurrentProfile;
+console.log('✅ inspectCurrentProfile exported to window:', typeof window.inspectCurrentProfile);
 
 /**
  * Comprehensive analysis of the loaded Tealium profile
