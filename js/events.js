@@ -2099,6 +2099,7 @@ function formatOmnibugStyle(request) {
  */
 function extractAllParameters(request) {
     const params = [];
+    const isCollectBeacon = request.url.includes('/i.gif');
     
     // Extract URL parameters
     try {
@@ -2122,12 +2123,52 @@ function extractAllParameters(request) {
                 } else {
                     // Form data
                     const formParams = new URLSearchParams(request.payload);
-                    formParams.forEach((value, key) => {
-                        params.push({ key, value: decodeURIComponent(value), source: 'form' });
-                    });
+                    
+                    // Special handling for Tealium Collect beacons (i.gif)
+                    if (isCollectBeacon && formParams.has('data')) {
+                        try {
+                            const dataValue = formParams.get('data');
+                            const decodedData = JSON.parse(decodeURIComponent(dataValue));
+                            
+                            // Flatten the nested data structure
+                            const flattenObject = (obj, prefix = '') => {
+                                Object.entries(obj).forEach(([key, value]) => {
+                                    const fullKey = prefix ? `${prefix}.${key}` : key;
+                                    
+                                    if (value === null || value === undefined) {
+                                        params.push({ key: fullKey, value: String(value), source: 'beacon' });
+                                    } else if (typeof value === 'object' && !Array.isArray(value)) {
+                                        // Recursively flatten nested objects
+                                        flattenObject(value, fullKey);
+                                    } else if (Array.isArray(value)) {
+                                        // Show array as JSON string
+                                        params.push({ key: fullKey, value: JSON.stringify(value), source: 'beacon' });
+                                    } else {
+                                        params.push({ key: fullKey, value: String(value), source: 'beacon' });
+                                    }
+                                });
+                            };
+                            
+                            flattenObject(decodedData);
+                            console.log(`✅ Decoded i.gif beacon data: ${params.length} parameters extracted`);
+                        } catch (parseError) {
+                            console.warn('Failed to parse i.gif data parameter:', parseError);
+                            // Fallback to showing the raw data parameter
+                            formParams.forEach((value, key) => {
+                                params.push({ key, value: decodeURIComponent(value), source: 'form' });
+                            });
+                        }
+                    } else {
+                        // Regular form data
+                        formParams.forEach((value, key) => {
+                            params.push({ key, value: decodeURIComponent(value), source: 'form' });
+                        });
+                    }
                 }
             }
-        } catch (e) {}
+        } catch (e) {
+            console.warn('Error extracting parameters:', e);
+        }
     }
     
     return params;
@@ -2137,19 +2178,28 @@ function extractAllParameters(request) {
  * Categorize parameters by type
  */
 function categorizeParameter(key) {
+    const lowerKey = key.toLowerCase();
+    
     const categories = {
+        'Loader Config': ['loader.cfg', 'loader_cfg'],
         'Page': ['page_name', 'page_type', 'page_url', 'page_title', 'page_category'],
-        'User': ['user_id', 'customer_id', 'visitor_id', 'session_id', 'user_type'],
+        'User': ['user_id', 'customer_id', 'visitor_id', 'session_id', 'user_type', 'tealium_visitor', 'tealium_session'],
         'Product': ['product_id', 'product_name', 'product_category', 'product_price', 'sku'],
-        'Event': ['event', 'event_type', 'event_category', 'event_action', 'event_label'],
+        'Event': ['event', 'tealium_event', 'event_type', 'event_category', 'event_action', 'event_label'],
         'Commerce': ['order_id', 'order_total', 'currency', 'quantity', 'revenue'],
         'Campaign': ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'],
-        'Technical': ['timestamp', 'random', 'version', 'debug', 'test'],
+        'DOM': ['dom.', 'dom_'],
+        'Browser': ['browser.', 'browser_', 'timing.', 'timing_'],
+        'Tealium': ['ut.', 'ut_', 'cp.utag', 'ls.tealium', 'tealium_'],
+        'Local Storage': ['ls.', 'ls_'],
+        'Cookie': ['cp.', 'cp_'],
+        'Technical': ['timestamp', 'random', 'version', 'debug', 'test', 'post_time'],
         'Custom': []
     };
     
+    // Check each category
     for (const [category, keywords] of Object.entries(categories)) {
-        if (keywords.some(keyword => key.toLowerCase().includes(keyword))) {
+        if (keywords.some(keyword => lowerKey.includes(keyword.toLowerCase()))) {
             return category;
         }
     }
@@ -2162,12 +2212,18 @@ function categorizeParameter(key) {
  */
 function getCategoryColor(category) {
     const colors = {
+        'Loader Config': 'bg-red-100 text-red-800',
         'Page': 'bg-blue-100 text-blue-800',
         'User': 'bg-green-100 text-green-800',
         'Product': 'bg-orange-100 text-orange-800',
         'Event': 'bg-purple-100 text-purple-800',
         'Commerce': 'bg-yellow-100 text-yellow-800',
         'Campaign': 'bg-pink-100 text-pink-800',
+        'DOM': 'bg-cyan-100 text-cyan-800',
+        'Browser': 'bg-teal-100 text-teal-800',
+        'Tealium': 'bg-blue-200 text-blue-900',
+        'Local Storage': 'bg-amber-100 text-amber-800',
+        'Cookie': 'bg-lime-100 text-lime-800',
         'Technical': 'bg-gray-100 text-gray-800',
         'Custom': 'bg-indigo-100 text-indigo-800'
     };
