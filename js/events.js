@@ -206,7 +206,47 @@ function setupNetworkMonitoring() {
         const originalSendBeacon = navigator.sendBeacon;
         navigator.sendBeacon = function(url, data) {
             const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-            logNetworkRequest('beacon', url, Date.now(), 'POST', headers, data);
+            
+            // Convert data to string format for parsing
+            let payloadString = null;
+            if (data) {
+                if (typeof data === 'string') {
+                    payloadString = data;
+                } else if (data instanceof Blob) {
+                    // For Blob, we'll convert it to text (async)
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        // Update the payload after it's read
+                        const requests = eventDebugState.networkRequests.filter(r => r.url === url && r.type === 'beacon');
+                        if (requests.length > 0) {
+                            requests[0].payload = reader.result;
+                            console.log('📦 Beacon Blob converted to text:', reader.result.substring(0, 100) + '...');
+                            // Refresh network panel to show updated parameters
+                            if (typeof scheduleNetworkUpdate === 'function') {
+                                scheduleNetworkUpdate();
+                            }
+                        }
+                    };
+                    reader.readAsText(data);
+                    payloadString = '[Blob - converting...]';
+                } else if (data instanceof FormData) {
+                    // Convert FormData to URLSearchParams string
+                    const params = new URLSearchParams();
+                    for (const [key, value] of data.entries()) {
+                        params.append(key, value);
+                    }
+                    payloadString = params.toString();
+                } else if (data instanceof ArrayBuffer || data instanceof Uint8Array) {
+                    // Convert binary data to string
+                    const decoder = new TextDecoder();
+                    payloadString = decoder.decode(data);
+                } else {
+                    // Fallback: stringify the object
+                    payloadString = JSON.stringify(data);
+                }
+            }
+            
+            logNetworkRequest('beacon', url, Date.now(), 'POST', headers, payloadString);
             
             // Minimal beacon logging for debug console
             const vendor = detectVendorFromUrl(url);
