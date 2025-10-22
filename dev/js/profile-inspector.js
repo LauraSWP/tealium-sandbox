@@ -800,15 +800,16 @@ function renderTagsList(tags) {
 }
 
 /**
- * View tag file (utag.X.js) in modal with syntax highlighting and search
+ * View tag file (utag.X.js) in iframe modal
  */
-async function openTagFile(tagId) {
+function openTagFile(tagId) {
     const modal = document.getElementById('tagCodeModal');
     const title = document.getElementById('tagCodeTitle');
-    const content = document.getElementById('tagCodeContent');
-    const searchInput = document.getElementById('tagCodeSearch');
+    const subtitle = document.getElementById('tagCodeSubtitle');
+    const iframe = document.getElementById('tagCodeIframe');
+    const newTabLink = document.getElementById('tagCodeNewTabLink');
     
-    if (!modal || !title || !content) return;
+    if (!modal || !title || !iframe) return;
     
     try {
         // Get profile information from the stored analysis
@@ -832,140 +833,38 @@ async function openTagFile(tagId) {
         
         // Set title
         title.textContent = `Tag ${tagId} - utag.${tagId}.js`;
+        if (subtitle) {
+            subtitle.textContent = `${account}/${profile}/${environment}`;
+        }
         
-        // Show modal with loading state
+        // Set new tab link
+        if (newTabLink) {
+            newTabLink.href = tagFileUrl;
+        }
+        
+        // Show modal
         modal.classList.remove('hidden');
-        content.innerHTML = `<code class="text-blue-400">Looking for tag code...</code>`;
         
-        console.log(`📂 Looking for tag ${tagId}`);
+        // Load tag file in iframe
+        iframe.src = tagFileUrl;
         
-        // Check if tag script is loaded in the DOM
-        const scripts = document.querySelectorAll('script[src]');
-        let scriptElement = null;
+        console.log(`📂 Loading tag file in iframe: ${tagFileUrl}`);
+        showNotification(`Loading utag.${tagId}.js...`, 'info');
         
-        for (const script of scripts) {
-            if (script.src.includes(`utag.${tagId}.js`)) {
-                scriptElement = script;
-                console.log(`✅ Found tag ${tagId} script in DOM:`, script.src);
-                break;
-            }
-        }
+        // Optional: Add load event listener to show success
+        iframe.onload = function() {
+            console.log(`✅ Tag file loaded in iframe`);
+            showNotification(`Tag ${tagId} loaded successfully`, 'success');
+        };
         
-        // If script found in DOM, we know it's loaded but can't access content due to CORS
-        if (scriptElement) {
-            content.innerHTML = `
-                <div class="text-gray-300 space-y-4">
-                    <div class="bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded p-4">
-                        <p class="text-yellow-300 font-semibold mb-2">
-                            <i class="fas fa-info-circle mr-2"></i>CORS Security Restriction
-                        </p>
-                        <p class="text-gray-300 text-sm">
-                            Due to browser security (CORS policy), we cannot directly fetch and display the tag code from Tealium's CDN.
-                        </p>
-                    </div>
-                    
-                    <div class="bg-gray-800 rounded p-4">
-                        <p class="text-gray-300 font-semibold mb-2">
-                            <i class="fas fa-check-circle text-green-400 mr-2"></i>Tag is Active
-                        </p>
-                        <p class="text-gray-400 text-sm mb-3">
-                            Tag ${tagId} is loaded and running on this page from:
-                        </p>
-                        <code class="text-blue-300 text-xs break-all block bg-gray-900 p-2 rounded">
-                            ${escapeHtml(scriptElement.src)}
-                        </code>
-                    </div>
-                    
-                    <div class="flex space-x-3">
-                        <button onclick="window.open('${escapeHtml(tagFileUrl)}', '_blank')" 
-                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
-                            <i class="fas fa-external-link-alt mr-2"></i>Open in New Tab
-                        </button>
-                        <button onclick="closeTagCodeModal()" 
-                                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
-                            Close
-                        </button>
-                    </div>
-                    
-                    <div class="bg-blue-900 bg-opacity-30 border border-blue-600 rounded p-4 text-sm">
-                        <p class="text-blue-300 font-semibold mb-2">
-                            <i class="fas fa-lightbulb mr-2"></i>Tip
-                        </p>
-                        <p class="text-gray-300">
-                            Opening in a new tab will show the raw JavaScript code directly from Tealium's CDN.
-                            You can use your browser's DevTools (F12) to format and search the code.
-                        </p>
-                    </div>
-                </div>
-            `;
-            console.log(`ℹ️ CORS prevents direct fetch, offering to open in new tab`);
-            return;
-        }
-        
-        // If script not found in DOM, tag is not loaded - show message
-        content.innerHTML = `
-            <div class="text-gray-300 space-y-4">
-                <div class="bg-red-900 bg-opacity-30 border border-red-600 rounded p-4">
-                    <p class="text-red-300 font-semibold mb-2">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>Tag Not Loaded
-                    </p>
-                    <p class="text-gray-300 text-sm">
-                        Tag ${tagId} is not currently loaded on this page. The tag may be blocked by a load rule or not configured for this environment.
-                    </p>
-                </div>
-                
-                <div class="bg-gray-800 rounded p-4">
-                    <p class="text-gray-300 font-semibold mb-2">Tag File Location:</p>
-                    <code class="text-blue-300 text-xs break-all block bg-gray-900 p-2 rounded">
-                        ${escapeHtml(tagFileUrl)}
-                    </code>
-                </div>
-                
-                <div class="flex space-x-3">
-                    <button onclick="window.open('${escapeHtml(tagFileUrl)}', '_blank')" 
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
-                        <i class="fas fa-external-link-alt mr-2"></i>Try Opening in New Tab
-                    </button>
-                    <button onclick="closeTagCodeModal()" 
-                            class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
-                        Close
-                    </button>
-                </div>
-                
-                <div class="bg-blue-900 bg-opacity-30 border border-blue-600 rounded p-4 text-sm">
-                    <p class="text-blue-300 font-semibold mb-2">
-                        <i class="fas fa-lightbulb mr-2"></i>Tip
-                    </p>
-                    <p class="text-gray-300">
-                        Opening in a new tab will attempt to load the tag file directly from Tealium's CDN. 
-                        If the tag exists, you'll be able to view its code.
-                    </p>
-                </div>
-            </div>
-        `;
-        console.log(`⚠️ Tag ${tagId} not found in loaded scripts`);
+        iframe.onerror = function() {
+            console.error(`❌ Failed to load tag file in iframe`);
+            showNotification(`Failed to load tag ${tagId}`, 'error');
+        };
         
     } catch (error) {
-        console.error('Error loading tag file:', error);
-        const tagFileUrl = `https://tags.tiqcdn.com/utag/${overview.account}/${overview.profile}/${overview.environment}/utag.${tagId}.js`;
-        content.innerHTML = `
-            <div class="text-gray-300 space-y-4">
-                <div class="bg-red-900 bg-opacity-30 border border-red-600 rounded p-4">
-                    <p class="text-red-300 font-semibold mb-2">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>Error Loading Tag
-                    </p>
-                    <p class="text-gray-300 text-sm">
-                        ${escapeHtml(error.message)}
-                    </p>
-                </div>
-                
-                <button onclick="window.open('${escapeHtml(tagFileUrl)}', '_blank')" 
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium transition-colors">
-                    <i class="fas fa-external-link-alt mr-2"></i>Try Opening in New Tab
-                </button>
-            </div>
-        `;
-        showNotification('Could not load tag code - see modal for options', 'warning');
+        console.error('Error opening tag file:', error);
+        showNotification('Error opening tag file: ' + error.message, 'error');
     }
 }
 // Expose immediately for onclick handlers
