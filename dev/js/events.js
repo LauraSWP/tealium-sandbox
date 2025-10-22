@@ -2105,7 +2105,7 @@ function prettifyQueryString(url) {
 }
 
 /**
- * Format payload in Omnibug style
+ * Format payload in compact table style
  */
 function formatOmnibugStyle(request) {
     const params = extractAllParameters(request);
@@ -2113,25 +2113,83 @@ function formatOmnibugStyle(request) {
         return '<div class="text-gray-500 text-center py-4">No parameters detected</div>';
     }
     
-    let html = '<div class="space-y-2">';
+    // Group parameters by category for better organization
+    const grouped = {};
     params.forEach(param => {
         const category = categorizeParameter(param.key);
-        const categoryColor = getCategoryColor(category);
-        
-        html += `
-            <div class="flex items-start space-x-3 p-2 rounded hover:bg-gray-50">
-                <div class="flex-shrink-0">
-                    <span class="px-2 py-1 rounded text-xs font-bold ${categoryColor}">${category}</span>
-                </div>
-                <div class="flex-grow min-w-0">
-                    <div class="font-bold text-sm text-gray-900 break-words">${param.key}</div>
-                    <div class="text-xs text-gray-600 break-all">${param.value}</div>
-                </div>
-            </div>
-        `;
+        if (!grouped[category]) {
+            grouped[category] = [];
+        }
+        grouped[category].push(param);
     });
-    html += '</div>';
+    
+    let html = '<div class="overflow-auto max-h-[500px]">';
+    html += '<table class="w-full text-sm border-collapse">';
+    html += `
+        <thead class="sticky top-0 bg-gray-100 z-10">
+            <tr class="border-b-2 border-gray-300">
+                <th class="text-left py-2 px-3 font-semibold text-gray-700 w-24">Category</th>
+                <th class="text-left py-2 px-3 font-semibold text-gray-700 w-1/3">Parameter</th>
+                <th class="text-left py-2 px-3 font-semibold text-gray-700">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    // Sort categories by importance
+    const categoryOrder = ['Loader Config', 'Event', 'Page', 'User', 'Product', 'Commerce', 
+                          'DOM', 'Browser', 'Tealium', 'Cookie', 'Local Storage', 'Campaign', 
+                          'Technical', 'Custom'];
+    
+    categoryOrder.forEach(category => {
+        if (grouped[category] && grouped[category].length > 0) {
+            const categoryColor = getCategoryColor(category);
+            const params = grouped[category];
+            
+            params.forEach((param, index) => {
+                html += `
+                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                        ${index === 0 ? `
+                            <td rowspan="${params.length}" class="py-2 px-3 align-top border-r border-gray-200">
+                                <span class="inline-block px-2 py-1 rounded text-xs font-bold ${categoryColor} whitespace-nowrap">
+                                    ${category}
+                                </span>
+                            </td>
+                        ` : ''}
+                        <td class="py-2 px-3 font-mono text-xs text-gray-900 break-all">${escapeHtml(param.key)}</td>
+                        <td class="py-2 px-3 text-xs text-gray-700 break-all max-w-md">${escapeHtml(param.value)}</td>
+                    </tr>
+                `;
+            });
+        }
+    });
+    
+    html += '</tbody></table></div>';
+    
+    // Add summary at the bottom
+    html += `
+        <div class="mt-2 pt-2 border-t border-gray-300 text-xs text-gray-600">
+            <span class="font-semibold">${params.length}</span> parameters across 
+            <span class="font-semibold">${Object.keys(grouped).length}</span> categories
+        </div>
+    `;
+    
     return html;
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
 /**
